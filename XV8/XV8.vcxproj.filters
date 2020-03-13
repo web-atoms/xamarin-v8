@@ -18,5 +18,8 @@
     <ClInclude Include="v8-version-string.h" />
     <ClInclude Include="v8-wasm-trap-handler-posix.h" />
     <ClInclude Include="v8-wasm-trap-handler-win.h" />
+    <ClInclude Include="libplatform-export.h" />
+    <ClInclude Include="libplatform.h" />
+    <ClInclude Include="v8-tracing.h" />
   </ItemGroup>
 </Project>

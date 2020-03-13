@@ -44,32 +44,32 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
   </PropertyGroup>
@@ -79,7 +79,7 @@
     <PlatformToolset>Clang_5_0</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
   </PropertyGroup>
@@ -111,6 +111,10 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>$(SolutionDir)lib\x86_64\libicudata.a;$(SolutionDir)lib\x86_64\libv8_base.a;$(SolutionDir)lib\x86_64\libv8_init.a;$(SolutionDir)lib\x86_64\libv8_initializers.a;$(SolutionDir)lib\x86_64\libv8_libbase.a;$(SolutionDir)lib\x86_64\libv8_libplatform.a;$(SolutionDir)lib\x86_64\libv8_libsampler.a;$(SolutionDir)lib\x86_64\libv8_nosnapshot.a;$(SolutionDir)lib\x86_64\libv8_snapshot.a;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -123,6 +127,10 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>$(SolutionDir)lib\x86_64\libicudata.a;$(SolutionDir)lib\x86_64\libv8_base.a;$(SolutionDir)lib\x86_64\libv8_init.a;$(SolutionDir)lib\x86_64\libv8_initializers.a;$(SolutionDir)lib\x86_64\libv8_libbase.a;$(SolutionDir)lib\x86_64\libv8_libplatform.a;$(SolutionDir)lib\x86_64\libv8_libsampler.a;$(SolutionDir)lib\x86_64\libv8_nosnapshot.a;$(SolutionDir)lib\x86_64\libv8_snapshot.a;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <ClCompile>
@@ -135,6 +143,10 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <LibraryDependencies>$(SolutionDir)lib\arm64-v8a\libicudata.a;$(SolutionDir)lib\arm64-v8a\libv8_base.a;$(SolutionDir)lib\arm64-v8a\libv8_init.a;$(SolutionDir)lib\arm64-v8a\libv8_initializers.a;$(SolutionDir)lib\arm64-v8a\libv8_libbase.a;$(SolutionDir)lib\arm64-v8a\libv8_libplatform.a;$(SolutionDir)lib\arm64-v8a\libv8_libsampler.a;$(SolutionDir)lib\arm64-v8a\libv8_nosnapshot.a;$(SolutionDir)lib\arm64-v8a\libv8_snapshot.a;%(LibraryDependencies)</LibraryDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <ClCompile>
@@ -155,7 +167,10 @@
       <CreateThinArchive>false</CreateThinArchive>
     </Lib>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <VerboseOutput>false</VerboseOutput>
+      <LibraryDependencies>$(SolutionDir)lib\armeabi-v7a\libicudata.a;$(SolutionDir)lib\armeabi-v7a\libv8_base.a;$(SolutionDir)lib\armeabi-v7a\libv8_init.a;$(SolutionDir)lib\armeabi-v7a\libv8_initializers.a;$(SolutionDir)lib\armeabi-v7a\libv8_libbase.a;$(SolutionDir)lib\armeabi-v7a\libv8_libplatform.a;$(SolutionDir)lib\armeabi-v7a\libv8_libsampler.a;$(SolutionDir)lib\armeabi-v7a\libv8_nosnapshot.a;$(SolutionDir)lib\armeabi-v7a\libv8_snapshot.a;%(LibraryDependencies)</LibraryDependencies>
+      <UnresolvedSymbolReferences>false</UnresolvedSymbolReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
@@ -168,11 +183,14 @@
     <ClCompile Include="XV8.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="libplatform-export.h" />
+    <ClInclude Include="libplatform.h" />
     <ClInclude Include="v8-fast-api-calls.h" />
     <ClInclude Include="v8-inspector.h" />
     <ClInclude Include="v8-internal.h" />
     <ClInclude Include="v8-platform.h" />
     <ClInclude Include="v8-profiler.h" />
+    <ClInclude Include="v8-tracing.h" />
     <ClInclude Include="v8-util.h" />
     <ClInclude Include="v8-value-serializer-version.h" />
     <ClInclude Include="v8-version-string.h" />
