@@ -148,7 +148,8 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <UndefinePreprocessorDefinitions>
       </UndefinePreprocessorDefinitions>
-      <CLanguageStandard>c11</CLanguageStandard>
+      <CLanguageStandard>Default</CLanguageStandard>
+      <AdditionalOptions>-fdeclspec %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Lib>
       <CreateThinArchive>false</CreateThinArchive>

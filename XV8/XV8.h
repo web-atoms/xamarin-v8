@@ -1,13 +1,10 @@
 #pragma once
 #include "v8.h"
-
 using namespace v8;
 
-class XV8
-{
-private:
-    v8::Context* context;
-public:
-    XV8();
-    ~XV8();
+class V8Context {
+protected:
+	int32_t _engineID;
+
+	std::unique_ptr<v8::Platform> _Platform;
 };
