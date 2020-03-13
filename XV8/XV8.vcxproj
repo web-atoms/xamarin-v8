@@ -180,6 +180,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="V8Response.cpp" />
     <ClCompile Include="XV8.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -198,6 +199,7 @@
     <ClInclude Include="v8-wasm-trap-handler-posix.h" />
     <ClInclude Include="v8-wasm-trap-handler-win.h" />
     <ClInclude Include="v8config.h" />
+    <ClInclude Include="V8Response.h" />
     <ClInclude Include="XV8.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>

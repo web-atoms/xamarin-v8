@@ -1,29 +1,7 @@
 #pragma once
 #include "v8.h"
+#include "V8Response.h"
 using namespace v8;
-
-#pragma comment(lib, "libicudata.a");
-#pragma comment(lib, "libv8_base.a");
-#pragma comment(lib, "libv8_init.a");
-#pragma comment(lib, "libv8_initializers.a");
-#pragma comment(lib, "libv8_libbase.a");
-#pragma comment(lib, "libv8_libplatform.a");
-#pragma comment(lib, "libv8_libsampler.a");
-#pragma comment(lib, "libv8_nosnapshot.a");
-#pragma comment(lib, "libv8_snapshot.a");
-
-
-template<class T>
-struct V8Handle {
-	Persistent<T, CopyablePersistentTraits<T>> handle;
-};
-
-template<class T>
-V8Handle<T> ToHandle(Local<T> value);
-
-template<class T>
-void DisposeHandle(V8Handle<T> handle);
-
 
 class V8Context {
 protected:
@@ -40,6 +18,12 @@ public:
 	V8Context();
 	void Dispose();
 
-	V8Handle<Object> CreateObject();
-	V8Handle<Number> CreateNumber(double value);
+	void Release(V8Handle handle);
+
+	V8Response CreateObject();
+	V8Response CreateNumber(double value);
+	V8Response GetProperty(V8Handle target, XString name);
+private:
+
 };
+

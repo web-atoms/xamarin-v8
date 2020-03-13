@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="XV8.cpp" />
+    <ClCompile Include="V8Response.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="XV8.h" />
@@ -21,5 +22,6 @@
     <ClInclude Include="libplatform-export.h" />
     <ClInclude Include="libplatform.h" />
     <ClInclude Include="v8-tracing.h" />
+    <ClInclude Include="V8Response.h" />
   </ItemGroup>
 </Project>
