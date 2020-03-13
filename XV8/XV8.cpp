@@ -7,4 +7,5 @@ XV8::XV8()
 
 XV8::~XV8()
 {
+	delete this->context;
 }
