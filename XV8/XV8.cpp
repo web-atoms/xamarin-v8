@@ -161,8 +161,32 @@ V8Response V8Context::CreateDate(int64_t value) {
 
 void X8Call(const FunctionCallbackInfo<v8::Value>& args) {
 	Isolate* isolate = args.GetIsolate();
-	args
-	args.Data()->ToBigInt().ToLocalChecked()->vallu;
+	Local<Context> context = isolate->GetCurrentContext();
+	ExternalCall function = (ExternalCall)(args.Data()->ToBigInt(context).ToLocalChecked()->Uint64Value());
+
+	HandleScope scope(isolate);
+	uint32_t n = args.Length();
+	Local<v8::Array> a = v8::Array::New(isolate, n);
+	for (uint32_t i = 0; i < n; i++) {
+		a->Set(context, i, args[i]);
+	}
+	V8Handle target = new Persistent<Value, CopyablePersistentTraits<Value>>(isolate, args.This());
+	V8Handle handleArgs = new Persistent<Value, CopyablePersistentTraits<Value>>(isolate, a);
+	V8Response r = function(target, handleArgs);
+
+	delete target;
+	delete handleArgs;
+
+	if (r.type == V8ResponseType::Error) {
+		Local<Value> error = v8::String::NewFromUtf8(isolate, r.result.error.message).ToLocalChecked();
+		// delete 
+		isolate->ThrowException(Exception::Error(error));
+	} else if (r.type == V8ResponseType::String) {
+		args.GetReturnValue().Set(v8::String::NewFromUtf8(isolate, r.result.stringValue).ToLocalChecked());
+	}
+	else {
+		args.GetReturnValue().Set(r.result.handle.handle);
+	}
 }
 
 V8Response V8Context::CreateFunction(ExternalCall function, XString debugHelper) {
