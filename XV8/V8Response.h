@@ -10,18 +10,20 @@ typedef char* XString;
 */
 typedef Persistent<Value, CopyablePersistentTraits<Value>>* V8Handle;
 
-enum V8ResponseType {
+enum V8ResponseType: int16_t {
 	Error = 0,
 	Handle = 1,
 	String = 2
 };
 
-enum V8HandleType {
+enum V8HandleType: int16_t {
 	None = 0,
-	Number = 1,
-	NotANumber = 2,
-	BigInt = 3,
-	Boolean = 4,
+	Undefined = 1,
+	Null = 2,
+	Number = 3,
+	NotANumber = 4,
+	BigInt = 5,
+	Boolean = 6,
 	String = 0xFF,
 	Object = 0xF0,
 	Function = 0xF1,

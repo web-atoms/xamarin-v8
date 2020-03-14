@@ -8,8 +8,19 @@ V8Response V8Response::From(Local<Context> context, Local<Value> handle)
 
 	Isolate* isolate = context->GetIsolate();
 
+	if (handle.IsEmpty()) {
+		return FromError(context, v8::String::NewFromUtf8Literal(isolate, "Unexpected empty value"));
+	}
+
+
 	// for handle, we need to set the type..
-	if (handle->IsString() || handle->IsStringObject()) {
+	if (handle->IsUndefined()) {
+		v.result.handle.handleType = V8HandleType::Undefined;
+	}
+	else if (handle->IsNull()) {
+		v.result.handle.handleType = V8HandleType::Null;
+	}
+	else if (handle->IsString() || handle->IsStringObject()) {
 		v.result.handle.handleType = V8HandleType::String;
 	}
 	else if (handle->IsBoolean() || handle->IsBooleanObject()) {
@@ -28,6 +39,7 @@ V8Response V8Response::From(Local<Context> context, Local<Value> handle)
 	}
 	else if (handle -> IsDate()) {
 		v.result.handle.handleType = V8HandleType::Date;
+		v.result.handle.value.doubleValue = handle->ToObject(context).ToLocalChecked().As<v8::Date>()->ValueOf();
 	} else if (handle->IsArray()
 		|| handle->IsArgumentsObject()
 		|| handle->IsBigInt64Array()) {
