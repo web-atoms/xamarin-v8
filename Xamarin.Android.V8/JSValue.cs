@@ -62,5 +62,14 @@ namespace Xamarin.Android.V8
                 JSContext.V8Context_ReleaseHandle(handle.handle);
             }
         }
+        internal IntPtr Detach()
+        {
+            var h = handle.handle;
+            handle = new V8HandleContainer
+            {
+                handle = IntPtr.Zero
+            };
+            return h;
+        }
     }
 }

@@ -13,6 +13,11 @@ using Android.Widget;
 
 namespace Xamarin.Android.V8
 {
+
+    internal delegate V8Response ExternalCall(V8Response thisHandle, V8Response args);
+
+    public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
+
     public class JSContext
     {
 
@@ -30,6 +35,38 @@ namespace Xamarin.Android.V8
         public JSValue CreateArray()
         {
             return new JSValue(context, V8Context_CreateArray(context).GetContainer());
+        }
+
+        public JSValue CreateFunction(Function fx, string debugDescription)
+        {
+            ExternalCall efx = (t, a) => {
+                var tjs = new JSValue(context, t.GetContainer());
+                var targs = new JSValue(context, t.GetContainer());
+                try
+                {
+                    var r = fx(tjs, targs);
+                    return new V8Response {
+                        type = V8ResponseType.Handle,
+                        handle = new V8HandleContainer {
+                            handle = r.Detach()
+                        }
+                    };
+                } catch (Exception ex)
+                {
+                    IntPtr msg = Marshal.StringToAllocatedMemoryUTF8(ex.ToString());
+                    // IntPtr stack = Marshal.StringToAllocatedMemoryUTF8(ex.StackTrace);
+                    return new V8Response {
+                        type = V8ResponseType.Error,
+                        error = new V8Error {
+                            message = msg,
+                            stack = IntPtr.Zero
+                        }
+                    };
+                }
+            };
+
+            var c = V8Context_CreateFunction(context, Marshal.GetFunctionPointerForDelegate(efx), debugDescription).GetContainer();
+            return new JSValue(context, c);
         }
 
         ~JSContext()
@@ -101,5 +138,9 @@ namespace Xamarin.Android.V8
 
         [DllImport("libXV8")]
         internal extern static void V8Context_ReleaseHandle(IntPtr r);
+
+        [DllImport("libXV8")]
+        internal extern static V8Response V8Context_CreateFunction(
+            SafeHandle context, IntPtr function, [MarshalAs(UnmanagedType.LPUTF8Str)]string name);
     }
 }

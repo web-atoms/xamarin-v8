@@ -11,17 +11,12 @@ namespace Xamarin.Android.V8
             if (r.type == V8ResponseType.Error)
             {
                 string stack = null;
-                string msg = null;
-                msg = Marshal.PtrToStringUTF8(r.error.message);
+                string msg = Marshal.PtrToStringUTF8(r.error.message);
                 if (r.error.stack != IntPtr.Zero)
                 {
-                    stack = Marshal.PtrToStringUTF8(r.error.stack);
+                    stack = msg + "\r\n" + Marshal.PtrToStringUTF8(r.error.stack);
                 }
                 JSContext.V8Context_Release(r);
-                if (stack != null)
-                {
-                    msg = msg + "\r\n" + stack;
-                }
                 throw new Exception(msg);
             }
         }

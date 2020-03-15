@@ -3,7 +3,7 @@
 #include "V8Response.h"
 using namespace v8;
 
-typedef V8Response(*ExternalCall)(V8Handle target, V8Handle args);
+typedef V8Response(*ExternalCall)(V8Response target, V8Response args);
 
 class V8Context {
 protected:
