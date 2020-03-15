@@ -69,6 +69,12 @@ namespace Xamarin.Android.V8
             return new JSValue(context, c);
         }
 
+        public JSValue Evaluate(string script, string location = null)
+        {
+            var c = V8Context_Evaluate(context, script, location ?? "Unnamed").GetContainer();
+            return new JSValue(context, c);
+        }
+
         ~JSContext()
         {
             V8Context_Dispose(context);
@@ -142,5 +148,13 @@ namespace Xamarin.Android.V8
         [DllImport("libXV8")]
         internal extern static V8Response V8Context_CreateFunction(
             SafeHandle context, IntPtr function, [MarshalAs(UnmanagedType.LPUTF8Str)]string name);
+
+        [DllImport("libXV8")]
+        internal extern static V8Response V8Context_Evaluate(
+            SafeHandle context,
+            [MarshalAs(UnmanagedType.LPUTF8Str)]
+            string script,
+            [MarshalAs(UnmanagedType.LPUTF8Str)]
+            string location);
     }
 }

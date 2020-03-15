@@ -69,6 +69,18 @@
   <ItemGroup>
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedNativeLibrary Include="..\XV8\ARM\Debug\libXV8.so">
+      <Link>lib\arm\libXV8.so</Link>
+      <Abi>arm</Abi>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedNativeLibrary>
+    <EmbeddedNativeLibrary Include="..\XV8\x64\Debug\libXV8.so">
+      <Link>lib\x86_x64\libXV8.so</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Abi>x86_x64</Abi>
+    </EmbeddedNativeLibrary>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

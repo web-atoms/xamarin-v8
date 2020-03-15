@@ -59,7 +59,7 @@ V8Response V8Response::FromError(Local<Context> context, Local<Value> error) {
 	Isolate* isolate = context->GetIsolate();
 	MaybeLocal<v8::Object> obj = error->ToObject(context);
 	Local<v8::Object> local = obj.ToLocalChecked();
-	Local<v8::Value> name = v8::String::NewFromUtf8Literal(isolate, "stack");
+	Local<v8::Name> name = v8::String::NewFromUtf8Literal(isolate, "stack");
 	if(local->HasOwnProperty(context, name).ToChecked()) {
 		Local<v8::Value> stack = local->Get(context, name).ToLocalChecked();
 		v.result.error.stack = V8StringToXString(context, stack.As<v8::String>());
