@@ -73,6 +73,10 @@ V8Response V8Context_SetPropertyAt(
 	return context->SetPropertyAt(target, index, value);
 }
 
+V8Response V8Context_Evaluate(V8Context* context, XString script, XString location) {
+	return context->Evaluate(script, location);
+}
+
 int V8Context_Release(V8Response r) {
 	if (r.type == V8ResponseType::Error) {
 		if (r.result.error.message != nullptr) {
@@ -174,9 +178,6 @@ void X8Call(const FunctionCallbackInfo<v8::Value>& args) {
 	V8Handle handleArgs = new Persistent<Value, CopyablePersistentTraits<Value>>(isolate, a);
 	V8Response r = function(target, handleArgs);
 
-	delete target;
-	delete handleArgs;
-
 	if (r.type == V8ResponseType::Error) {
 		Local<Value> error = v8::String::NewFromUtf8(isolate, r.result.error.message).ToLocalChecked();
 		// delete 
@@ -195,6 +196,15 @@ V8Response V8Context::CreateFunction(ExternalCall function, XString debugHelper)
 	Local<Value> n = v8::String::NewFromUtf8(_isolate, debugHelper).ToLocalChecked();
 	f->Set(_isolate, "name", n);
 	return V8Response::From(GetContext(), f);
+}
+
+V8Response V8Context::Evaluate(XString script, XString location) {
+	HandleScope scoppe(_isolate);
+	TryCatch tryCatch(_isolate);
+	Local<Context> context(_isolate->GetCurrentContext());
+	ScriptOrigin origin(String::NewFromUtf8Literal(_isolate, "External"));
+	Local<v8::String> l = String::NewFromUtf8(_isolate, location).ToLocalChecked();
+	Local<Script> s = Script::Compile(context, s, &origin).ToLocalChecked();
 }
 
 

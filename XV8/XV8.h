@@ -33,6 +33,7 @@ public:
 	V8Response CreateString(XString value);
 	V8Response CreateDate(int64_t value);
 	V8Response CreateFunction(ExternalCall function, XString debugHelper);
+	V8Response Evaluate(XString script, XString location);
 	V8Response GetProperty(V8Handle target, XString name);
 	V8Response SetProperty(V8Handle target, XString name, V8Handle value);
 	V8Response GetPropertyAt(V8Handle target, int index);
