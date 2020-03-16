@@ -31,6 +31,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
+    <AndroidAPILevel>android-26</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -41,6 +42,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
+    <AndroidAPILevel>android-26</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -53,6 +55,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)Xamarin.Android.V8\libs\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
   </PropertyGroup>
@@ -70,7 +73,7 @@
     <Link>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <LibraryDependencies>$(SolutionDir)lib\x86_64\libicudata.a;$(SolutionDir)lib\x86_64\libv8_base.a;$(SolutionDir)lib\x86_64\libv8_init.a;$(SolutionDir)lib\x86_64\libv8_initializers.a;$(SolutionDir)lib\x86_64\libv8_libbase.a;$(SolutionDir)lib\x86_64\libv8_libplatform.a;$(SolutionDir)lib\x86_64\libv8_libsampler.a;$(SolutionDir)lib\x86_64\libv8_nosnapshot.a;$(SolutionDir)lib\x86_64\libv8_snapshot.a;%(LibraryDependencies)</LibraryDependencies>
-      <UnresolvedSymbolReferences>false</UnresolvedSymbolReferences>
+      <UnresolvedSymbolReferences>true</UnresolvedSymbolReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -95,7 +98,7 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <VerboseOutput>false</VerboseOutput>
       <LibraryDependencies>$(SolutionDir)lib\armeabi-v7a\libicudata.a;$(SolutionDir)lib\armeabi-v7a\libv8_base.a;$(SolutionDir)lib\armeabi-v7a\libv8_init.a;$(SolutionDir)lib\armeabi-v7a\libv8_initializers.a;$(SolutionDir)lib\armeabi-v7a\libv8_libbase.a;$(SolutionDir)lib\armeabi-v7a\libv8_libplatform.a;$(SolutionDir)lib\armeabi-v7a\libv8_libsampler.a;$(SolutionDir)lib\armeabi-v7a\libv8_nosnapshot.a;$(SolutionDir)lib\armeabi-v7a\libv8_snapshot.a;%(LibraryDependencies)</LibraryDependencies>
-      <UnresolvedSymbolReferences>false</UnresolvedSymbolReferences>
+      <UnresolvedSymbolReferences>true</UnresolvedSymbolReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
