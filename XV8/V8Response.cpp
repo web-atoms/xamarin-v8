@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "V8Response.h"
+#include <stdlib.h>
 
 V8Response V8Response::From(Local<Context> context, Local<Value> handle)
 {

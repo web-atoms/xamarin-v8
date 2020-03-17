@@ -30,8 +30,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-26</AndroidAPILevel>
+    <PlatformToolset>Clang_3_8</PlatformToolset>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
+    <UseOfStl>c++_static</UseOfStl>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -42,7 +43,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>Clang_5_0</PlatformToolset>
-    <AndroidAPILevel>android-26</AndroidAPILevel>
+    <AndroidAPILevel>android-24</AndroidAPILevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -69,11 +70,16 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <CLanguageStandard>c11</CLanguageStandard>
+      <CppLanguageStandard>gnu++11</CppLanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <LibraryDependencies>$(SolutionDir)lib\x86_64\libicudata.a;$(SolutionDir)lib\x86_64\libv8_base.a;$(SolutionDir)lib\x86_64\libv8_init.a;$(SolutionDir)lib\x86_64\libv8_initializers.a;$(SolutionDir)lib\x86_64\libv8_libbase.a;$(SolutionDir)lib\x86_64\libv8_libplatform.a;$(SolutionDir)lib\x86_64\libv8_libsampler.a;$(SolutionDir)lib\x86_64\libv8_nosnapshot.a;$(SolutionDir)lib\x86_64\libv8_snapshot.a;%(LibraryDependencies)</LibraryDependencies>
+      <LibraryDependencies>%(LibraryDependencies)</LibraryDependencies>
       <UnresolvedSymbolReferences>true</UnresolvedSymbolReferences>
+      <WholeArchiveBegin>true</WholeArchiveBegin>
+      <AdditionalDependencies>$(SolutionDir)lib\x86_64\libicudata.a;$(SolutionDir)lib\x86_64\libv8_base.a;$(SolutionDir)lib\x86_64\libv8_init.a;$(SolutionDir)lib\x86_64\libv8_initializers.a;$(SolutionDir)lib\x86_64\libv8_libbase.a;$(SolutionDir)lib\x86_64\libv8_libplatform.a;$(SolutionDir)lib\x86_64\libv8_libsampler.a;$(SolutionDir)lib\x86_64\libv8_nosnapshot.a</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
