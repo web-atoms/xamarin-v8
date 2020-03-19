@@ -9,3 +9,4 @@ V8 Bindings for Xamarin for Android (iOS coming soon, only for local development
 5. https://devblogs.microsoft.com/cppblog/android-and-ios-development-with-c-in-visual-studio/
 6. https://github.com/lothrop/XamarinNative
 7. https://github.com/xamcat/mobcat-samples/tree/master/cpp_with_xamarin
+8. https://stackoverflow.com/questions/31541451/create-shared-library-from-cpp-files-and-static-library-with-g
