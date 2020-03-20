@@ -79,7 +79,7 @@
       <LibraryDependencies>%(LibraryDependencies)</LibraryDependencies>
       <UnresolvedSymbolReferences>true</UnresolvedSymbolReferences>
       <WholeArchiveBegin>true</WholeArchiveBegin>
-      <AdditionalDependencies>$(SolutionDir)lib\x86_64\libicudata.a;$(SolutionDir)lib\x86_64\libv8_base.a;$(SolutionDir)lib\x86_64\libv8_init.a;$(SolutionDir)lib\x86_64\libv8_initializers.a;$(SolutionDir)lib\x86_64\libv8_libbase.a;$(SolutionDir)lib\x86_64\libv8_libplatform.a;$(SolutionDir)lib\x86_64\libv8_libsampler.a;$(SolutionDir)lib\x86_64\libv8_nosnapshot.a</AdditionalDependencies>
+      <AdditionalDependencies>$(SolutionDir)lib\x86_64\libv8_monolith.a</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

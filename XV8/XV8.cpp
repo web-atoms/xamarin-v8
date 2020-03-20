@@ -1,8 +1,121 @@
-#include "XV8.h"
+#include "v8.h"
+#include <stdlib.h>
 #include "libplatform.h"
 
 using namespace v8;
+
+typedef char* XString;
+
+/**
+   Everything is sent as a pointer to Persistent object, reason is, JavaScript engine should
+   not destroy it till it is explicitly destroyed by host application.
+*/
+typedef Persistent<Value, CopyablePersistentTraits<Value>>* V8Handle;
+
+enum V8ResponseType : int16_t {
+	Error = 0,
+	Handle = 1,
+	String = 2
+};
+
+enum V8HandleType : int16_t {
+	None = 0,
+	Undefined = 1,
+	Null = 2,
+	Number = 3,
+	NotANumber = 4,
+	BigInt = 5,
+	Boolean = 6,
+	String = 0xFF,
+	Object = 0xF0,
+	Function = 0xF1,
+	Array = 0xF2,
+	Remote = 0xF3,
+	Date = 0xF4
+};
+
+typedef union {
+	bool boolValue;
+	int32_t intValue;
+	int64_t longValue;
+	double doubleValue;
+	XString stringValue;
+} V8Value;
+
+XString V8StringToXString(Local<Context> context, Local<v8::String> text);
+
+/*
+When a call is made from outside, response will indicate success/failure
+and it will contain the value. In case of string, the response must be
+disposed by the caller by calling V8Context_Release method.
+*/
+struct V8Response
+{
+public:
+	V8ResponseType type;
+	union {
+		struct {
+			V8Handle handle;
+			V8HandleType handleType;
+			V8Value value;
+		} handle;
+		struct {
+			XString message;
+			XString stack;
+		} error;
+		XString stringValue;
+		long longValue;
+	} result;
+
+	static V8Response From(Local<Context> context, Local<Value> handle);
+
+	static V8Response FromError(Local<Context> context, Local<Value> error);
+
+	static V8Response ToString(Local<Context> context, Local<Value> error);
+};
+
 static bool _V8Initialized = false;
+
+typedef V8Response(*ExternalCall)(V8Response target, V8Response args);
+
+class V8Context {
+protected:
+	int32_t _engineID;
+
+	std::unique_ptr<Platform> _platform;
+	Isolate* _isolate;
+	Persistent<Context, CopyablePersistentTraits<Context>> _context;
+
+	// delete array allocator
+	ArrayBuffer::Allocator* _arrayBufferAllocator;
+
+	Local<Context> GetContext() {
+		return _context.Get(_isolate);
+	}
+public:
+	V8Context();
+	void Dispose();
+
+	void Release(V8Handle handle);
+
+	V8Response CreateObject();
+	V8Response CreateNull();
+	V8Response CreateUndefined();
+	V8Response CreateBoolean(bool value);
+	V8Response CreateNumber(double value);
+	V8Response CreateString(XString value);
+	V8Response CreateDate(int64_t value);
+	V8Response CreateFunction(ExternalCall function, XString debugHelper);
+	V8Response Evaluate(XString script, XString location);
+	V8Response GetProperty(V8Handle target, XString name);
+	V8Response SetProperty(V8Handle target, XString name, V8Handle value);
+	V8Response GetPropertyAt(V8Handle target, int index);
+	V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
+private:
+
+};
+
+
 
 V8Context* V8Context_Create() {
 	return new V8Context();
@@ -75,6 +188,97 @@ V8Response V8Context_SetPropertyAt(
 
 V8Response V8Context_Evaluate(V8Context* context, XString script, XString location) {
 	return context->Evaluate(script, location);
+}
+
+V8Response V8Response::From(Local<Context> context, Local<Value> handle)
+{
+	V8Response v = V8Response();
+	v.type = V8ResponseType::Handle;
+
+	Isolate* isolate = context->GetIsolate();
+
+	if (handle.IsEmpty()) {
+		return FromError(context, v8::String::NewFromUtf8Literal(isolate, "Unexpected empty value"));
+	}
+
+
+	// for handle, we need to set the type..
+	if (handle->IsUndefined()) {
+		v.result.handle.handleType = V8HandleType::Undefined;
+	}
+	else if (handle->IsNull()) {
+		v.result.handle.handleType = V8HandleType::Null;
+	}
+	else if (handle->IsString() || handle->IsStringObject()) {
+		v.result.handle.handleType = V8HandleType::String;
+	}
+	else if (handle->IsBoolean() || handle->IsBooleanObject()) {
+		v.result.handle.handleType = V8HandleType::Boolean;
+		v.result.handle.value.boolValue = handle->BooleanValue(isolate);
+	}
+	else if (handle->IsNumber() || handle->IsNumberObject()) {
+		double d;
+		if (handle->NumberValue(context).To(&d)) {
+			v.result.handle.handleType = V8HandleType::Number;
+			v.result.handle.value.doubleValue = d;
+		}
+		else {
+			v.result.handle.handleType = V8HandleType::NotANumber;
+		}
+	}
+	else if (handle->IsDate()) {
+		v.result.handle.handleType = V8HandleType::Date;
+		v.result.handle.value.doubleValue = handle->ToObject(context).ToLocalChecked().As<v8::Date>()->ValueOf();
+	}
+	else if (handle->IsArray()
+		|| handle->IsArgumentsObject()
+		|| handle->IsBigInt64Array()) {
+		v.result.handle.handleType = V8HandleType::Array;
+	}
+	else if (handle->IsObject()) {
+		v.result.handle.handleType = V8HandleType::Object;
+	}
+
+	v.result.handle.handle = new Persistent<Value, CopyablePersistentTraits<Value>>();
+	v.result.handle.handle->Reset(isolate, handle);
+	return v;
+}
+
+V8Response V8Response::FromError(Local<Context> context, Local<Value> error) {
+	V8Response v = V8Response();
+	v.type = V8ResponseType::Error;
+	Isolate* isolate = context->GetIsolate();
+	MaybeLocal<v8::Object> obj = error->ToObject(context);
+	Local<v8::Object> local = obj.ToLocalChecked();
+	Local<v8::Name> name = v8::String::NewFromUtf8Literal(isolate, "stack");
+	if (local->HasOwnProperty(context, name).ToChecked()) {
+		Local<v8::Value> stack = local->Get(context, name).ToLocalChecked();
+		v.result.error.stack = V8StringToXString(context, stack.As<v8::String>());
+	}
+	else {
+		v.result.error.stack = nullptr;
+	}
+	Local<v8::String> msg = local->ToString(context).ToLocalChecked();
+	v.result.error.message = V8StringToXString(context, msg);
+	return v;
+}
+
+XString V8StringToXString(Local<Context> context, Local<v8::String> text) {
+	if (text.IsEmpty())
+		return nullptr;
+	Isolate* isolate = context->GetIsolate();
+	int len = text->Utf8Length(isolate);
+	char* atext = (char*)malloc(len);
+	text->WriteUtf8(isolate, atext, len);
+	return atext;
+}
+
+V8Response V8Response::ToString(Local<Context> context, Local<Value> value) {
+	V8Response v = V8Response();
+	v.type = V8ResponseType::String;
+	Local<v8::String> s = value->ToString(context).ToLocalChecked();
+	v.result.stringValue = V8StringToXString(context, s);
+	return v;
 }
 
 int V8Context_Release(V8Response r) {

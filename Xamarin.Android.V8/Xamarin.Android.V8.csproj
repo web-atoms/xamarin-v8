@@ -61,9 +61,6 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedNativeLibrary Include="libs\armeabi-v7a\libXV8.so" />
-    <EmbeddedNativeLibrary Include="libs\x86_64\libXV8.so" />
-    <EmbeddedNativeLibrary Include="libs\x86\libXV8.so" />
     <None Include="Resources\AboutResources.txt" />
   </ItemGroup>
   <ItemGroup>

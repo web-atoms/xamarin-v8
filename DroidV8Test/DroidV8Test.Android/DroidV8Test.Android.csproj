@@ -67,6 +67,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidNativeLibrary Include="libXV8.so" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />
     <None Include="Properties\AndroidManifest.xml" />
@@ -93,10 +94,6 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Xamarin.Android.V8\Xamarin.Android.V8.csproj">
-      <Project>{9230d81f-9c6d-4962-a316-eac608f494ea}</Project>
-      <Name>Xamarin.Android.V8</Name>
-    </ProjectReference>
     <ProjectReference Include="..\DroidV8Test\DroidV8Test.csproj">
       <Project>{496DC29C-3ECE-4B4A-9EF0-436F61CF13ED}</Project>
       <Name>DroidV8Test</Name>
