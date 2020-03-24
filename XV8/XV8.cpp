@@ -198,7 +198,7 @@ V8Response V8Response::From(Local<Context> context, Local<Value> handle)
 	Isolate* isolate = context->GetIsolate();
 
 	if (handle.IsEmpty()) {
-		return FromError(context, v8::String::NewFromUtf8Literal(isolate, "Unexpected empty value"));
+		return FromError(context, v8::String::NewFromUtf8(isolate, "Unexpected empty value").ToLocalChecked());
 	}
 
 
@@ -250,7 +250,7 @@ V8Response V8Response::FromError(Local<Context> context, Local<Value> error) {
 	Isolate* isolate = context->GetIsolate();
 	MaybeLocal<v8::Object> obj = error->ToObject(context);
 	Local<v8::Object> local = obj.ToLocalChecked();
-	Local<v8::Name> name = v8::String::NewFromUtf8Literal(isolate, "stack");
+	Local<v8::Name> name = v8::String::NewFromUtf8(isolate, "stack").ToLocalChecked();
 	if (local->HasOwnProperty(context, name).ToChecked()) {
 		Local<v8::Value> stack = local->Get(context, name).ToLocalChecked();
 		v.result.error.stack = V8StringToXString(context, stack.As<v8::String>());
@@ -436,7 +436,7 @@ V8Response V8Context::GetProperty(V8Handle target, XString name) {
 	Local<Value> v = target->Get(_isolate);
 	Local<Context> context = GetContext();
 	if (!v->IsObject())
-		return V8Response::FromError(context, v8::String::NewFromUtf8Literal(_isolate, "This is not an object"));
+		return V8Response::FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an object").ToLocalChecked());
 	Local<v8::String> jsName = v8::String::NewFromUtf8(_isolate, name).ToLocalChecked();
 	Local<Value> item = v->ToObject(context).ToLocalChecked()->Get(context, jsName).ToLocalChecked();
 	return V8Response::From(context, item);
@@ -446,7 +446,7 @@ V8Response V8Context::GetPropertyAt(V8Handle target, int index) {
 	Local<Value> v = target->Get(_isolate);
 	Local<Context> context = GetContext();
 	if (!v->IsArray())
-		return V8Response::FromError(context, v8::String::NewFromUtf8Literal(_isolate, "This is not an array"));
+		return V8Response::FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an array").ToLocalChecked());
 	Local<Value> item = v->ToObject(context).ToLocalChecked()->Get(context, index).ToLocalChecked();
 	return V8Response::From(context, item);
 }
@@ -456,7 +456,7 @@ V8Response V8Context::SetProperty(V8Handle target, XString name, V8Handle value)
 	Local<Value> v = value->Get(_isolate);
 	Local<Context> context = GetContext();
 	if (!t->IsObject())
-		return V8Response::FromError(context, v8::String::NewFromUtf8Literal(_isolate, "This is not an object"));
+		return V8Response::FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an object").ToLocalChecked());
 	Local<v8::String> jsName = v8::String::NewFromUtf8(_isolate, name).ToLocalChecked();
 	t->ToObject(context).ToLocalChecked()->Set(context, jsName, v).ToChecked();
 	return V8Response::From(context, v);
@@ -467,7 +467,7 @@ V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) 
 	Local<Value> v = value->Get(_isolate);
 	Local<Context> context = GetContext();
 	if (!t->IsArray())
-		return V8Response::FromError(context, v8::String::NewFromUtf8Literal(_isolate, "This is not an array"));
+		return V8Response::FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an array").ToLocalChecked());
 	t->ToObject(context).ToLocalChecked()->Set(context, index, v).ToChecked();
 	return V8Response::From(context, v);
 }
