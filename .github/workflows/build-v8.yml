@@ -31,9 +31,9 @@ jobs:
       run: |
         yarn install
         
-    - name: Export Settings from npm package
-      run: |
-        npm run export_npm_env
+    #- name: Export Settings from npm package
+    #  run: |
+    #    npm run export_npm_env
         
     - name: Build
       run: |
