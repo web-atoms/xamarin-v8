@@ -20,11 +20,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
+    # - uses: actions/checkout@v2
 
     # Runs a single command using the runners shell
     - name: setup-docker
-      uses: docker://reactnativecommunity/react-native-android@2020-3-10
+      uses: docker://reactnativecommunity/react-native-android:2019-6-4
 
     # Runs a set of commands using the runners shell
     - name: Add V8
