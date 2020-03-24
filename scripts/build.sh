@@ -1,35 +1,122 @@
 #!/bin/bash -e
 source $(dirname $0)/env.sh
+BUILD_TYPE="Release"
+# BUILD_TYPE="Debug"
 
-######################################################################################
-# [0] Patch React Native source
-######################################################################################
+GN_ARGS_BASE="
+  target_os=\"${PLATFORM}\"
+  is_component_build=false
+  use_debug_fission=false
+  use_custom_libcxx=false
+  v8_use_external_startup_data=false
+  icu_use_data_file=false
+"
 
-rm -rf $BUILD_DIR
-git clone --depth=1 --branch ${RN_VERSION} https://github.com/facebook/react-native.git $BUILD_DIR
+if [[ ${PLATFORM} = "ios" ]]; then
+  GN_ARGS_BASE="${GN_ARGS_BASE} enable_ios_bitcode=false use_xcode_clang=true ios_enable_code_signing=false v8_enable_pointer_compression=false ios_deployment_target=${IOS_DEPLOYMENT_TARGET}"
+fi
 
-PATCHSET=(
-  # Patch React Native build to support v8runtime
-  "build_with_v8.patch"
-)
+if [[ ${NO_INTL} = "1" ]]; then
+  GN_ARGS_BASE="${GN_ARGS_BASE} v8_enable_i18n_support=false"
+fi
 
-cp -Rf $SRC_DIR/v8runtime $BUILD_DIR/ReactCommon/jsi/
-cp -Rf $SRC_DIR/androidexecutor $BUILD_DIR/ReactAndroid/src/main/java/com/facebook/v8
-cp -Rf $SRC_DIR/sowrapper $BUILD_DIR/ReactAndroid/src/main/jni/third-party/v8
+if [[ ${DISABLE_JIT} != "false" ]]; then
+  GN_ARGS_BASE="${GN_ARGS_BASE} v8_enable_lite_mode=true"
+fi
 
-for patch in "${PATCHSET[@]}"
-do
-    printf "### Patch set: $patch\n"
-    patch -d $BUILD_DIR -p1 < $PATCHES_DIR/$patch
-done
+if [[ "$BUILD_TYPE" = "Debug" ]]
+then
+  GN_ARGS_BUILD_TYPE='
+    is_debug=true
+    symbol_level=2
+  '
+else
+  GN_ARGS_BUILD_TYPE='
+    is_debug=false
+  '
+fi
 
-######################################################################################
-# [1] Build
-######################################################################################
+NINJA_PARAMS=""
 
-cd $BUILD_DIR
-yarn
-./gradlew :ReactAndroid:installArchives
+if [[ ${CIRCLECI} ]]; then
+  NINJA_PARAMS="-j4"
+fi
 
-mkdir -p $DIST_DIR
-cp -Rf $BUILD_DIR/android/* $DIST_DIR
+cd ${V8_DIR}
+
+function normalize_arch_for_platform()
+{
+  local arch=$1
+
+  if [[ ${PLATFORM} = "ios" ]]; then
+    echo ${arch}
+    return
+  fi
+
+  case "$1" in
+    arm)
+      echo "armeabi-v7a"
+      ;;
+    x86)
+      echo "x86"
+      ;;
+    arm64)
+      echo "arm64-v8a"
+      ;;
+    x64)
+      echo "x86_64"
+      ;;
+    *)
+      echo "Invalid arch - ${arch}" >&2
+      exit 1
+      ;;
+  esac
+}
+
+function build_arch()
+{
+  local arch=$1
+  local platform_arch=$(normalize_arch_for_platform $arch)
+
+  local target=''
+  local target_ext=''
+  if [[ ${PLATFORM} = "android" ]]; then
+    target="libv8android"
+    target_ext=".so"
+  elif [[ ${PLATFORM} = "ios" ]]; then
+    target="libv8"
+    target_ext=".dylib"
+  else
+    exit 1
+  fi
+
+  echo "Build v8 ${arch} variant NO_INTL=${NO_INTL}"
+  gn gen --args="${GN_ARGS_BASE} ${GN_ARGS_BUILD_TYPE} target_cpu=\"${arch}\"" "out.v8.${arch}"
+
+  if [[ ${MKSNAPSHOT_ONLY} = "1" ]]; then
+    date ; ninja ${NINJA_PARAMS} -C "out.v8.${arch}" run_mksnapshot_default ; date
+  else
+    date ; ninja ${NINJA_PARAMS} -C "out.v8.${arch}" ${target} ; date
+
+    mkdir -p "${BUILD_DIR}/lib/${platform_arch}"
+    cp -f "out.v8.${arch}/${target}${target_ext}" "${BUILD_DIR}/lib/${platform_arch}/${target}${target_ext}"
+
+    if [[ -d "out.v8.${arch}/lib.unstripped" ]]; then
+      mkdir -p "${BUILD_DIR}/lib.unstripped/${platform_arch}"
+      cp -f "out.v8.${arch}/lib.unstripped/${target}${target_ext}" "${BUILD_DIR}/lib.unstripped/${platform_arch}/${target}${target_ext}"
+    fi
+  fi
+
+  mkdir -p "${BUILD_DIR}/tools/${platform_arch}"
+  cp -f out.v8.${arch}/clang_*/mksnapshot "${BUILD_DIR}/tools/${platform_arch}/mksnapshot"
+}
+
+if [[ ${PLATFORM} = "android" ]]; then
+  build_arch "arm"
+  build_arch "x86"
+  build_arch "arm64"
+  build_arch "x64"
+elif [[ ${PLATFORM} = "ios" ]]; then
+  build_arch "arm64"
+  build_arch "x64"
+fi
