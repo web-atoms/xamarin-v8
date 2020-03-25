@@ -21,10 +21,10 @@ jobs:
 
       - checkout
 
-      - run:
-          name: Export settings from npm package
-          command: |
-            npm run export_npm_env
+      # - run:
+      #     name: Export settings from npm package
+      #     command: |
+      #       npm run export_npm_env
 
       - run:
           name: Setup V8 build environment
