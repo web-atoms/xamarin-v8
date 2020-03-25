@@ -17,12 +17,14 @@
     "/dist"
   ],
   "scripts": {
-    "clean": "rm -rf dist; rm -rf build",
+    "clean": "rm -rf dist; rm -rf build; rm -rf v8/out.v8.*",
     "export_npm_env": "./scripts/export_npm_env.sh",
-    "build": "bash -c '. ./scripts/export_npm_env.sh && ./scripts/build.sh'"
+    "setup": "bash -c '. ./scripts/export_npm_env.sh && ./scripts/setup.sh android'",
+    "start": "bash -c '. ./scripts/export_npm_env.sh && ./scripts/start.sh android'",    
   },
   "config": {
-    "RN_VERSION": "master"
+    "RN_VERSION": "master",
+    "V8": "8.0.426.16"
   },
   "dependencies": {
     "v8-android": "~8.80.1"
