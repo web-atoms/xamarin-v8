@@ -17,7 +17,7 @@ cp -Rf $SRC_DIR/v8runtime $BUILD_DIR/ReactCommon/jsi/
 # cp -Rf $SRC_DIR/androidexecutor $BUILD_DIR/ReactAndroid/src/main/java/com/facebook/v8
 # cp -Rf $SRC_DIR/sowrapper $BUILD_DIR/ReactAndroid/src/main/jni/third-party/v8
 
-ndk-build $SRC_DIR/v8runtime
+ndk-build NDK_APPLICATION_MK=$SRC_DIR/v8runtime/Android.mk
 
 # for patch in "${PATCHSET[@]}"
 # do
