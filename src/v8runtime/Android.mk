@@ -26,4 +26,4 @@ endif
 
 LOCAL_SHARED_LIBRARIES := libfolly_json libv8android glog
 
-include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
