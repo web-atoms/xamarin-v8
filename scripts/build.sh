@@ -16,6 +16,10 @@ PATCHSET=(
 # cp -Rf $SRC_DIR/v8runtime $BUILD_DIR/ReactCommon/jsi/
 # cp -Rf $SRC_DIR/androidexecutor $BUILD_DIR/ReactAndroid/src/main/java/com/facebook/v8
 # cp -Rf $SRC_DIR/sowrapper $BUILD_DIR/ReactAndroid/src/main/jni/third-party/v8
+
+# extract AAR and put SO inside this folder???
+tar -xvf ./node_modules/v8-android/dist/lib.unstripped/v8-android/8.80.1/libs.tar.xz -C $SRC_DIR/v8runtime/jni
+
 echo "export NDK_PROJECT_PATH=${SRC_DIR}/v8runtime" >> $BASH_ENV
 ndk-build
 
