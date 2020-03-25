@@ -14,22 +14,24 @@ PATCHSET=(
 )
 
 cp -Rf $SRC_DIR/v8runtime $BUILD_DIR/ReactCommon/jsi/
-cp -Rf $SRC_DIR/androidexecutor $BUILD_DIR/ReactAndroid/src/main/java/com/facebook/v8
-cp -Rf $SRC_DIR/sowrapper $BUILD_DIR/ReactAndroid/src/main/jni/third-party/v8
+# cp -Rf $SRC_DIR/androidexecutor $BUILD_DIR/ReactAndroid/src/main/java/com/facebook/v8
+# cp -Rf $SRC_DIR/sowrapper $BUILD_DIR/ReactAndroid/src/main/jni/third-party/v8
 
-for patch in "${PATCHSET[@]}"
-do
-    printf "### Patch set: $patch\n"
-    patch -d $BUILD_DIR -p1 < $PATCHES_DIR/$patch
-done
+ndk-build $SRC_DIR/v8runtime
 
-######################################################################################
-# [1] Build
-######################################################################################
+# for patch in "${PATCHSET[@]}"
+# do
+#     printf "### Patch set: $patch\n"
+#     patch -d $BUILD_DIR -p1 < $PATCHES_DIR/$patch
+# done
 
-cd $BUILD_DIR
-yarn
-./gradlew :ReactAndroid:installArchives
+# ######################################################################################
+# # [1] Build
+# ######################################################################################
 
-mkdir -p $DIST_DIR
-cp -Rf $BUILD_DIR/android/* $DIST_DIR
+# cd $BUILD_DIR
+# yarn
+# ./gradlew :ReactAndroid:installArchives
+
+# mkdir -p $DIST_DIR
+# cp -Rf $BUILD_DIR/android/* $DIST_DIR
