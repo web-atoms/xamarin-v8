@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DroidV8Test.Android", "Droi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DroidV8Test", "DroidV8Test\DroidV8Test\DroidV8Test.csproj", "{2E071219-BAA7-4590-A7CE-F750C410CFA9}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XV8", "XV8\XV8.vcxproj", "{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,24 +125,6 @@ Global
 		{2E071219-BAA7-4590-A7CE-F750C410CFA9}.Release|x64.Build.0 = Release|Any CPU
 		{2E071219-BAA7-4590-A7CE-F750C410CFA9}.Release|x86_64.ActiveCfg = Release|Any CPU
 		{2E071219-BAA7-4590-A7CE-F750C410CFA9}.Release|x86_64.Build.0 = Release|Any CPU
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Debug|Any CPU.ActiveCfg = Debug|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Debug|ARM.ActiveCfg = Debug|ARM
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Debug|ARM.Build.0 = Debug|ARM
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Debug|ARM64.ActiveCfg = Debug|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Debug|iPhone.ActiveCfg = Debug|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Debug|iPhoneSimulator.ActiveCfg = Debug|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Debug|x64.ActiveCfg = Debug|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Debug|x64.Build.0 = Debug|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Debug|x86_64.ActiveCfg = Debug|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Release|Any CPU.ActiveCfg = Release|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Release|ARM.ActiveCfg = Release|ARM
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Release|ARM.Build.0 = Release|ARM
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Release|ARM64.ActiveCfg = Release|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Release|iPhone.ActiveCfg = Release|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Release|iPhoneSimulator.ActiveCfg = Release|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Release|x64.ActiveCfg = Release|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Release|x64.Build.0 = Release|x64
-		{A6A7E790-69C7-4CB6-A39F-CCF7EAE55168}.Release|x86_64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
