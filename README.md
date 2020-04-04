@@ -12,3 +12,4 @@ V8 Bindings for Xamarin for Android (iOS coming soon, only for local development
 8. https://stackoverflow.com/questions/31541451/create-shared-library-from-cpp-files-and-static-library-with-g
 9. https://hyperandroid.com/2020/02/12/compile-v8-arm-arm64-ia32/
 10. https://hyperandroid.com/2020/02/12/android-v8-embedding-guide/
+11. https://hyperandroid.com/2020/02/12/v8-inspector-from-an-embedder-standpoint/
