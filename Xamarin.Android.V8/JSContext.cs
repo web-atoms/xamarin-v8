@@ -19,15 +19,26 @@ namespace Xamarin.Android.V8
 
     public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
 
+    internal delegate IntPtr MemoryAllocator(int len);
+
     public class JSContext
     {
 
-        const string LibName = "XV8";
+        const string LibName = "v8android";
+
+        static IntPtr allocator;
+        static IntPtr deAllocator;
 
         SafeHandle context;
-        public JSContext()
+        public JSContext(bool debug = false)
         {
-            this.context = V8Context_Create();
+            if (allocator == null)
+            {
+                MemoryAllocator a = (n) => Marshal.AllocHGlobal(n);
+                allocator = Marshal.GetFunctionPointerForDelegate(a);
+                deAllocator = IntPtr.Zero;
+            }
+            this.context = V8Context_Create(debug, allocator, deAllocator);
         }
 
         public JSValue CreateObject()
@@ -38,6 +49,21 @@ namespace Xamarin.Android.V8
         public JSValue CreateArray()
         {
             return new JSValue(context, V8Context_CreateArray(context).GetContainer());
+        }
+
+        public JSValue CreateString(string value)
+        {
+            return new JSValue(context, V8Context_CreateString(context, value).GetContainer());
+        }
+
+        public JSValue CreateNumber(double value)
+        {
+            return new JSValue(context, V8Context_CreateNumber(context, value).GetContainer());
+        }
+
+        public JSValue CreateDate(DateTime value)
+        {
+            return new JSValue(context, V8Context_CreateDate(context, value.ToJSTime()).GetContainer());
         }
 
         public JSValue CreateFunction(Function fx, string debugDescription)
@@ -84,7 +110,7 @@ namespace Xamarin.Android.V8
         }
 
         [DllImport(LibName)]
-        internal extern static SafeHandle V8Context_Create();
+        internal extern static SafeHandle V8Context_Create(bool debug, IntPtr allocator, IntPtr deAllocator);
 
         [DllImport(LibName)]
         internal extern static void V8Context_Dispose(SafeHandle context);

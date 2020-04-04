@@ -61,6 +61,8 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedNativeLibrary Include="libs\x86\libv8android.so" />
+    <EmbeddedNativeLibrary Include="libs\x86_64\libv8android.so" />
     <None Include="Resources\AboutResources.txt" />
   </ItemGroup>
   <ItemGroup>
