@@ -11,6 +11,8 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 
+using V8Handle = System.IntPtr;
+
 
 namespace Xamarin.Android.V8
 {
@@ -21,24 +23,36 @@ namespace Xamarin.Android.V8
 
     internal delegate IntPtr MemoryAllocator(int len);
 
+    internal delegate void JSContextLog(IntPtr text);
+
     public class JSContext
     {
 
-        const string LibName = "v8android";
+        const string LibName = "liquidjs";
 
         static IntPtr allocator;
         static IntPtr deAllocator;
+        static IntPtr logger;
 
-        SafeHandle context;
+        public Action<string> Logger { get; set; }
+
+        V8Handle context;
         public JSContext(bool debug = false)
         {
             if (allocator == null)
             {
                 MemoryAllocator a = (n) => Marshal.AllocHGlobal(n);
+                JSContextLog _logger = (t) => {
+                    var s = Marshal.PtrToStringUTF8(t);
+                    Logger?.Invoke(s);
+
+                    // to do free string...
+                };
                 allocator = Marshal.GetFunctionPointerForDelegate(a);
+                logger = Marshal.GetFunctionPointerForDelegate(_logger);
                 deAllocator = IntPtr.Zero;
             }
-            this.context = V8Context_Create(debug, allocator, deAllocator);
+            this.context = V8Context_Create(debug, logger, allocator, deAllocator);
         }
 
         public JSValue CreateObject()
@@ -110,59 +124,59 @@ namespace Xamarin.Android.V8
         }
 
         [DllImport(LibName)]
-        internal extern static SafeHandle V8Context_Create(bool debug, IntPtr allocator, IntPtr deAllocator);
+        internal extern static V8Handle V8Context_Create(bool debug, IntPtr logger, IntPtr allocator, IntPtr deAllocator);
 
         [DllImport(LibName)]
-        internal extern static void V8Context_Dispose(SafeHandle context);
+        internal extern static void V8Context_Dispose(V8Handle context);
 
         [DllImport(LibName)]
-        internal extern static V8Response V8Context_CreateObject(SafeHandle context);
+        internal extern static V8Response V8Context_CreateObject(V8Handle context);
 
 
         [DllImport(LibName)]
-        internal extern static V8Response V8Context_CreateNull(SafeHandle context);
+        internal extern static V8Response V8Context_CreateNull(V8Handle context);
 
         [DllImport(LibName)]
-        internal extern static V8Response V8Context_CreateUndefined(SafeHandle context);
+        internal extern static V8Response V8Context_CreateUndefined(V8Handle context);
 
         [DllImport(LibName)]
-        internal extern static V8Response V8Context_CreateArray(SafeHandle context);
+        internal extern static V8Response V8Context_CreateArray(V8Handle context);
 
         [DllImport(LibName)]
-        internal extern static V8Response V8Context_CreateBoolean(SafeHandle context, bool value);
+        internal extern static V8Response V8Context_CreateBoolean(V8Handle context, bool value);
 
         [DllImport(LibName)]
-        internal extern static V8Response V8Context_CreateNumber(SafeHandle context, double value);
+        internal extern static V8Response V8Context_CreateNumber(V8Handle context, double value);
 
         [DllImport(LibName)]
-        internal extern static V8Response V8Context_CreateDate(SafeHandle context, long value);
+        internal extern static V8Response V8Context_CreateDate(V8Handle context, long value);
 
         [DllImport(LibName)]
-        internal extern static V8Response V8Context_CreateString(SafeHandle context, 
+        internal extern static V8Response V8Context_CreateString(V8Handle context, 
             [MarshalAs(UnmanagedType.LPUTF8Str)] string value);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_GetProperty(
-            SafeHandle context, 
+            V8Handle context, 
             IntPtr handle, 
             [MarshalAs(UnmanagedType.LPUTF8Str)]
             string name);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_SetProperty(
-            SafeHandle context,
+            V8Handle context,
             IntPtr handle,
             [MarshalAs(UnmanagedType.LPUTF8Str)]
             string name,
             IntPtr value);
 
         [DllImport(LibName)]
-        internal extern static V8Response V8Context_GetPropertyAt(SafeHandle context, IntPtr handle, int index);
+        internal extern static V8Response V8Context_GetPropertyAt(V8Handle context, IntPtr handle, int index);
 
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_SetPropertyAt(
-            SafeHandle context,
+            V8Handle context,
             IntPtr handle,
             int index,
             IntPtr value);
@@ -176,11 +190,11 @@ namespace Xamarin.Android.V8
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateFunction(
-            SafeHandle context, IntPtr function, [MarshalAs(UnmanagedType.LPUTF8Str)]string name);
+            V8Handle context, IntPtr function, [MarshalAs(UnmanagedType.LPUTF8Str)]string name);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_Evaluate(
-            SafeHandle context,
+            V8Handle context,
             [MarshalAs(UnmanagedType.LPUTF8Str)]
             string script,
             [MarshalAs(UnmanagedType.LPUTF8Str)]

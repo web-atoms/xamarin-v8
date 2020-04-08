@@ -50,6 +50,7 @@
     <Compile Include="JSValue.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SafeV8Handle.cs" />
     <Compile Include="V8Error.cs" />
     <Compile Include="V8HandleContainer.cs" />
     <Compile Include="V8HandleType.cs" />
@@ -61,8 +62,15 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedNativeLibrary Include="libs\x86\libv8android.so" />
-    <EmbeddedNativeLibrary Include="libs\x86_64\libv8android.so" />
+    <EmbeddedNativeLibrary
+      Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86\libliquidjs.so"
+      Link="libs\x86\libliquidjs.so"
+      />
+    <EmbeddedNativeLibrary
+      Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86_64\libliquidjs.so"
+      Link="libs\x86_64\libliquidjs.so"
+      />
+    <!-- <EmbeddedNativeLibrary Include="libs\x86_64\libliquidjs.so" /> -->
     <None Include="Resources\AboutResources.txt" />
   </ItemGroup>
   <ItemGroup>

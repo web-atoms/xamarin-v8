@@ -2,13 +2,15 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 
+using V8Handle = System.IntPtr;
+
 namespace Xamarin.Android.V8
 {
     public class JSValue
     {
-        readonly SafeHandle context;
+        readonly V8Handle context;
         private V8HandleContainer handle;
-        internal JSValue(SafeHandle context, V8HandleContainer handle)
+        internal JSValue(V8Handle context, V8HandleContainer handle)
         {
             this.context = context;
             this.handle = handle;

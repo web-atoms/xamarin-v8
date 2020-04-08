@@ -25,7 +25,7 @@ namespace DroidV8Test.Droid
             LoadApplication(new App());
 
             var context = new JSContext();
-
+            var n = context.CreateNumber(2);
             var r = context.Evaluate(" 3 + 5");
             System.Diagnostics.Debug.WriteLine(r.IsNumber);
 
