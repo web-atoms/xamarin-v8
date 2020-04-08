@@ -4,7 +4,7 @@
 #include "V8Response.h"
 #include "V8Context.h"
 
-V8Response V8Response::From(Local<Context> context, Local<Value> handle)
+V8Response V8Response_From(Local<Context> context, Local<Value> handle)
 {
     V8Response v = V8Response();
     v.type = V8ResponseType::Handle;
@@ -12,7 +12,7 @@ V8Response V8Response::From(Local<Context> context, Local<Value> handle)
     Isolate* isolate = context->GetIsolate();
 
     if (handle.IsEmpty()) {
-        return FromError(context, v8::String::NewFromUtf8(isolate, "Unexpected empty value"));
+        return V8Response_FromError(context, v8::String::NewFromUtf8(isolate, "Unexpected empty value"));
     }
 
 
@@ -29,6 +29,9 @@ V8Response V8Response::From(Local<Context> context, Local<Value> handle)
     else if (handle->IsBoolean() || handle->IsBooleanObject()) {
         v.result.handle.handleType = V8HandleType::Boolean;
         v.result.handle.value.boolValue = handle->BooleanValue(context).ToChecked();
+    } else if (handle->IsInt32()) {
+        v.result.handle.handleType = V8HandleType::Number;
+        v.result.handle.value.intValue = handle->Int32Value(context).ToChecked();
     }
     else if (handle->IsNumber() || handle->IsNumberObject()) {
         double d;
@@ -58,7 +61,7 @@ V8Response V8Response::From(Local<Context> context, Local<Value> handle)
     return v;
 }
 
-V8Response V8Response::FromError(Local<Context> context, Local<Value> error) {
+V8Response V8Response_FromError(Local<Context> context, Local<Value> error) {
     V8Response v = V8Response();
     v.type = V8ResponseType::Error;
     Isolate* isolate = context->GetIsolate();
@@ -77,7 +80,7 @@ V8Response V8Response::FromError(Local<Context> context, Local<Value> error) {
     return v;
 }
 
-V8Response V8Response::ToString(Local<Context> context, Local<Value> value) {
+V8Response V8Response_ToString(Local<Context> context, Local<Value> value) {
     V8Response v = V8Response();
     v.type = V8ResponseType::StringValue;
     Local<v8::String> s = value->ToString(context).ToLocalChecked();

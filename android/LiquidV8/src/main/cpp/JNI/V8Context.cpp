@@ -50,42 +50,42 @@ void V8Context::Dispose() {
 
 V8Response V8Context::CreateObject() {
     V8_CONTEXT_SCOPE
-    return V8Response::From(GetContext(), Object::New(_isolate));
+    return V8Response_From(GetContext(), Object::New(_isolate));
 }
 
 V8Response V8Context::CreateNumber(double value) {
     V8_CONTEXT_SCOPE
-    return V8Response::From(GetContext(), Number::New(_isolate, value));
+    return V8Response_From(GetContext(), Number::New(_isolate, value));
 }
 
 V8Response V8Context::CreateBoolean(bool value) {
     V8_CONTEXT_SCOPE
-    return V8Response::From(GetContext(), v8::Boolean::New(_isolate, value));
+    return V8Response_From(GetContext(), v8::Boolean::New(_isolate, value));
 }
 
 V8Response V8Context::CreateUndefined() {
     V8_CONTEXT_SCOPE
-    return V8Response::From(GetContext(), v8::Undefined(_isolate));
+    return V8Response_From(GetContext(), v8::Undefined(_isolate));
 }
 
 V8Response V8Context::CreateNull() {
     V8_CONTEXT_SCOPE
-    return V8Response::From(GetContext(), v8::Null(_isolate));
+    return V8Response_From(GetContext(), v8::Null(_isolate));
 }
 
 V8Response V8Context::CreateString(XString value) {
     V8_CONTEXT_SCOPE
-    return V8Response::From(GetContext(), v8::String::NewFromUtf8(_isolate, value));
+    return V8Response_From(GetContext(), v8::String::NewFromUtf8(_isolate, value));
 }
 
 V8Response V8Context::CreateDate(int64_t value) {
     V8_CONTEXT_SCOPE
-    return V8Response::From(GetContext(), v8::Date::New(GetContext(), (double)value).ToLocalChecked());
+    return V8Response_From(GetContext(), v8::Date::New(GetContext(), (double)value).ToLocalChecked());
 }
 
 V8Response V8Context::Wrap(void *value) {
     V8_CONTEXT_SCOPE
-    return V8Response::From(GetContext(),v8::External::New(_isolate, value));
+    return V8Response_From(GetContext(),v8::External::New(_isolate, value));
 }
 
 void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
@@ -100,8 +100,8 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     for (uint32_t i = 0; i < n; i++) {
         a->Set(context, i, args[i]).ToChecked();
     }
-    V8Response target = V8Response::From(context, args.This());
-    V8Response handleArgs = V8Response::From(context, a);
+    V8Response target = V8Response_From(context, args.This());
+    V8Response handleArgs = V8Response_From(context, a);
     V8Response r = function(target, handleArgs);
 
     if (r.type == V8ResponseType::Error) {
@@ -126,25 +126,34 @@ V8Response V8Context::CreateFunction(ExternalCall function, XString debugHelper)
     ;	Local<v8::Function> f = v8::Function::New(context, X8Call, e).ToLocalChecked();
     Local<v8::String> n = v8::String::NewFromUtf8(_isolate, debugHelper);
     f->SetName(n);
-    return V8Response::From(GetContext(), f);
+    return V8Response_From(GetContext(), f);
 }
 
 V8Response V8Context::Evaluate(XString script, XString location) {
     V8_CONTEXT_SCOPE
+
     TryCatch tryCatch(_isolate);
-    Local<Context> context(_isolate->GetCurrentContext());
-    ScriptOrigin origin(String::NewFromUtf8(_isolate, location));
-    Local<v8::String> sc = String::NewFromUtf8(_isolate, script);
+    Local<Context> context = GetContext();
+    Local<v8::String> v8ScriptSrc =
+            v8::String::NewFromUtf8(_isolate, script, v8::NewStringType::kNormal)
+            .ToLocalChecked();
+    Local<v8::String> v8ScriptLocation =
+            v8::String::NewFromUtf8(_isolate, location, v8::NewStringType::kNormal)
+            .ToLocalChecked();
+
+    Context::Scope context_scope(context);
+
+    ScriptOrigin origin(v8ScriptLocation, v8::Integer::New(_isolate, 0) );
+
     Local<Script> s;
-    if (!Script::Compile(context, sc, &origin).ToLocal(&s)) {
-        _logger("Compilation failed");
-        return V8Response::FromError(context, tryCatch.Exception());
+    if (!Script::Compile(context, v8ScriptSrc, &origin).ToLocal(&s)) {
+        return V8Response_FromError(context, tryCatch.Exception());
     }
     Local<Value> result;
     if (!s->Run(context).ToLocal(&result)) {
-        return V8Response::FromError(context, tryCatch.Exception());
+        return V8Response_FromError(context, tryCatch.Exception());
     }
-    return V8Response::From(context, result);
+    return V8Response_From(context, result);
 }
 
 
@@ -158,11 +167,11 @@ V8Response V8Context::GetProperty(V8Handle target, XString name) {
     Local<Value> v = target->Get(_isolate);
     Local<Context> context = GetContext();
     if (!v->IsObject())
-        return V8Response::FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an object"));
+        return V8Response_FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an object"));
     Local<v8::String> jsName = v8::String::NewFromUtf8(_isolate, name);
     Local<v8::Object> jsObj = v->ToObject(context).ToLocalChecked();
     Local<Value> item = jsObj->Get(context, jsName).ToLocalChecked();
-    return V8Response::From(context, item);
+    return V8Response_From(context, item);
 }
 
 V8Response V8Context::GetPropertyAt(V8Handle target, int index) {
@@ -170,11 +179,11 @@ V8Response V8Context::GetPropertyAt(V8Handle target, int index) {
     Local<Value> v = target->Get(_isolate);
     Local<Context> context = GetContext();
     if (!v->IsArray())
-        return V8Response::FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an array"));
+        return V8Response_FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an array"));
     // Local<Value> item = v->ToObject(context).ToLocalChecked()->->Get(context, index).ToLocalChecked();
     Local<v8::Object> a = v->ToObject(context).ToLocalChecked();
     Local<Value> item = a->Get(context, (uint) index).ToLocalChecked();
-    return V8Response::From(context, item);
+    return V8Response_From(context, item);
 }
 
 V8Response V8Context::SetProperty(V8Handle target, XString name, V8Handle value) {
@@ -183,11 +192,11 @@ V8Response V8Context::SetProperty(V8Handle target, XString name, V8Handle value)
     Local<Value> v = value->Get(_isolate);
     Local<Context> context = GetContext();
     if (!t->IsObject())
-        return V8Response::FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an object"));
+        return V8Response_FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an object"));
     Local<v8::String> jsName = v8::String::NewFromUtf8(_isolate, name);
     Local<v8::Object> obj = t->ToObject(context).ToLocalChecked();
     obj->Set(context, jsName, v).ToChecked();
-    return V8Response::From(context, v);
+    return V8Response_From(context, v);
 }
 
 V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) {
@@ -196,8 +205,8 @@ V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) 
     Local<Value> v = value->Get(_isolate);
     Local<Context> context = GetContext();
     if (!t->IsArray())
-        return V8Response::FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an array"));
+        return V8Response_FromError(context, v8::String::NewFromUtf8(_isolate, "This is not an array"));
     Local<v8::Object> obj = t->ToObject(context).ToLocalChecked();
     obj->Set(context, (uint)index, v).ToChecked();
-    return V8Response::From(context, v);
+    return V8Response_From(context, v);
 }

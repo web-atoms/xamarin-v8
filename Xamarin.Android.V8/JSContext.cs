@@ -39,7 +39,7 @@ namespace Xamarin.Android.V8
         V8Handle context;
         public JSContext(bool debug = false)
         {
-            if (allocator == null)
+            if (allocator == IntPtr.Zero)
             {
                 MemoryAllocator a = (n) => Marshal.AllocHGlobal(n);
                 JSContextLog _logger = (t) => {
@@ -53,6 +53,13 @@ namespace Xamarin.Android.V8
                 deAllocator = IntPtr.Zero;
             }
             this.context = V8Context_Create(debug, logger, allocator, deAllocator);
+
+            if (Logger == null)
+            {
+                Logger = (s) => {
+                    System.Diagnostics.Debug.WriteLine(s);
+                };
+            }
         }
 
         public JSValue CreateObject()
@@ -114,7 +121,7 @@ namespace Xamarin.Android.V8
 
         public JSValue Evaluate(string script, string location = null)
         {
-            var c = V8Context_Evaluate(context, script, location ?? "Unnamed").GetContainer();
+            var c = V8Context_Evaluate(context, script, location ?? "vm" ).GetContainer();
             return new JSValue(context, c);
         }
 

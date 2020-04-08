@@ -34,7 +34,6 @@ typedef union {
     int32_t intValue;
     int64_t longValue;
     double doubleValue;
-    XString stringValue;
 } V8Value;
 
 /*
@@ -48,8 +47,8 @@ public:
     V8ResponseType type;
     union {
         struct {
-            V8Handle handle;
             V8HandleType handleType;
+            V8Handle handle;
             V8Value value;
         } handle;
         struct {
@@ -59,13 +58,12 @@ public:
         XString stringValue;
         long longValue;
     } result;
-
-    static V8Response From(Local<Context> context, Local<Value> handle);
-
-    static V8Response FromError(Local<Context> context, Local<Value> error);
-
-    static V8Response ToString(Local<Context> context, Local<Value> error);
 };
 
+static V8Response V8Response_From(Local<Context> context, Local<Value> handle);
+
+static V8Response V8Response_FromError(Local<Context> context, Local<Value> error);
+
+static V8Response V8Response_ToString(Local<Context> context, Local<Value> error);
 
 #endif //LIQUIDCORE_MASTER_V8RESPONSE_H
