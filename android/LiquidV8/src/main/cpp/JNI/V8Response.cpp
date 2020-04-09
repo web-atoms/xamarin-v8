@@ -52,6 +52,9 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
              || handle->IsBigInt64Array()) {
         v.result.handle.handleType = V8HandleType::Array;
     }
+    else if (handle->IsSymbol()) {
+        v.result.handle.handleType = V8HandleType::Symbol;
+    }
     else if (handle->IsExternal()) {
         v.result.handle.handleType = V8HandleType::Wrapped;
         Local<v8::External> e = handle.As<v8::External>();
@@ -61,8 +64,9 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
         v.result.handle.handleType = V8HandleType::Object;
     }
 
-    v.result.handle.handle = new Global<Value>();
-    v.result.handle.handle->Reset(isolate, handle);
+    V8Handle h = new Global<Value>();
+    v.result.handle.handle = h;
+    h->Reset(isolate, handle);
     return v;
 }
 
@@ -70,6 +74,28 @@ V8Response V8Response_FromError(Local<Context> context, const char* text) {
     MaybeLocal<v8::String> t = v8::String::NewFromUtf8(context->GetIsolate(), text, String::NewStringType::kNormalString);
     return V8Response_FromError(context, t.ToLocalChecked());
 }
+
+V8Response V8Response_FromWrappedFunction(Local<Context> context, Local<v8::Function> handle) {
+    V8Response v = {};
+    v.type = V8ResponseType::Handle;
+    V8Handle h = new Global<Value>();
+    h->Reset(context->GetIsolate(), handle);
+    v.result.handle.handleType = V8HandleType::WrappedFunction;
+    v.result.handle.handle = h;
+    return v;
+}
+
+V8Response V8Response_FromWrappedInstance(Local<Context> context, Local<Value> handle) {
+    V8Response v = {};
+    v.type = V8ResponseType::Handle;
+    V8Handle h = new Global<Value>();
+    h->Reset(context->GetIsolate(), handle);
+    v.result.handle.handleType = V8HandleType::Wrapped;
+    v.result.handle.handle = h;
+    return v;
+}
+
+
 
 V8Response V8Response_FromError(Local<Context> context, Local<Value> error) {
     V8Response v = V8Response();

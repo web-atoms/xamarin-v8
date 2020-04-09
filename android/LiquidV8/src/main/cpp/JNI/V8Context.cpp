@@ -35,6 +35,8 @@ V8Context::V8Context(bool debug, LoggerCallback loggerCallback) {
     Local<v8::Context> c = Context::New(_isolate, nullptr, global);
     _context.Reset(_isolate, c);
 
+    Local<v8::Symbol> s = v8::Symbol::New(_isolate, V8_STRING("WrappedInstance"));
+    _wrapSymbol.Reset(_isolate, s);
 
 }
 
@@ -76,6 +78,12 @@ V8Response V8Context::CreateNull() {
 V8Response V8Context::CreateString(XString value) {
     V8_HANDLE_SCOPE
     return V8Response_From(GetContext(), V8_STRING(value));
+}
+
+V8Response V8Context::CreateSymbol(XString name) {
+    V8_HANDLE_SCOPE
+    Local<Symbol> symbol = Symbol::New(_isolate, V8_STRING(name));
+    return V8Response_From(GetContext(), symbol);
 }
 
 V8Response V8Context::CreateDate(int64_t value) {
@@ -146,9 +154,16 @@ V8Response V8Context::DefineProperty(
 }
 
 V8Response V8Context::Wrap(void *value) {
-    V8_HANDLE_SCOPE
+    V8_CONTEXT_SCOPE
 
-    return V8Response_From(GetContext(),v8::External::New(_isolate, value));
+    // let us create
+    // Local<v8::Object> w = v8::Object::New(_isolate);
+    Local<v8::Value> e = v8::External::New(_isolate, value);
+//     Local<v8::Symbol> s = _wrapSymbol.Get(_isolate);
+   //  if(!w->Set(context, s,e).ToChecked()) {
+    //    return V8Response_FromError(context, "Failed to wrap this object");
+    //}
+    return V8Response_FromWrappedObject(GetContext(), e);
 }
 
 void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
@@ -159,7 +174,7 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     ExternalCall function = (ExternalCall) b->Value();
 
     HandleScope scope(isolate);
-    uint32_t n = args.Length();
+    uint32_t n = (uint)args.Length();
     Local<v8::Array> a = v8::Array::New(isolate, n);
     for (uint32_t i = 0; i < n; i++) {
         a->Set(context, i, args[i]).ToChecked();
@@ -187,10 +202,10 @@ V8Response V8Context::CreateFunction(ExternalCall function, XString debugHelper)
     V8_HANDLE_SCOPE
     Local<External> e = External::New(_isolate, (void*)function);
     Local<Context> context(_isolate->GetCurrentContext());
-    ;	Local<v8::Function> f = v8::Function::New(context, X8Call, e).ToLocalChecked();
+    Local<v8::Function> f = v8::Function::New(context, X8Call, e).ToLocalChecked();
     Local<v8::String> n = V8_STRING(debugHelper);
     f->SetName(n);
-    return V8Response_From(GetContext(), f);
+    return V8Response_FromWrappedFunction(GetContext(), f);
 }
 
 V8Response V8Context::Evaluate(XString script, XString location) {
@@ -213,12 +228,6 @@ V8Response V8Context::Evaluate(XString script, XString location) {
     if (!s->Run(context).ToLocal(&result)) {
         return V8Response_FromError(context, tryCatch.Exception());
     }
-    Local<v8::String> r = result->ToString(context).ToLocalChecked();
-    uint length = (uint)r->Utf8Length(_isolate);
-    char* str = (char*)malloc(length);
-    r->WriteUtf8(_isolate, str, length, nullptr, 0);
-    _logger(str);
-    delete str;
     return V8Response_From(context, result);
 }
 

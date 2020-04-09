@@ -28,8 +28,10 @@ enum V8HandleType : uint8_t {
     Object = 0xF0,
     Function = 0xF1,
     Array = 0xF2,
-    Wrapped = 0xF3,
-    Date = 0xF4
+    Date = 0xF3,
+    Wrapped = 0xF4,
+    WrappedFunction = 0xF5,
+    Symbol = 0xF6
 };
 
 typedef union {
@@ -68,6 +70,10 @@ disposed by the caller by calling V8Context_Release method.
 
 }
 V8Response V8Response_From(Local<Context> context, Local<Value> handle);
+
+V8Response V8Response_FromWrappedFunction(Local<Context> context, Local<v8::Function> handle);
+
+V8Response V8Response_FromWrappedObject(Local<Context> context, Local<v8::Function> handle);
 
 V8Response V8Response_FromError(Local<Context> context, const char* text);
 

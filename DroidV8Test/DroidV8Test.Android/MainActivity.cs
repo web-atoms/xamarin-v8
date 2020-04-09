@@ -27,7 +27,10 @@ namespace DroidV8Test.Droid
             var context = new JSContext();
             var n = context.CreateNumber(2);
             var s = context.CreateString("a");
-            var r = context.Evaluate(" 3 + 5 `");
+            var r = context.Evaluate(" 3 + 5 ");
+            var f = context.CreateFunction(0, (c, a) => c.Convert("hello world"), "Hello world");
+            context["hw"] = f;
+            s = context.Evaluate("hw()");
             System.Diagnostics.Debug.WriteLine(r.IsNumber);
 
         }

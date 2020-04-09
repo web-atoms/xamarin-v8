@@ -19,6 +19,7 @@ protected:
     std::unique_ptr<Platform> _platform;
     Isolate* _isolate;
     Global<Context> _context;
+    Global<Symbol> _wrapSymbol;
 
     // delete array allocator
     ArrayBuffer::Allocator* _arrayBufferAllocator;
@@ -35,6 +36,7 @@ public:
     void Release(V8Handle handle);
 
     V8Response CreateObject();
+    V8Response CreateSymbol(XString name);
     V8Response CreateNull();
     V8Response CreateUndefined();
     V8Response CreateBoolean(bool value);

@@ -30,6 +30,10 @@ extern "C" {
         return context->CreateString(value);
     }
 
+    V8Response V8Context_CreateSymbol(V8Context *context, XString value) {
+        return context->CreateSymbol(value);
+    }
+
     V8Response V8Context_CreateDate(V8Context *context, int64_t value) {
         return context->CreateDate(value);
     }

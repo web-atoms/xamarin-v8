@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -35,6 +35,8 @@ namespace Xamarin.Android.V8
     public class JSContext: IJSContext
     {
 
+        internal const string WrappedInstanceName = "_$_Web_Atoms_Wrapped_Instance";
+
         const string LibName = "liquidjs";
 
         static IntPtr allocator;
@@ -50,6 +52,8 @@ namespace Xamarin.Android.V8
         public IJSValue Undefined { get; }
 
         public IJSValue Global { get; }
+
+        public IJSValue Null { get; }
 
         public string Stack => throw new NotImplementedException();
 
@@ -85,6 +89,8 @@ namespace Xamarin.Android.V8
             this.Undefined = new JSValue(this, V8Context_CreateUndefined(context).GetContainer());
 
             this.Global = new JSValue(this, V8Context_GetGlobal(context).GetContainer());
+
+            this.Null = new JSValue(this, V8Context_CreateNull(context).GetContainer());
         }
 
         public IJSValue CreateObject()
@@ -111,6 +117,11 @@ namespace Xamarin.Android.V8
         public IJSValue CreateNumber(double value)
         {
             return new JSValue(this, V8Context_CreateNumber(context, value).GetContainer());
+        }
+
+        public IJSValue CreateBoolean(bool value)
+        {
+            return new JSValue(this, V8Context_CreateBoolean(context, value).GetContainer());
         }
 
         public IJSValue CreateDate(DateTime value)
@@ -164,7 +175,83 @@ namespace Xamarin.Android.V8
 
         public IJSValue Convert(object value)
         {
-            throw new NotImplementedException();
+            if (value == null)
+            {
+                return this.Null;
+            }
+            if (value is IJSValue jsv)
+            {
+                return jsv;
+            }
+            if (value is IJSService jvs)
+            {
+                // build...
+                return JSService.Create(this, jvs);
+            }
+            if (value is string s)
+                return this.CreateString(s);
+
+            if (value is int i)
+                return this.CreateNumber(i);
+
+            if (value is float f)
+                return this.CreateNumber(f);
+
+            if (value is double d)
+                return this.CreateNumber(d);
+            if (value is decimal dec)
+                return this.CreateNumber((double)dec);
+
+            if (value is bool b)
+                return this.CreateBoolean(b);
+            
+            if (value is AtomEnumerable en)
+            {
+                return en.array;
+            }
+
+            if (value is DateTime dt)
+            {
+                return this.CreateDate(dt);
+            }
+            
+            if (value is Task<IJSValue> task)
+            {
+                return this.ToPromise(task);
+            }
+
+
+            var wrapped = new JSValue(this, V8Context_Wrap(context, value).GetContainer());
+            var w = this.CreateObject();
+
+            if (!(value is IJSContext))
+            {
+                w.DefineProperty("expand", new JSPropertyDescriptor
+                {
+                    Enumerable = true,
+                    Configurable = true,
+                    Get = CreateFunction(0, (c, a) =>
+                    {
+                        return this.Serialize(value, SerializationMode.Reference);
+                    }, "Expand")
+                });
+
+                w["appendChild"] = this.CreateFunction(1, (c, p) =>
+                {
+                    this["bridge"].InvokeMethod("appendChild", new IJSValue[] { w, p[0] });
+                    return this.Undefined;
+                }, "appendChild");
+
+                w["dispatchEvent"] = this.CreateFunction(1, (c, p) =>
+                {
+                    var first = p[0];
+                    this["bridge"].InvokeMethod("dispatchEvent", new IJSValue[] { w, first });
+                    return first;
+                }, "dispatchEvent");
+
+            }
+            w[WrappedInstanceName] = wrapped;
+            return w;
         }
 
         public bool HasProperty(string name)
@@ -298,6 +385,13 @@ namespace Xamarin.Android.V8
         internal extern static V8Response V8Context_ToString(
             V8Handle context,
             IntPtr handle);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_Wrap(
+            V8Handle context,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            object handle);
+
 
         [DllImport(LibName)]
         internal extern static void V8Context_Release(V8Response r);
