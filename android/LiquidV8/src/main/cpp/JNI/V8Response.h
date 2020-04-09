@@ -7,63 +7,76 @@
 
 #include "common.h"
 
-enum V8ResponseType : int16_t {
+enum V8ResponseType : uint8_t {
     Error = 0,
     Handle = 1,
-    StringValue = 2
+    StringValue = 2,
+    BooleanValue = 3,
+    IntegerValue = 4
 };
 
-enum V8HandleType : int16_t {
+enum V8HandleType : uint8_t {
     None = 0,
     Undefined = 1,
     Null = 2,
     Number = 3,
     NotANumber = 4,
-    BigInt = 5,
-    Boolean = 6,
+    Integer = 5,
+    BigInt = 6,
+    Boolean = 7,
     String = 0xFF,
     Object = 0xF0,
     Function = 0xF1,
     Array = 0xF2,
-    Remote = 0xF3,
+    Wrapped = 0xF3,
     Date = 0xF4
 };
 
 typedef union {
-    bool boolValue;
+    uint8_t boolValue;
     int32_t intValue;
     int64_t longValue;
     double doubleValue;
+    void* refValue;
 } V8Value;
+
+extern "C" {
 
 /*
 When a call is made from outside, response will indicate success/failure
 and it will contain the value. In case of string, the response must be
 disposed by the caller by calling V8Context_Release method.
 */
-struct V8Response
-{
-public:
-    V8ResponseType type;
-    union {
-        struct {
-            V8HandleType handleType;
-            V8Handle handle;
-            V8Value value;
-        } handle;
-        struct {
-            XString message;
-            XString stack;
-        } error;
-        XString stringValue;
-        long longValue;
-    } result;
-};
+    struct V8Response {
+        uint8_t type;
+        union {
+            struct {
+                uint8_t handleType;
+                V8Value value;
+                V8Handle handle;
+            } handle;
+            struct {
+                XString message;
+                XString stack;
+            } error;
+            XString stringValue;
+            int64_t longValue;
+            int32_t intValue;
+            bool booleanValue;
+        } result;
+    };
 
-static V8Response V8Response_From(Local<Context> context, Local<Value> handle);
+}
+V8Response V8Response_From(Local<Context> context, Local<Value> handle);
 
-static V8Response V8Response_FromError(Local<Context> context, Local<Value> error);
+V8Response V8Response_FromError(Local<Context> context, const char* text);
 
-static V8Response V8Response_ToString(Local<Context> context, Local<Value> error);
+V8Response V8Response_FromError(Local<Context> context, Local<Value> error);
+
+V8Response V8Response_ToString(Local<Context> context, Local<Value> error);
+
+V8Response V8Response_FromBoolean(Local<Context> context, bool value);
+
+V8Response V8Response_FromInteger(Local<Context> context, int value);
 
 #endif //LIQUIDCORE_MASTER_V8RESPONSE_H

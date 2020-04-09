@@ -11,9 +11,19 @@
 using namespace v8;
 
 
-#define V8_CONTEXT_SCOPE \
+#define V8_HANDLE_SCOPE \
     v8::Isolate::Scope isolate_scope(_isolate);\
     HandleScope scope(_isolate);
+
+
+#define V8_CONTEXT_SCOPE \
+    v8::Isolate::Scope isolate_scope(_isolate);\
+    HandleScope scope(_isolate); \
+    Local<Context> context = GetContext(); \
+    Context::Scope context_scope(context); \
+    TryCatch tryCatch(_isolate); \
+
+
 
 typedef char* XString;
 

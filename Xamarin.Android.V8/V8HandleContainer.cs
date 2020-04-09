@@ -4,28 +4,34 @@ using System.Runtime.InteropServices;
 
 namespace Xamarin.Android.V8
 {
-    [StructLayout(LayoutKind.Sequential)]
+    [StructLayout(LayoutKind.Sequential, Pack = 4)]
     internal struct V8HandleContainer
     {
-        internal V8HandleType handleType;
-        internal IntPtr handle;
-        internal V8Value value;
+        [MarshalAs(UnmanagedType.U1)]
+        public V8HandleType handleType;
+
+        public V8Value value;
+
+        public IntPtr handle;
     }
 
     [StructLayout(LayoutKind.Explicit)]
     internal struct V8Value
     {
         [FieldOffset(0)]
-        internal bool boolValue;
+        public bool boolValue;
 
         [FieldOffset(0)]
-        internal int intValue;
+        public int intValue;
 
         [FieldOffset(0)]
-        internal long longValue;
+        public Int64 longValue;
 
         [FieldOffset(0)]
-        internal double doubleValue;
+        public double doubleValue;
+
+        [FieldOffset(0)]
+        public IntPtr refValue;
 
     }
 }

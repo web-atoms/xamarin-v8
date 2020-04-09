@@ -6,7 +6,7 @@
 
 V8Response V8Response_From(Local<Context> context, Local<Value> handle)
 {
-    V8Response v = V8Response();
+    V8Response v = {};
     v.type = V8ResponseType::Handle;
 
     Isolate* isolate = context->GetIsolate();
@@ -28,9 +28,9 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
     }
     else if (handle->IsBoolean() || handle->IsBooleanObject()) {
         v.result.handle.handleType = V8HandleType::Boolean;
-        v.result.handle.value.boolValue = handle->BooleanValue(context).ToChecked();
+        v.result.handle.value.boolValue = (uint8_t)handle->BooleanValue(context).ToChecked();
     } else if (handle->IsInt32()) {
-        v.result.handle.handleType = V8HandleType::Number;
+        v.result.handle.handleType = V8HandleType::Integer;
         v.result.handle.value.intValue = handle->Int32Value(context).ToChecked();
     }
     else if (handle->IsNumber() || handle->IsNumberObject()) {
@@ -52,6 +52,11 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
              || handle->IsBigInt64Array()) {
         v.result.handle.handleType = V8HandleType::Array;
     }
+    else if (handle->IsExternal()) {
+        v.result.handle.handleType = V8HandleType::Wrapped;
+        // Local<v8::External> e = v8::External::Cast(handle);
+        v.result.handle.value.refValue = e->Value();
+    }
     else if (handle->IsObject()) {
         v.result.handle.handleType = V8HandleType::Object;
     }
@@ -59,6 +64,11 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
     v.result.handle.handle = new Global<Value>();
     v.result.handle.handle->Reset(isolate, handle);
     return v;
+}
+
+V8Response V8Response_FromError(Local<Context> context, const char* text) {
+    MaybeLocal<v8::String> t = v8::String::NewFromUtf8(context->GetIsolate(), text, String::NewStringType::kNormalString);
+    return V8Response_FromError(context, t.ToLocalChecked());
 }
 
 V8Response V8Response_FromError(Local<Context> context, Local<Value> error) {
@@ -70,7 +80,8 @@ V8Response V8Response_FromError(Local<Context> context, Local<Value> error) {
     Local<v8::Name> name = v8::String::NewFromUtf8(isolate, "stack");
     if (local->HasOwnProperty(context, name).ToChecked()) {
         Local<v8::Value> stack = local->Get(context, name).ToLocalChecked();
-        v.result.error.stack = V8StringToXString(context, stack.As<v8::String>());
+        Local<v8::String> stackString = stack->ToString(context).ToLocalChecked();
+        v.result.error.stack = V8StringToXString(context, stackString);
     }
     else {
         v.result.error.stack = nullptr;
@@ -88,3 +99,16 @@ V8Response V8Response_ToString(Local<Context> context, Local<Value> value) {
     return v;
 }
 
+V8Response V8Response_FromBoolean(Local<Context> context, bool value) {
+    V8Response v = {};
+    v.type = V8ResponseType::BooleanValue;
+    v.result.booleanValue = value;
+    return v;
+}
+
+V8Response V8Response_FromInteger(Local<Context> context, int value) {
+    V8Response v = {};
+    v.type = V8ResponseType::IntegerValue;
+    v.result.intValue = value;
+    return v;
+}

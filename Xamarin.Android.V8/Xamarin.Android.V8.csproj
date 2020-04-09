@@ -27,6 +27,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>portable</DebugType>
@@ -46,6 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="WebAtoms.Core" Version="1.4.71" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="JSContext.cs" />
     <Compile Include="JSValue.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
@@ -62,14 +66,8 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedNativeLibrary
-      Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86\libliquidjs.so"
-      Link="libs\x86\libliquidjs.so"
-      />
-    <EmbeddedNativeLibrary
-      Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86_64\libliquidjs.so"
-      Link="libs\x86_64\libliquidjs.so"
-      />
+    <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86\libliquidjs.so" Link="libs\x86\libliquidjs.so" />
+    <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86_64\libliquidjs.so" Link="libs\x86_64\libliquidjs.so" />
     <!-- <EmbeddedNativeLibrary Include="libs\x86_64\libliquidjs.so" /> -->
     <None Include="Resources\AboutResources.txt" />
   </ItemGroup>

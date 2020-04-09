@@ -3,20 +3,21 @@ using System.Linq;
 
 namespace Xamarin.Android.V8
 {
-    internal enum V8HandleType : short
+    internal enum V8HandleType : byte
     {
         None = 0,
         Undefined = 1,
         Null = 2,
         Number = 3,
         NotANumber = 4,
-        BigInt = 5,
-        Boolean = 6,
+        Integer = 5,
+        BigInt = 6,
+        Boolean = 7,
         String = 0xFF,
         Object = 0xF0,
         Function = 0xF1,
         Array = 0xF2,
-        Remote = 0xF3,
+        Wrapped = 0xF3,
         Date = 0xF4
     }
 }

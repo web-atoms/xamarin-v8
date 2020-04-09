@@ -1,20 +1,57 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-
+using WebAtoms;
 using V8Handle = System.IntPtr;
 
 namespace Xamarin.Android.V8
 {
-    public class JSValue
+    internal static class JSExtensions
     {
-        readonly V8Handle context;
-        private V8HandleContainer handle;
-        internal JSValue(V8Handle context, V8HandleContainer handle)
+        public static JSValue ToJSValue(this IJSValue v)
         {
-            this.context = context;
+            return ((JSValue)v);
+        }
+
+        private static V8Handle[] EmptyHandles = new V8Handle[0];
+
+        public static V8Handle[] ToHandles(this IJSValue[] v)
+        {
+            if (v == null || v.Length == 0)
+                return EmptyHandles;
+            var a = new V8Handle[v.Length];
+            for (int i = 0; i < v.Length; i++)
+            {
+                a[i] = ((JSValue)v[i]).handle.handle;
+            }
+            return a;
+        }
+
+    }
+
+    public class JSValue: IJSValue
+    {
+        readonly JSContext jsContext;
+        readonly V8Handle context;
+        internal V8HandleContainer handle;
+        internal JSValue(JSContext context, V8HandleContainer handle)
+        {
+            this.jsContext = context;
+            this.context = context.context;
             this.handle = handle;
         }
+
+        public IJSValue CreateNewInstance(params IJSValue[] args) {
+            var r = JSContext.V8Context_NewInstance(context, handle.handle, args.Length, args.ToHandles()).GetContainer();
+            return new JSValue(jsContext, r);
+        }
+
+        public IJSContext Context => jsContext;
+
+        public bool IsValueNull => this.handle.handleType == V8HandleType.Null;
+
+        public bool IsUndefined => this.handle.handleType == V8HandleType.Undefined;
 
         public bool IsString => this.handle.handleType == V8HandleType.String;
 
@@ -30,32 +67,78 @@ namespace Xamarin.Android.V8
 
         public bool IsArray => handle.handleType == V8HandleType.Array;
 
-        public JSValue this[string name]
+        public bool IsWrapped => handle.handleType == V8HandleType.Wrapped;
+
+        public IJSValue this[string name]
         {
             get
             {
-                return new JSValue(context, JSContext.V8Context_GetProperty(context, handle.handle, name).GetContainer());
+                return new JSValue(jsContext, JSContext.V8Context_GetProperty(context, handle.handle, name).GetContainer());
             }
             set
             {
-                var v = value ?? (new JSValue(context, JSContext.V8Context_CreateNull(context).GetContainer()));
-                JSContext.V8Context_SetProperty(context, handle.handle, name, v.handle.handle).GetContainer();
+                var v = value ?? (new JSValue(jsContext, JSContext.V8Context_CreateNull(context).GetContainer()));
+                JSContext.V8Context_SetProperty(context, handle.handle, name, v.ToJSValue().handle.handle).GetContainer();
             }
         }
 
-        public JSValue this[int index]
+        public IJSValue this[int index]
         {
             get
             {
-                return new JSValue(context, JSContext.V8Context_GetPropertyAt(context, handle.handle, index).GetContainer());
+                return new JSValue(jsContext, JSContext.V8Context_GetPropertyAt(context, handle.handle, index).GetContainer());
             }
             set
             {
-                var v = value ?? (new JSValue(context, JSContext.V8Context_CreateNull(context).GetContainer()));
-                JSContext.V8Context_SetPropertyAt(context, handle.handle, index, v.handle.handle).GetContainer();
+                var v = value ?? (new JSValue(jsContext, JSContext.V8Context_CreateNull(context).GetContainer()));
+                JSContext.V8Context_SetPropertyAt(context, handle.handle, index, v.ToJSValue().handle.handle).GetContainer();
             }
         }
 
+        public bool BooleanValue => this.handle.value.boolValue;
+
+        public int IntValue => this.handle.value.intValue;
+
+        public double DoubleValue => this.handle.value.doubleValue;
+
+        public float FloatValue => (float)this.handle.value.doubleValue;
+
+        public DateTime DateValue => throw new NotImplementedException(); // this.handle.value.doubleValue;
+
+        /// <summary>
+        /// Since number of elements can change, we need to retrive value from v8
+        /// </summary>
+        public int Length => JSContext.V8Context_GetArrayLength(context, handle.handle).GetIntegerValue();
+
+        public long LongValue => this.handle.value.longValue;
+
+        public string DebugView => "";
+
+        public IEnumerable<JSProperty> Entries => throw new NotImplementedException();
+
+        public bool HasProperty(string name)
+        {
+            return JSContext.V8Context_HasProperty(context, handle.handle, name).GetBooleanValue();
+        }
+
+        public bool DeleteProperty(string name)
+        {
+            return JSContext.V8Context_DeleteProperty(context, handle.handle, name).GetBooleanValue();
+        }
+
+        public T Unwrap<T>()
+        {
+            return Marshal.PtrToStructure<T>(handle.value.refValue);
+        }
+
+        public override string ToString()
+        {
+            if (this.IsObject)
+            {
+                return JSContext.V8Context_ToString(context, handle.handle).GetString();
+            }
+            return base.ToString();
+        }
 
         ~JSValue()
         {
@@ -72,6 +155,32 @@ namespace Xamarin.Android.V8
                 handle = IntPtr.Zero
             };
             return h;
+        }
+
+        public IJSValue InvokeMethod(string name, params IJSValue[] args)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IJSValue InvokeFunction(IJSValue thisValue, params IJSValue[] args)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.handle;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.handle, th, args.Length, args.ToHandles()).GetContainer();
+            return new JSValue(jsContext, r);
+        }
+
+        public IList<IJSValue> ToArray()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DefineProperty(string name, JSPropertyDescriptor descriptor)
+        {
+            throw new NotImplementedException();
         }
     }
 }

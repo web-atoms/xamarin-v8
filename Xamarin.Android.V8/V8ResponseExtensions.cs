@@ -56,6 +56,29 @@ namespace Xamarin.Android.V8
             return r.handle;
         }
 
+        internal static bool GetBooleanValue(this V8Response r)
+        {
+            ThrowError(r);
+            if (r.type != V8ResponseType.Boolean)
+            {
+                JSContext.V8Context_Release(r);
+                throw new NotSupportedException();
+            }
+            return r.booleanValue;
+        }
+
+        internal static int GetIntegerValue(this V8Response r)
+        {
+            ThrowError(r);
+            if (r.type != V8ResponseType.Integer)
+            {
+                JSContext.V8Context_Release(r);
+                throw new NotSupportedException();
+            }
+            return r.intValue;
+        }
+
+
         internal static string GetString(this V8Response r)
         {
             ThrowError(r);
@@ -64,9 +87,7 @@ namespace Xamarin.Android.V8
                 JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
-            var msg = Marshal.PtrToStringUTF8(r.stringValue);
-            JSContext.V8Context_Release(r);
-            return msg;
+            return r.stringValue.ToUTF8StringFromPtr();
         }
     }
 }

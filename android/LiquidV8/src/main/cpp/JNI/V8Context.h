@@ -43,11 +43,17 @@ public:
     V8Response CreateDate(int64_t value);
     V8Response CreateFunction(ExternalCall function, XString debugHelper);
     V8Response Evaluate(XString script, XString location);
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, V8Handle* args);
+    V8Response GetGlobal();
+    V8Response GetArrayLength(V8Handle target);
+    V8Response NewInstance(V8Handle target, int len, V8Handle* args);
+    V8Response HasProperty(V8Handle target, XString name);
     V8Response GetProperty(V8Handle target, XString name);
     V8Response SetProperty(V8Handle target, XString name, V8Handle value);
     V8Response GetPropertyAt(V8Handle target, int index);
     V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
     V8Response Wrap(void* value);
+    V8Response ToString(V8Handle target);
 private:
 
 };

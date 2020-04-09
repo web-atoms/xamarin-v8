@@ -10,7 +10,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-
+using WebAtoms;
 using V8Handle = System.IntPtr;
 
 
@@ -25,7 +25,7 @@ namespace Xamarin.Android.V8
 
     internal delegate void JSContextLog(IntPtr text);
 
-    public class JSContext
+    public class JSContext: IJSContext
     {
 
         const string LibName = "liquidjs";
@@ -36,12 +36,26 @@ namespace Xamarin.Android.V8
 
         public Action<string> Logger { get; set; }
 
-        V8Handle context;
+        internal V8Handle context;
+
+        public event EventHandler<ErrorEventArgs> ErrorEvent;
+
+        public IJSValue Undefined { get; }
+
+        public IJSValue Global { get; }
+
+        public string Stack => throw new NotImplementedException();
+
+        public IJSValue this[string name] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public JSContext(bool debug = false)
         {
             if (allocator == IntPtr.Zero)
             {
-                MemoryAllocator a = (n) => Marshal.AllocHGlobal(n);
+                MemoryAllocator a = (n) => {
+                    var an = Marshal.AllocHGlobal(n);
+                    return an;
+                };
                 JSContextLog _logger = (t) => {
                     var s = Marshal.PtrToStringUTF8(t);
                     Logger?.Invoke(s);
@@ -60,45 +74,61 @@ namespace Xamarin.Android.V8
                     System.Diagnostics.Debug.WriteLine(s);
                 };
             }
+
+            this.Undefined = new JSValue(this, V8Context_CreateUndefined(context).GetContainer());
+
+            this.Global = new JSValue(this, V8Context_GetGlobal(context).GetContainer());
         }
 
-        public JSValue CreateObject()
+        public IJSValue CreateObject()
         {
-            return new JSValue(context, V8Context_CreateObject(context).GetContainer());
+            return new JSValue(this, V8Context_CreateObject(context).GetContainer());
         }
 
-        public JSValue CreateArray()
+        public IJSValue CreateNull()
         {
-            return new JSValue(context, V8Context_CreateArray(context).GetContainer());
+            return new JSValue(this, V8Context_CreateNull(context).GetContainer());
         }
 
-        public JSValue CreateString(string value)
+        public IList<IJSValue> CreateArray()
         {
-            return new JSValue(context, V8Context_CreateString(context, value).GetContainer());
+            var a = new JSValue(this, V8Context_CreateArray(context).GetContainer());
+            return a.ToArray();
         }
 
-        public JSValue CreateNumber(double value)
+        public IJSValue CreateString(string value)
         {
-            return new JSValue(context, V8Context_CreateNumber(context, value).GetContainer());
+            return new JSValue(this, V8Context_CreateString(context, value).GetContainer());
         }
 
-        public JSValue CreateDate(DateTime value)
+        public IJSValue CreateNumber(double value)
         {
-            return new JSValue(context, V8Context_CreateDate(context, value.ToJSTime()).GetContainer());
+            return new JSValue(this, V8Context_CreateNumber(context, value).GetContainer());
         }
 
-        public JSValue CreateFunction(Function fx, string debugDescription)
+        public IJSValue CreateDate(DateTime value)
+        {
+            return new JSValue(this, V8Context_CreateDate(context, value.ToJSTime()).GetContainer());
+        }
+
+        public IJSValue CreateFunction(int args, Func<IJSContext, IJSValue[], IJSValue> fx, string debugDescription)
         {
             ExternalCall efx = (t, a) => {
-                var tjs = new JSValue(context, t.GetContainer());
-                var targs = new JSValue(context, t.GetContainer());
+                var tjs = new JSValue(this, t.GetContainer());
+                var targs = new JSValue(this, t.GetContainer());
+                var len = targs.Length;
+                var al = new IJSValue[len];
+                for (int i = 0; i < len; i++)
+                {
+                    al[i] = targs[i];
+                }
                 try
                 {
-                    var r = fx(tjs, targs);
+                    var r = fx(this, al) as JSValue;
                     return new V8Response {
                         type = V8ResponseType.Handle,
                         handle = new V8HandleContainer {
-                            handle = r.Detach()
+                            handle = r?.Detach() ?? IntPtr.Zero
                         }
                     };
                 } catch (Exception ex)
@@ -116,15 +146,29 @@ namespace Xamarin.Android.V8
             };
 
             var c = V8Context_CreateFunction(context, Marshal.GetFunctionPointerForDelegate(efx), debugDescription).GetContainer();
-            return new JSValue(context, c);
+            return new JSValue(this, c);
         }
 
-        public JSValue Evaluate(string script, string location = null)
+        public IJSValue Evaluate(string script, string location = null)
         {
             var c = V8Context_Evaluate(context, script, location ?? "vm" ).GetContainer();
-            return new JSValue(context, c);
+            return new JSValue(this, c);
         }
 
+        public IJSValue Convert(object value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool HasProperty(string name)
+        {
+            return this.Global.HasProperty(name);
+        }
+
+        public bool DeleteProperty(string name)
+        {
+            return this.Global.DeleteProperty(name);
+        }
         ~JSContext()
         {
             V8Context_Dispose(context);
@@ -163,6 +207,43 @@ namespace Xamarin.Android.V8
             [MarshalAs(UnmanagedType.LPUTF8Str)] string value);
 
         [DllImport(LibName)]
+        internal extern static V8Response V8Context_GetGlobal(V8Handle context); 
+        
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_NewInstance(V8Handle context, 
+            V8Handle target, int len,
+            [MarshalAs(UnmanagedType.LPArray)]
+            V8Handle[] args);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeFunction(V8Handle context,
+            V8Handle target,
+            V8Handle thisValue,
+            int len,
+            [MarshalAs(UnmanagedType.LPArray)]
+            V8Handle[] args);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_GetArrayLength(
+            V8Handle context,
+            IntPtr handle);
+
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_HasProperty(
+            V8Handle context,
+            IntPtr handle,
+            [MarshalAs(UnmanagedType.LPUTF8Str)]
+            string name);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_DeleteProperty(
+            V8Handle context,
+            IntPtr handle,
+            [MarshalAs(UnmanagedType.LPUTF8Str)]
+            string name);
+
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_GetProperty(
             V8Handle context, 
             IntPtr handle, 
@@ -188,6 +269,12 @@ namespace Xamarin.Android.V8
             int index,
             IntPtr value);
 
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_ToString(
+            V8Handle context,
+            IntPtr handle);
+
         [DllImport(LibName)]
         internal extern static void V8Context_Release(V8Response r);
 
@@ -206,5 +293,6 @@ namespace Xamarin.Android.V8
             string script,
             [MarshalAs(UnmanagedType.LPUTF8Str)]
             string location);
+
     }
 }

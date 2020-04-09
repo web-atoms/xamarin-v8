@@ -63,6 +63,40 @@ extern "C" {
         return context->Wrap(value);
     }
 
+    V8Response V8Context_GetArrayLength(V8Context* context, V8Handle target) {
+        return context->GetArrayLength(target);
+    }
+
+    V8Response V8Context_GetGlobal(V8Context* context) {
+        return context->GetGlobal();
+    }
+
+    V8Response V8Context_NewInstance(
+            V8Context* context,
+            V8Handle target,
+            int len,
+            V8Handle* args) {
+        return context->NewInstance(target, len, args);
+    }
+
+
+    V8Response V8Context_InvokeFunction(
+            V8Context* context,
+            V8Handle target,
+            V8Handle thisValue,
+            int len,
+            V8Handle* args) {
+        return context->InvokeFunction(target, thisValue, len, args);
+    }
+
+    V8Response V8Context_HasProperty(
+            V8Context* context,
+            V8Handle  target,
+            XString text
+            ) {
+        return context->HasProperty(target, text);
+    }
+
     V8Response V8Context_GetProperty(
             V8Context* context,
             V8Handle target,
@@ -91,6 +125,13 @@ extern "C" {
             int index,
             V8Handle value) {
         return context->SetPropertyAt(target, index, value);
+    }
+
+    V8Response V8Context_ToString(
+            V8Context* context,
+            V8Handle target
+            ) {
+        return context->ToString(target);
     }
 
     V8Response V8Context_Evaluate(V8Context* context, XString script, XString location) {

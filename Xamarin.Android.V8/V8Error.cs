@@ -7,7 +7,7 @@ namespace Xamarin.Android.V8
     [StructLayout(LayoutKind.Sequential)]
     internal struct V8Error
     {
-        internal IntPtr message;
-        internal IntPtr stack;
+        public IntPtr message;
+        public IntPtr stack;
     }
 }
