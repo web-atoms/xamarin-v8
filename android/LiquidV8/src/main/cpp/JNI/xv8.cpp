@@ -59,6 +59,19 @@ extern "C" {
         return context->CreateFunction(fn, debugDisplay);
     }
 
+    V8Response V8Context_DefineProperty(V8Context* context,
+                                        V8Handle target,
+                                        XString name,
+                                        NullableBool configurable,
+                                        NullableBool enumerable,
+                                        NullableBool writable,
+                                        V8Handle get,
+                                        V8Handle set,
+                                        V8Handle value) {
+        return context->DefineProperty(
+                target, name, configurable, enumerable, writable, get, set, value);
+    }
+
     V8Response V8Context_Wrap(V8Context *context, void* value) {
         return context->Wrap(value);
     }

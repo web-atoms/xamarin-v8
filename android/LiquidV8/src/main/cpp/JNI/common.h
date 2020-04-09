@@ -23,6 +23,8 @@ using namespace v8;
     Context::Scope context_scope(context); \
     TryCatch tryCatch(_isolate); \
 
+#define V8_STRING(s) \
+    v8::String::NewFromUtf8(_isolate, s, v8::NewStringType::kNormal).ToLocalChecked()
 
 
 typedef char* XString;
@@ -42,6 +44,12 @@ typedef XString(*StringAllocator)(int length);
 typedef void (*FreeMemory)(void *location);
 
 typedef void (*LoggerCallback)(XString text);
+
+enum NullableBool: int8_t {
+    NotSet = 0,
+    False = 1,
+    True = 2
+};
 
 }
 

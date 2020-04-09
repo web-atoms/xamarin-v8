@@ -54,7 +54,7 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
     }
     else if (handle->IsExternal()) {
         v.result.handle.handleType = V8HandleType::Wrapped;
-        // Local<v8::External> e = v8::External::Cast(handle);
+        Local<v8::External> e = handle.As<v8::External>();
         v.result.handle.value.refValue = e->Value();
     }
     else if (handle->IsObject()) {

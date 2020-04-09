@@ -14,6 +14,16 @@ namespace Xamarin.Android.V8
             return ((JSValue)v);
         }
 
+        public static V8Handle ToHandle(this IJSValue v)
+        {
+            if (v == null)
+            {
+                return IntPtr.Zero;
+            }
+            return ((JSValue)v).handle.handle;
+        }
+
+
         private static V8Handle[] EmptyHandles = new V8Handle[0];
 
         public static V8Handle[] ToHandles(this IJSValue[] v)
@@ -103,7 +113,23 @@ namespace Xamarin.Android.V8
 
         public float FloatValue => (float)this.handle.value.doubleValue;
 
-        public DateTime DateValue => throw new NotImplementedException(); // this.handle.value.doubleValue;
+        public DateTime DateValue
+        {
+            get
+            {
+                long n = 0;
+                if (this.handle.handleType == V8HandleType.Number)
+                {
+                    n = (long)this.handle.value.doubleValue;
+                    return n.FromJSTime();
+                }
+                if (this.handle.handleType == V8HandleType.BigInt)
+                {
+                    return this.handle.value.longValue.FromJSTime();
+                }
+                return DateTime.MinValue;
+            }
+        }
 
         /// <summary>
         /// Since number of elements can change, we need to retrive value from v8
@@ -159,7 +185,9 @@ namespace Xamarin.Android.V8
 
         public IJSValue InvokeMethod(string name, params IJSValue[] args)
         {
-            throw new NotImplementedException();
+            V8Handle th = handle.handle;
+            var r = JSContext.V8Context_InvokeFunction(context, handle.handle, th, args.Length, args.ToHandles()).GetContainer();
+            return new JSValue(jsContext, r);
         }
 
         public IJSValue InvokeFunction(IJSValue thisValue, params IJSValue[] args)
@@ -175,12 +203,28 @@ namespace Xamarin.Android.V8
 
         public IList<IJSValue> ToArray()
         {
-            throw new NotImplementedException();
+            return new AtomEnumerable(this);
         }
 
         public void DefineProperty(string name, JSPropertyDescriptor descriptor)
         {
-            throw new NotImplementedException();
+            NullableBool configurable = descriptor.Configurable.ToNullableBool();
+            NullableBool enumerable = descriptor.Enumerable.ToNullableBool();
+            NullableBool writable = descriptor.Writable.ToNullableBool();
+
+            if(!JSContext.V8Context_DefineProperty(
+                context,
+                handle.handle,
+                name,
+                configurable,
+                enumerable,
+                writable,
+                descriptor.Get.ToHandle(),
+                descriptor.Set.ToHandle(),
+                descriptor.Value.ToHandle()).GetBooleanValue())
+            {
+                throw new InvalidOperationException();
+            }
         }
     }
 }

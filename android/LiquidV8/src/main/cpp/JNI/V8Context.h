@@ -42,6 +42,15 @@ public:
     V8Response CreateString(XString value);
     V8Response CreateDate(int64_t value);
     V8Response CreateFunction(ExternalCall function, XString debugHelper);
+    V8Response DefineProperty(
+            V8Handle target,
+            XString name,
+            NullableBool configurable,
+            NullableBool enumerable,
+            NullableBool writable,
+            V8Handle get,
+            V8Handle set,
+            V8Handle value            );
     V8Response Evaluate(XString script, XString location);
     V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, V8Handle* args);
     V8Response GetGlobal();

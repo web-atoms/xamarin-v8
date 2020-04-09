@@ -7,6 +7,18 @@ namespace Xamarin.Android.V8
     internal static class V8ResponseExtensions
     {
 
+        internal static NullableBool ToNullableBool(this bool? value)
+        {
+            if (value == null)
+            {
+                return NullableBool.NotSet;
+            }
+            if (value.Value == true)
+                return NullableBool.True;
+            return NullableBool.False;
+        }
+
+
         internal static long EPOCH = (new DateTime(1970, 1, 1)).Ticks;
 
         internal static Int64 ToJSTime(this DateTime dt)

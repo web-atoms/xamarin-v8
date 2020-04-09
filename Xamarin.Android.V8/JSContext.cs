@@ -25,6 +25,13 @@ namespace Xamarin.Android.V8
 
     internal delegate void JSContextLog(IntPtr text);
 
+    internal enum NullableBool: byte
+    {
+        NotSet = 0,
+        False = 1,
+        True = 2
+    }
+
     public class JSContext: IJSContext
     {
 
@@ -222,6 +229,23 @@ namespace Xamarin.Android.V8
             int len,
             [MarshalAs(UnmanagedType.LPArray)]
             V8Handle[] args);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_DefineProperty(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPUTF8Str)]
+            string name,
+            [MarshalAs(UnmanagedType.U1)]
+            NullableBool configurable,
+            [MarshalAs(UnmanagedType.U1)]
+            NullableBool enumerable,
+            [MarshalAs(UnmanagedType.U1)]
+            NullableBool writable,
+            IntPtr get,
+            IntPtr set,
+            IntPtr value
+        );
+
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_GetArrayLength(
