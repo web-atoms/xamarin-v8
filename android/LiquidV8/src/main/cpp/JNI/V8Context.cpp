@@ -10,17 +10,26 @@ static bool _V8Initialized = false;
 static ExternalCall externalCall;
 static FreeMemory freeMemory;
 
+void CleanupWrapped(const WeakCallbackInfo<Global<Value>>& info) {
+    // lets delete..
+    Isolate* _isolate = info.GetIsolate();
+    V8Handle handle = info.GetParameter();
+    if (!handle->IsEmpty()) {
+        Local<Value> ev = handle->Get(_isolate);
+        Local<External> e = Local<External>::Cast(ev);
+        void* ed = e->Value();
+        if (ed != nullptr) {
+            freeMemory(ed);
+        }
+    }
+
+    handle->Reset();
+    delete handle;
+}
+
 void ReleaseHandle(Isolate* _isolate, V8Handle handle) {
     if (handle == nullptr)
         return;
-    Local<Value> v = handle->Get(_isolate);
-    if (!v.IsEmpty())
-    {
-        if(v->IsExternal()) {
-            Local<External> e = Local<External>::Cast(v);
-            freeMemory(e->Value());
-        }
-    }
     handle->Reset();
     delete handle;
 }
@@ -181,14 +190,18 @@ V8Response V8Context::DefineProperty(
 V8Response V8Context::Wrap(void *value) {
     V8_CONTEXT_SCOPE
 
-    // let us create
-    // Local<v8::Object> w = v8::Object::New(_isolate);
     Local<v8::Value> e = v8::External::New(_isolate, value);
-//     Local<v8::Symbol> s = _wrapSymbol.Get(_isolate);
-   //  if(!w->Set(context, s,e).ToChecked()) {
-    //    return V8Response_FromError(context, "Failed to wrap this object");
-    //}
-    return V8Response_FromWrappedObject(GetContext(), e);
+
+    // we need to wrap this inside a global
+    // and return it...
+
+    Global<v8::Value>* p = new Global<v8::Value>();
+    p->Reset(_isolate, e);
+    p->SetWeak(p, CleanupWrapped, WeakCallbackType::kFinalizer);
+
+    // this handle represents CLR handle
+    // which will be destroyed by the receiver...
+    return V8Response_FromWrappedObject(context, e);
 }
 
 void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
@@ -234,9 +247,17 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
 V8Response V8Context::CreateFunction(ExternalCall function, XString debugHelper) {
     V8_CONTEXT_SCOPE
     Local<External> e = External::New(_isolate, (void*)function);
+
+    V8Handle p = new Global<Value>();
+    p->Reset(_isolate, e);
+    p->SetWeak(p, CleanupWrapped, WeakCallbackType ::kFinalizer);
+
     Local<v8::Function> f = v8::Function::New(context, X8Call, e).ToLocalChecked();
     Local<v8::String> n = V8_STRING(debugHelper);
     f->SetName(n);
+
+
+
     return V8Response_FromWrappedFunction(GetContext(), f);
 }
 

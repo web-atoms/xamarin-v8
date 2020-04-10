@@ -19,9 +19,9 @@ namespace Xamarin.Android.V8
 
     internal delegate V8Response ExternalCall(V8Response fx, V8Response thisHandle, V8Response args);
 
-    public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
+    internal delegate V8Response CLRExternalCall(V8Response thisHandle, V8Response args);
 
-    internal delegate IntPtr MemoryAllocator(int len);
+    public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
 
     internal delegate void JSContextLog(IntPtr text); 
 
@@ -39,7 +39,6 @@ namespace Xamarin.Android.V8
 
         const string LibName = "liquidjs";
 
-        static IntPtr allocator;
         static IntPtr deAllocator;
         static IntPtr logger;
         static IntPtr externalCaller;
@@ -64,49 +63,44 @@ namespace Xamarin.Android.V8
 
         public JSContext(bool debug = false)
         {
-            if (allocator == IntPtr.Zero)
-            {
-                MemoryAllocator a = (n) => {
-                    var an = Marshal.AllocHGlobal(n);
-                    return an;
-                };
-                JSContextLog _logger = (t) => {
-                    var s = Marshal.PtrToStringUTF8(t);
-                    Logger?.Invoke(s);
-
-                    // to do free string...
-                };
-                allocator = Marshal.GetFunctionPointerForDelegate(a);
-                logger = Marshal.GetFunctionPointerForDelegate(_logger);
-                Action<IntPtr> deallocator = (p) => GCHandle.FromIntPtr(p).Free();
-                deAllocator = Marshal.GetFunctionPointerForDelegate(deallocator);
-
-                ExternalCall ec = (fx, t, a) => {
-                    try
-                    {
-                        var fxc = fx.GetContainer();
-                        var gc = GCHandle.FromIntPtr(fxc.value.refValue);
-                        Func<V8Response, V8Response, V8Response> ffx = (Func<V8Response, V8Response, V8Response>)gc.Target;
-                        return ffx(t, a);
-                    } catch (Exception ex)
-                    {
-                        var msg = Marshal.StringToAllocatedMemoryUTF8(ex.ToString());
-                        return new V8Response {
-                            type = V8ResponseType.Error,
-                            error = new V8Error
-                            {
-                                message = msg,
-                                stack = IntPtr.Zero
-                            }
-                        };
-                    }
-                };
-
-                externalCaller = Marshal.GetFunctionPointerForDelegate(ec);
-
-            }
             lock (creationLock)
             {
+                if (deAllocator == IntPtr.Zero)
+                {
+                    JSContextLog _logger = (t) => {
+                        var s = Marshal.PtrToStringUTF8(t);
+                        Logger?.Invoke(s);
+                    };
+                    logger = Marshal.GetFunctionPointerForDelegate(_logger);
+                    Action<IntPtr> deallocator = (p) => GCHandle.FromIntPtr(p).Free();
+                    deAllocator = Marshal.GetFunctionPointerForDelegate(deallocator);
+
+                    ExternalCall ec = (fx, t, a) => {
+                        try
+                        {
+                            var fxc = fx.GetContainer();
+                            var gc = GCHandle.FromIntPtr(fxc.value.refValue);
+                            Func<V8Response, V8Response, V8Response> ffx = (Func<V8Response, V8Response, V8Response>)gc.Target;
+                            return ffx(t, a);
+                        }
+                        catch (Exception ex)
+                        {
+                            var msg = Marshal.StringToAllocatedMemoryUTF8(ex.ToString());
+                            return new V8Response
+                            {
+                                type = V8ResponseType.Error,
+                                error = new V8Error
+                                {
+                                    message = msg,
+                                    stack = IntPtr.Zero
+                                }
+                            };
+                        }
+                    };
+
+                    externalCaller = Marshal.GetFunctionPointerForDelegate(ec);
+
+                }
                 this.context = V8Context_Create(debug, logger, externalCaller, deAllocator);
             }
 
@@ -260,8 +254,9 @@ namespace Xamarin.Android.V8
                 return this.ToPromise(task);
             }
 
-            
-            var wrapped = new JSValue(this, V8Context_Wrap(context, value).GetContainer());
+
+            var wgc = GCHandle.Alloc(value, GCHandleType.Pinned);
+            var wrapped = new JSValue(this, V8Context_Wrap(context, wgc.AddrOfPinnedObject()).GetContainer());
             var w = this.CreateObject() as JSValue;
 
             if (!(value is IJSContext))
