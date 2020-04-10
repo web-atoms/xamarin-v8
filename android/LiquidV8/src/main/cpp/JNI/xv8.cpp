@@ -5,20 +5,15 @@
 using namespace v8;
 
 static bool _V8Initialized = false;
-static StringAllocator _stringAllocator;
-static FreeMemory _freeMemory;
-
 
 extern "C" {
 
     V8Context *V8Context_Create(
             bool debug,
             LoggerCallback loggerCallback,
-            StringAllocator stringCreator,
+            ExternalCall externalCall,
             FreeMemory freeMemory) {
-        _stringAllocator = stringCreator;
-        _freeMemory = freeMemory;
-        return new V8Context(debug, loggerCallback);
+        return new V8Context(debug, loggerCallback, externalCall, freeMemory);
     }
 
     void V8Context_Dispose(V8Context *context) {
@@ -207,7 +202,7 @@ V8Response V8Context_HasProperty(
             return nullptr;
         Isolate *isolate = context->GetIsolate();
         int len = text->Utf8Length(isolate);
-        char *atext = _stringAllocator(len);
+        char *atext = (char*)malloc((uint)len);
         text->WriteUtf8(isolate, atext, len);
         return atext;
     }

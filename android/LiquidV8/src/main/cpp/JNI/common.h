@@ -35,6 +35,11 @@ typedef char* XString;
 */
 typedef Global<Value>* V8Handle;
 
+#define V8_FREE_HANDLE(h)                           \
+    h->Reset();                                     \
+    delete h                                        \
+
+
 extern "C" { ;
 
 XString V8StringToXString(Local<Context> context, Local<v8::String> text);

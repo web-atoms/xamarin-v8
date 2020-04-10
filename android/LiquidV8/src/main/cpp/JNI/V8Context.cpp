@@ -7,7 +7,29 @@
 
 static bool _V8Initialized = false;
 
-V8Context::V8Context(bool debug, LoggerCallback loggerCallback) {
+static ExternalCall externalCall;
+static FreeMemory freeMemory;
+
+void ReleaseHandle(Isolate* _isolate, V8Handle handle) {
+    if (handle == nullptr)
+        return;
+    Local<Value> v = handle->Get(_isolate);
+    if (!v.IsEmpty())
+    {
+        if(v->IsExternal()) {
+            Local<External> e = Local<External>::Cast(v);
+            freeMemory(e->Value());
+        }
+    }
+    handle->Reset();
+    delete handle;
+}
+
+V8Context::V8Context(
+        bool debug,
+        LoggerCallback loggerCallback,
+        ExternalCall ec,
+        FreeMemory fm) {
     if (!_V8Initialized) // (the API changed: https://groups.google.com/forum/#!topic/v8-users/wjMwflJkfso)
     {
         V8::InitializeICU();
@@ -19,10 +41,13 @@ V8Context::V8Context(bool debug, LoggerCallback loggerCallback) {
         V8::InitializePlatform(_platform.get());
 
         V8::Initialize();
-
+        externalCall = ec;
+        freeMemory = fm;
         _V8Initialized = true;
     }
     _logger = loggerCallback;
+    _externalCall = ec;
+
     Isolate::CreateParams params;
     _arrayBufferAllocator = ArrayBuffer::Allocator::NewDefaultAllocator();
     params.array_buffer_allocator = _arrayBufferAllocator;
@@ -172,7 +197,7 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     Local<Context> context(isolate->GetCurrentContext());
     Context::Scope context_scope(context);
     Local<v8::External> b = args.Data().As<External>();
-    ExternalCall function = (ExternalCall) b->Value();
+    // ExternalCall function = (ExternalCall) b->Value();
 
     HandleScope scope(isolate);
     uint32_t n = (uint)args.Length();
@@ -182,20 +207,27 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     }
     V8Response target = V8Response_From(context, args.This());
     V8Response handleArgs = V8Response_From(context, a);
-    V8Response r = function(target, handleArgs);
+    V8Response fx = V8Response_FromWrappedObject(context, b);
+    V8Response r = externalCall(fx, target, handleArgs);
 
     if (r.type == V8ResponseType::Error) {
         Local<v8::String> error = V8_STRING(r.result.error.message);
+        delete r.result.error.message;
         Local<Value> ex = Exception::Error(error);
         isolate->ThrowException(ex);
-        delete r.result.error.message;
-    } else if (r.type == V8ResponseType::StringValue) {
-        args.GetReturnValue().Set(V8_STRING(r.result.stringValue));
-        delete r.result.stringValue;
     } else {
-        Local<Value> rx = r.result.handle.handle->Get(isolate);
-        args.GetReturnValue().Set(rx);
-        delete r.result.handle.handle;
+        if (r.result.handle.handle != nullptr) {
+            Local<Value> rx = r.result.handle.handle->Get(isolate);
+            if (rx->IsExternal()) {
+                Local<v8::External> e = Local<v8::External>::Cast(rx);
+                void* ptr = e->Value();
+                if (ptr != nullptr) {
+                    delete ptr;
+                }
+            }
+            V8_FREE_HANDLE(r.result.handle.handle);
+            args.GetReturnValue().Set(rx);
+        }
     }
 }
 
@@ -233,8 +265,7 @@ V8Response V8Context::Evaluate(XString script, XString location) {
 
 
 void V8Context::Release(V8Handle handle) {
-    handle->Reset();
-    delete handle;
+    ReleaseHandle(_isolate, handle);
 }
 
 V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, int len, V8Handle* args) {

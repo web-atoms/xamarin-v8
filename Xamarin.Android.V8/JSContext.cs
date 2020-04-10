@@ -17,13 +17,13 @@ using V8Handle = System.IntPtr;
 namespace Xamarin.Android.V8
 {
 
-    internal delegate V8Response ExternalCall(V8Response thisHandle, V8Response args);
+    internal delegate V8Response ExternalCall(V8Response fx, V8Response thisHandle, V8Response args);
 
     public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
 
     internal delegate IntPtr MemoryAllocator(int len);
 
-    internal delegate void JSContextLog(IntPtr text);
+    internal delegate void JSContextLog(IntPtr text); 
 
     internal enum NullableBool: byte
     {
@@ -42,6 +42,7 @@ namespace Xamarin.Android.V8
         static IntPtr allocator;
         static IntPtr deAllocator;
         static IntPtr logger;
+        static IntPtr externalCaller;
 
         public Action<string> Logger { get; set; }
 
@@ -77,11 +78,36 @@ namespace Xamarin.Android.V8
                 };
                 allocator = Marshal.GetFunctionPointerForDelegate(a);
                 logger = Marshal.GetFunctionPointerForDelegate(_logger);
-                deAllocator = IntPtr.Zero;
+                Action<IntPtr> deallocator = (p) => GCHandle.FromIntPtr(p).Free();
+                deAllocator = Marshal.GetFunctionPointerForDelegate(deallocator);
+
+                ExternalCall ec = (fx, t, a) => {
+                    try
+                    {
+                        var fxc = fx.GetContainer();
+                        var gc = GCHandle.FromIntPtr(fxc.value.refValue);
+                        Func<V8Response, V8Response, V8Response> ffx = (Func<V8Response, V8Response, V8Response>)gc.Target;
+                        return ffx(t, a);
+                    } catch (Exception ex)
+                    {
+                        var msg = Marshal.StringToAllocatedMemoryUTF8(ex.ToString());
+                        return new V8Response {
+                            type = V8ResponseType.Error,
+                            error = new V8Error
+                            {
+                                message = msg,
+                                stack = IntPtr.Zero
+                            }
+                        };
+                    }
+                };
+
+                externalCaller = Marshal.GetFunctionPointerForDelegate(ec);
+
             }
             lock (creationLock)
             {
-                this.context = V8Context_Create(debug, logger, allocator, deAllocator);
+                this.context = V8Context_Create(debug, logger, externalCaller, deAllocator);
             }
 
             if (Logger == null)
@@ -143,17 +169,17 @@ namespace Xamarin.Android.V8
 
         public IJSValue CreateFunction(int args, Func<IJSContext, IJSValue[], IJSValue> fx, string debugDescription)
         {
-            ExternalCall efx = (t, a) => {
-                var tjs = new JSValue(this, t.GetContainer());
-                var targs = new JSValue(this, t.GetContainer());
-                var len = targs.Length;
-                var al = new IJSValue[len];
-                for (int i = 0; i < len; i++)
-                {
-                    al[i] = targs[i];
-                }
+            Func<V8Response, V8Response, V8Response> efx = (t, a) => {
                 try
                 {
+                    var tjs = new JSValue(this, t.GetContainer());
+                    var targs = new JSValue(this, a.GetContainer());
+                    var len = targs.Length;
+                    var al = new IJSValue[len];
+                    for (int i = 0; i < len; i++)
+                    {
+                        al[i] = targs[i];
+                    }
                     var r = fx(this, al) as JSValue;
                     return new V8Response {
                         type = V8ResponseType.Handle,
@@ -175,7 +201,9 @@ namespace Xamarin.Android.V8
                 }
             };
 
-            var c = V8Context_CreateFunction(context, Marshal.GetFunctionPointerForDelegate(efx), debugDescription).GetContainer();
+            var gfx = GCHandle.Alloc(efx, GCHandleType.Pinned);
+            var ptr = gfx.AddrOfPinnedObject();
+            var c = V8Context_CreateFunction(context, ptr, debugDescription).GetContainer();
             return new JSValue(this, c);
         }
 
@@ -232,7 +260,7 @@ namespace Xamarin.Android.V8
                 return this.ToPromise(task);
             }
 
-
+            
             var wrapped = new JSValue(this, V8Context_Wrap(context, value).GetContainer());
             var w = this.CreateObject() as JSValue;
 

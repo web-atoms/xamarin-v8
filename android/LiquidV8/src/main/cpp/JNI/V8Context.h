@@ -9,7 +9,7 @@
 
 class V8Response;
 
-typedef V8Response(*ExternalCall)(V8Response target, V8Response args);
+typedef V8Response(*ExternalCall)(V8Response fx, V8Response target, V8Response args);
 
 
 class V8Context {
@@ -25,12 +25,17 @@ protected:
     ArrayBuffer::Allocator* _arrayBufferAllocator;
 
     LoggerCallback _logger;
+    ExternalCall _externalCall;
 
     Local<Context> GetContext() {
         return _context.Get(_isolate);
     }
 public:
-    V8Context(bool debug, LoggerCallback loggerCallback);
+    V8Context(
+            bool debug,
+            LoggerCallback loggerCallback,
+            ExternalCall ec,
+            FreeMemory fm);
     void Dispose();
 
     void Release(V8Handle handle);
