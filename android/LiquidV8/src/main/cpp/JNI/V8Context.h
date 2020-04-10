@@ -58,6 +58,9 @@ public:
     V8Response GetGlobal();
     V8Response GetArrayLength(V8Handle target);
     V8Response NewInstance(V8Handle target, int len, V8Handle* args);
+    V8Response Has(V8Handle target, V8Handle index);
+    V8Response Get(V8Handle target, V8Handle index);
+    V8Response Set(V8Handle target, V8Handle index, V8Handle value);
     V8Response HasProperty(V8Handle target, XString name);
     V8Response GetProperty(V8Handle target, XString name);
     V8Response SetProperty(V8Handle target, XString name, V8Handle value);

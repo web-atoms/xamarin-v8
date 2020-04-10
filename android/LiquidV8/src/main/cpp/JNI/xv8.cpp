@@ -11,10 +11,6 @@ static FreeMemory _freeMemory;
 
 extern "C" {
 
-    void V8Context_Initialize() {
-        V8Context::Initialize();
-    }
-
     V8Context *V8Context_Create(
             bool debug,
             LoggerCallback loggerCallback,
