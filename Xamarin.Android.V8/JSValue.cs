@@ -71,13 +71,15 @@ namespace Xamarin.Android.V8
 
         public bool IsDate => handle.handleType == V8HandleType.Date;
 
-        public bool IsNumber => handle.handleType == V8HandleType.Number || handle.handleType == V8HandleType.NotANumber;
+        public bool IsNumber => (handle.handleType & V8HandleType.Number) > 0 ;
 
         public bool IsBoolean => handle.handleType == V8HandleType.Boolean;
 
         public bool IsArray => handle.handleType == V8HandleType.Array;
 
-        public bool IsWrapped => handle.handleType == V8HandleType.Wrapped;
+        public bool IsWrapped => handle.handleType == V8HandleType.Object && Has(jsContext.WrappedSymbol);
+
+        public bool IsSymbol => handle.handleType == V8HandleType.Symbol;
 
         public IJSValue this[string name]
         {
@@ -92,6 +94,21 @@ namespace Xamarin.Android.V8
             }
         }
 
+        public IJSValue this[IJSValue name]
+        {
+            get
+            {
+                return new JSValue(jsContext, JSContext.V8Context_Get(context, handle.handle, name.ToHandle()).GetContainer());
+            }
+            set
+            {
+                var v = value ?? (new JSValue(jsContext, JSContext.V8Context_CreateNull(context).GetContainer()));
+                JSContext.V8Context_Set(context, handle.handle, name.ToHandle(), v.ToJSValue().handle.handle).GetContainer();
+            }
+        }
+
+
+
         public IJSValue this[int index]
         {
             get
@@ -105,13 +122,30 @@ namespace Xamarin.Android.V8
             }
         }
 
-        public bool BooleanValue => this.handle.value.boolValue;
+        public bool BooleanValue => 
+            this.handle.handleType == V8HandleType.Boolean
+            ? this.handle.value.boolValue
+            : (
+                this.IntValue > 0 
+            );
 
-        public int IntValue => this.handle.value.intValue;
+        public int IntValue =>
+            this.handle.handleType == V8HandleType.Integer
+            ? this.handle.value.intValue
+            : (this.handle.handleType == V8HandleType.BigInt
+                ? (int) this.handle.value.longValue
+                : (int) this.handle.value.doubleValue);
 
-        public double DoubleValue => this.handle.value.doubleValue;
+        public double DoubleValue =>
+            this.handle.handleType == V8HandleType.Number
+            ? this.handle.value.doubleValue :
+            (
+                this.handle.handleType == V8HandleType.BigInt
+                ? (double) this.handle.value.longValue
+                : (double) this.handle.value.intValue
+            );
 
-        public float FloatValue => (float)this.handle.value.doubleValue;
+        public float FloatValue => (float)this.DoubleValue;
 
         public DateTime DateValue
         {
@@ -147,6 +181,11 @@ namespace Xamarin.Android.V8
             return JSContext.V8Context_HasProperty(context, handle.handle, name).GetBooleanValue();
         }
 
+        public bool Has(IJSValue value)
+        {
+            return JSContext.V8Context_Has(context, handle.handle, value.ToHandle()).GetBooleanValue();
+        }
+
         public bool DeleteProperty(string name)
         {
             return JSContext.V8Context_DeleteProperty(context, handle.handle, name).GetBooleanValue();
@@ -154,7 +193,9 @@ namespace Xamarin.Android.V8
 
         public T Unwrap<T>()
         {
-            return Marshal.PtrToStructure<T>(handle.value.refValue);
+            // we need to get wrapped instance..
+            var w = this[jsContext.WrappedSymbol] as JSValue;
+            return Marshal.PtrToStructure<T>(w.handle.value.refValue);
         }
 
         public override string ToString()

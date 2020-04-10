@@ -11,6 +11,10 @@ static FreeMemory _freeMemory;
 
 extern "C" {
 
+    void V8Context_Initialize() {
+        V8Context::Initialize();
+    }
+
     V8Context *V8Context_Create(
             bool debug,
             LoggerCallback loggerCallback,
@@ -106,12 +110,36 @@ extern "C" {
         return context->InvokeFunction(target, thisValue, len, args);
     }
 
-    V8Response V8Context_HasProperty(
+    V8Response V8Context_Has(
+            V8Context* context,
+            V8Handle  target,
+            V8Handle index
+    ) {
+        return context->Has(target, index);
+    }
+
+
+V8Response V8Context_HasProperty(
             V8Context* context,
             V8Handle  target,
             XString text
             ) {
         return context->HasProperty(target, text);
+    }
+
+    V8Response V8Context_Get(
+            V8Context* context,
+            V8Handle target,
+            V8Handle index) {
+        return context->Get(target, index);
+    }
+
+    V8Response V8Context_Set(
+            V8Context* context,
+            V8Handle target,
+            V8Handle index,
+            V8Handle value) {
+        return context->Set(target, index, value);
     }
 
     V8Response V8Context_GetProperty(

@@ -16,6 +16,8 @@ namespace DroidV8Test
         public MainPage()
         {
             InitializeComponent();
+
+            this.BindingContext = TestResultModel.Model;
         }
     }
 }

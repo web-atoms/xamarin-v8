@@ -53,7 +53,7 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
         v.result.handle.handleType = V8HandleType::Array;
     }
     else if (handle->IsSymbol()) {
-        v.result.handle.handleType = V8HandleType::Symbol;
+        v.result.handle.handleType = V8HandleType::TypeSymbol;
     }
     else if (handle->IsExternal()) {
         v.result.handle.handleType = V8HandleType::Wrapped;
@@ -85,7 +85,7 @@ V8Response V8Response_FromWrappedFunction(Local<Context> context, Local<v8::Func
     return v;
 }
 
-V8Response V8Response_FromWrappedInstance(Local<Context> context, Local<Value> handle) {
+V8Response V8Response_FromWrappedObject(Local<Context> context, Local<Value> handle) {
     V8Response v = {};
     v.type = V8ResponseType::Handle;
     V8Handle h = new Global<Value>();

@@ -6,11 +6,9 @@
              mc:Ignorable="d"
              x:Class="DroidV8Test.MainPage">
 
-    <StackLayout>
-        <!-- Place new controls here -->
-        <Label Text="Welcome to Xamarin.Forms!" 
-           HorizontalOptions="Center"
-           VerticalOptions="CenterAndExpand" />
-    </StackLayout>
+    <Editor
+        Text="{Binding Results}" 
+        HorizontalOptions="Center"
+        VerticalOptions="CenterAndExpand" />
 
 </ContentPage>

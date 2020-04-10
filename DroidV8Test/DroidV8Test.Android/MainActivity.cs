@@ -24,14 +24,11 @@ namespace DroidV8Test.Droid
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
 
-            var context = new JSContext();
-            var n = context.CreateNumber(2);
-            var s = context.CreateString("a");
-            var r = context.Evaluate(" 3 + 5 ");
-            var f = context.CreateFunction(0, (c, a) => c.Convert("hello world"), "Hello world");
-            context["hw"] = f;
-            s = context.Evaluate("hw()");
-            System.Diagnostics.Debug.WriteLine(r.IsNumber);
+            this.RunOnUiThread(async () => {
+
+                await BaseTest.RunAll();
+
+            });
 
         }
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)

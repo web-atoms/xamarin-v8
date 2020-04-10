@@ -35,7 +35,7 @@ namespace Xamarin.Android.V8
     public class JSContext: IJSContext
     {
 
-        internal const string WrappedInstanceName = "_$_Web_Atoms_Wrapped_Instance";
+        private static object creationLock = new object();
 
         const string LibName = "liquidjs";
 
@@ -57,7 +57,9 @@ namespace Xamarin.Android.V8
 
         public string Stack => throw new NotImplementedException();
 
-        public IJSValue this[string name] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public IJSValue this[string name] { get => this.Global[name]; set => this.Global[name] = value; }
+
+        internal IJSValue WrappedSymbol { get; }
 
         public JSContext(bool debug = false)
         {
@@ -77,7 +79,10 @@ namespace Xamarin.Android.V8
                 logger = Marshal.GetFunctionPointerForDelegate(_logger);
                 deAllocator = IntPtr.Zero;
             }
-            this.context = V8Context_Create(debug, logger, allocator, deAllocator);
+            lock (creationLock)
+            {
+                this.context = V8Context_Create(debug, logger, allocator, deAllocator);
+            }
 
             if (Logger == null)
             {
@@ -91,6 +96,8 @@ namespace Xamarin.Android.V8
             this.Global = new JSValue(this, V8Context_GetGlobal(context).GetContainer());
 
             this.Null = new JSValue(this, V8Context_CreateNull(context).GetContainer());
+
+            this.WrappedSymbol = new JSValue(this, V8Context_CreateSymbol(context, "WrappedSymbol").GetContainer());
         }
 
         public IJSValue CreateObject()
@@ -112,6 +119,11 @@ namespace Xamarin.Android.V8
         public IJSValue CreateString(string value)
         {
             return new JSValue(this, V8Context_CreateString(context, value).GetContainer());
+        }
+
+        public IJSValue CreateSymbol(string name)
+        {
+            return new JSValue(this, V8Context_CreateSymbol(context, name).GetContainer());
         }
 
         public IJSValue CreateNumber(double value)
@@ -222,7 +234,7 @@ namespace Xamarin.Android.V8
 
 
             var wrapped = new JSValue(this, V8Context_Wrap(context, value).GetContainer());
-            var w = this.CreateObject();
+            var w = this.CreateObject() as JSValue;
 
             if (!(value is IJSContext))
             {
@@ -250,7 +262,7 @@ namespace Xamarin.Android.V8
                 }, "dispatchEvent");
 
             }
-            w[WrappedInstanceName] = wrapped;
+            w[WrappedSymbol] = wrapped;
             return w;
         }
 
@@ -301,6 +313,10 @@ namespace Xamarin.Android.V8
             [MarshalAs(UnmanagedType.LPUTF8Str)] string value);
 
         [DllImport(LibName)]
+        internal extern static V8Response V8Context_CreateSymbol(V8Handle context,
+            [MarshalAs(UnmanagedType.LPUTF8Str)] string name);
+
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_GetGlobal(V8Handle context); 
         
         [DllImport(LibName)]
@@ -348,11 +364,30 @@ namespace Xamarin.Android.V8
             string name);
 
         [DllImport(LibName)]
+        internal extern static V8Response V8Context_Has(
+            V8Handle context,
+            IntPtr handle,
+            IntPtr symbol);
+
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_DeleteProperty(
             V8Handle context,
             IntPtr handle,
             [MarshalAs(UnmanagedType.LPUTF8Str)]
             string name);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_Get(
+            V8Handle context,
+            IntPtr handle,
+            IntPtr name);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_Set(
+            V8Handle context,
+            IntPtr handle,
+            IntPtr name,
+            IntPtr value);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_GetProperty(
