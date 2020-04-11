@@ -195,8 +195,8 @@ namespace Xamarin.Android.V8
                 }
             };
 
-            var gfx = GCHandle.Alloc(efx, GCHandleType.Pinned);
-            var ptr = gfx.AddrOfPinnedObject();
+            var gfx = GCHandle.Alloc(efx);
+            var ptr = GCHandle.ToIntPtr(gfx);
             var c = V8Context_CreateFunction(context, ptr, debugDescription).GetContainer();
             return new JSValue(this, c);
         }

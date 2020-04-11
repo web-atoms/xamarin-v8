@@ -73,6 +73,7 @@ public:
     V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
     V8Response Wrap(void* value);
     V8Response ToString(V8Handle target);
+    V8Response GC();
 private:
 
 };

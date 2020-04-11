@@ -10,6 +10,8 @@ static bool _V8Initialized = false;
 static ExternalCall externalCall;
 static FreeMemory freeMemory;
 
+#define WRAPPED_CLASS 0xA0A
+
 void CleanupWrapped(const WeakCallbackInfo<Global<Value>>& info) {
     // lets delete..
     Isolate* _isolate = info.GetIsolate();
@@ -74,7 +76,22 @@ V8Context::V8Context(
 
 }
 
+class V8WrappedVisitor: PersistentHandleVisitor {
+    // to do delete...
+};
+
+V8Response V8Context::GC() {
+
+    V8WrappedVisitor v;
+    _isolate->VisitHandlesWithClassIds(&v);
+
+    V8Response r = {};
+    return r;
+}
+
 void V8Context::Dispose() {
+
+    this->GC();
 
     _context.Reset();
 
@@ -190,7 +207,7 @@ V8Response V8Context::DefineProperty(
 V8Response V8Context::Wrap(void *value) {
     V8_CONTEXT_SCOPE
 
-    Local<v8::Value> e = v8::External::New(_isolate, value);
+    Local<v8::External> e = v8::External::New(_isolate, value);
 
     // we need to wrap this inside a global
     // and return it...
@@ -198,6 +215,9 @@ V8Response V8Context::Wrap(void *value) {
     Global<v8::Value>* p = new Global<v8::Value>();
     p->Reset(_isolate, e);
     p->SetWeak(p, CleanupWrapped, WeakCallbackType::kFinalizer);
+    p->SetWrapperClassId(WRAPPED_CLASS);
+
+    // p->SetWrapperClassId();
 
     // this handle represents CLR handle
     // which will be destroyed by the receiver...
@@ -209,7 +229,8 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     Isolate* _isolate = isolate;
     Local<Context> context(isolate->GetCurrentContext());
     Context::Scope context_scope(context);
-    Local<v8::External> b = args.Data().As<External>();
+    Local<Value> data = args.Data();
+    Local<v8::External> b =  Local<v8::External>::Cast(data);
     // ExternalCall function = (ExternalCall) b->Value();
 
     HandleScope scope(isolate);
@@ -231,13 +252,6 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     } else {
         if (r.result.handle.handle != nullptr) {
             Local<Value> rx = r.result.handle.handle->Get(isolate);
-            if (rx->IsExternal()) {
-                Local<v8::External> e = Local<v8::External>::Cast(rx);
-                void* ptr = e->Value();
-                if (ptr != nullptr) {
-                    delete ptr;
-                }
-            }
             V8_FREE_HANDLE(r.result.handle.handle);
             args.GetReturnValue().Set(rx);
         }
@@ -251,11 +265,10 @@ V8Response V8Context::CreateFunction(ExternalCall function, XString debugHelper)
     V8Handle p = new Global<Value>();
     p->Reset(_isolate, e);
     p->SetWeak(p, CleanupWrapped, WeakCallbackType ::kFinalizer);
-
+    p->SetWrapperClassId(WRAPPED_CLASS);
     Local<v8::Function> f = v8::Function::New(context, X8Call, e).ToLocalChecked();
     Local<v8::String> n = V8_STRING(debugHelper);
     f->SetName(n);
-
 
 
     return V8Response_FromWrappedFunction(GetContext(), f);

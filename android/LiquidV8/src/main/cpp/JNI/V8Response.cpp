@@ -85,13 +85,14 @@ V8Response V8Response_FromWrappedFunction(Local<Context> context, Local<v8::Func
     return v;
 }
 
-V8Response V8Response_FromWrappedObject(Local<Context> context, Local<Value> handle) {
+V8Response V8Response_FromWrappedObject(Local<Context> context, Local<External> handle) {
     V8Response v = {};
     v.type = V8ResponseType::Handle;
     V8Handle h = new Global<Value>();
     h->Reset(context->GetIsolate(), handle);
     v.result.handle.handleType = V8HandleType::Wrapped;
     v.result.handle.handle = h;
+    v.result.handle.value.refValue = handle->Value();
     return v;
 }
 

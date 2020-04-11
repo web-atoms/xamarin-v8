@@ -73,7 +73,7 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle);
 
 V8Response V8Response_FromWrappedFunction(Local<Context> context, Local<v8::Function> handle);
 
-V8Response V8Response_FromWrappedObject(Local<Context> context, Local<v8::Value> handle);
+V8Response V8Response_FromWrappedObject(Local<Context> context, Local<v8::External> handle);
 
 V8Response V8Response_FromError(Local<Context> context, const char* text);
 
