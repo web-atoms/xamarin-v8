@@ -71,6 +71,7 @@
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tests\FunctionTest.cs" />
+    <Compile Include="Tests\GCTest.cs" />
     <Compile Include="Tests\SimpleTest.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -32,7 +32,7 @@ namespace Xamarin.Android.V8
         True = 2
     }
 
-    public class JSContext: IJSContext
+    public class JSContext: IJSContext, IDisposable
     {
 
         private static object creationLock = new object();
@@ -72,7 +72,20 @@ namespace Xamarin.Android.V8
                         Logger?.Invoke(s);
                     };
                     logger = Marshal.GetFunctionPointerForDelegate(_logger);
-                    Action<IntPtr> deallocator = (p) => GCHandle.FromIntPtr(p).Free();
+                    Action<IntPtr> deallocator = (p) =>
+                    {
+                        try
+                        {
+                            GCHandle g = GCHandle.FromIntPtr(p);
+                            if (g.IsAllocated)
+                            {
+                                g.Free();
+                            }
+                        } catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine(ex);
+                        }
+                    };
                     deAllocator = Marshal.GetFunctionPointerForDelegate(deallocator);
 
                     ExternalCall ec = (fx, t, a) => {
@@ -255,9 +268,9 @@ namespace Xamarin.Android.V8
             }
 
 
-            var wgc = GCHandle.Alloc(value, GCHandleType.Pinned);
-            var wrapped = new JSValue(this, V8Context_Wrap(context, wgc.AddrOfPinnedObject()).GetContainer());
-            var w = this.CreateObject() as JSValue;
+            var wgc = GCHandle.Alloc(value);
+            var wrapped = new JSValue(this, V8Context_Wrap(context, GCHandle.ToIntPtr(wgc) ).GetContainer());
+            var w = new JSValue(this, V8Context_CreateObject(context).GetContainer());
 
             if (!(value is IJSContext))
             {
@@ -300,6 +313,8 @@ namespace Xamarin.Android.V8
         }
         ~JSContext()
         {
+            if (context == IntPtr.Zero)
+                return;
             V8Context_Dispose(context);
         }
 
@@ -447,8 +462,7 @@ namespace Xamarin.Android.V8
         [DllImport(LibName)]
         internal extern static V8Response V8Context_Wrap(
             V8Handle context,
-            [MarshalAs(UnmanagedType.LPStruct)]
-            object handle);
+            IntPtr handle);
 
 
         [DllImport(LibName)]
@@ -456,7 +470,7 @@ namespace Xamarin.Android.V8
 
 
         [DllImport(LibName)]
-        internal extern static void V8Context_ReleaseHandle(IntPtr r);
+        internal extern static void V8Context_ReleaseHandle(IntPtr context, IntPtr r);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateFunction(
@@ -470,5 +484,12 @@ namespace Xamarin.Android.V8
             [MarshalAs(UnmanagedType.LPUTF8Str)]
             string location);
 
+        public void Dispose()
+        {
+            if (context == IntPtr.Zero)
+                return;
+            V8Context_Dispose(context);
+            context = IntPtr.Zero;
+        }
     }
 }

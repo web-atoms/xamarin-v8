@@ -1,10 +1,35 @@
 
 #include "V8Response.h"
 #include "V8Context.h"
+#include "HashMap.h"
 
 using namespace v8;
 
 static bool _V8Initialized = false;
+
+char* CopyString(const char* msg) {
+    uint len = strlen(msg);
+    char* t = (char*) malloc(len);
+    strcpy(t, msg);
+    return t;
+}
+
+
+CTSL::HashMap<V8Context*,int> map;
+
+bool IsContextDisposed(V8Context* c) {
+    int n;
+    return !map.find(c, n);
+}
+
+#define VerifyContext(c) \
+    if (IsContextDisposed(c)) {\
+        V8Response r = {};\
+        r.type = V8ResponseType::Error;\
+        r.result.error.message = CopyString("Context is disposed");\
+        return r;\
+    }\
+
 
 extern "C" {
 
@@ -13,10 +38,14 @@ extern "C" {
             LoggerCallback loggerCallback,
             ExternalCall externalCall,
             FreeMemory freeMemory) {
-        return new V8Context(debug, loggerCallback, externalCall, freeMemory);
+        V8Context*c = new V8Context(debug, loggerCallback, externalCall, freeMemory);
+        map.insert(c, 1);
+        return c;
     }
 
+
     void V8Context_Dispose(V8Context *context) {
+        map.erase(context);
         context->Dispose();
         delete context;
     }
@@ -69,10 +98,6 @@ extern "C" {
                                         V8Handle value) {
         return context->DefineProperty(
                 target, name, configurable, enumerable, writable, get, set, value);
-    }
-
-    V8Response V8Context_Wrap(V8Context *context, void* value) {
-        return context->Wrap(value);
     }
 
     V8Response V8Context_GetArrayLength(V8Context* context, V8Handle target) {
@@ -190,12 +215,20 @@ V8Response V8Context_HasProperty(
         return 0;
     }
 
-    int V8Context_ReleaseHandle(V8Handle r) {
-        r->Reset();
-        delete r;
+    int V8Context_ReleaseHandle(V8Context* context, V8Handle r) {
+        if (IsContextDisposed(context)) {
+            r->Reset();
+            delete r;
+            return -1;
+        }
+        context->Release(r);
         return 0;
     }
 
+
+    V8Response V8Context_Wrap(V8Context *context, void* value) {
+        return context->Wrap(value);
+    }
 
     XString V8StringToXString(Local<Context> context, Local<v8::String> text) {
         if (text.IsEmpty())

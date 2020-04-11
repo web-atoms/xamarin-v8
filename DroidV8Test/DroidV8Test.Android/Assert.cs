@@ -18,6 +18,10 @@ namespace DroidV8Test.Droid
         {
             Equal(true, result);
         }
+        public static void False(bool result)
+        {
+            Equal(false, result);
+        }
 
         public static void Null(object checkNull)
         {

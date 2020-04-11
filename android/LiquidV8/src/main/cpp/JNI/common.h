@@ -10,6 +10,8 @@
 
 using namespace v8;
 
+#define WRAPPED_CLASS 0xA0A
+
 
 #define V8_HANDLE_SCOPE \
     v8::Isolate::Scope isolate_scope(_isolate);\
@@ -34,6 +36,7 @@ typedef char* XString;
    not destroy it till it is explicitly destroyed by host application.
 */
 typedef Global<Value>* V8Handle;
+
 
 #define V8_FREE_HANDLE(h)                           \
     h->Reset();                                     \
