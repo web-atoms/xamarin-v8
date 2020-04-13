@@ -7,7 +7,7 @@ set( SOURCES
 		JNI/xv8.cpp
 		JNI/V8Context.cpp
 		JNI/V8Response.cpp
-		JNI/xv8.cpp
+		JNI/V8External.cpp
 
 		# icui18n
 		../../../../deps/node-10.15.3/deps/icu-small/source/i18n/nultrans.cpp

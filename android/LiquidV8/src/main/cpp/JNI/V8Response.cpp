@@ -3,6 +3,7 @@
 //
 #include "V8Response.h"
 #include "V8Context.h"
+#include "V8External.h"
 
 V8Response V8Response_From(Local<Context> context, Local<Value> handle)
 {
@@ -61,10 +62,17 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
         v.result.handle.value.refValue = e->Value();
     }
     else if (handle->IsObject()) {
-        v.result.handle.handleType = V8HandleType::Object;
+        V8External* e = V8External::CheckInExternal(context, handle->ToObject(context).ToLocalChecked());
+        if (e != nullptr) {
+            v.result.handle.handleType = V8HandleType::Wrapped;
+            v.result.handle.value.refValue = e->Data();
+        } else {
+            v.result.handle.handleType = V8HandleType::Object;
+        }
     }
 
     V8Handle h = new Global<Value>();
+    h->SetWrapperClassId(WRAPPED_CLASS);
     v.result.handle.handle = h;
     h->Reset(isolate, handle);
     return v;
@@ -77,16 +85,16 @@ V8Response V8Response_FromError(const char* text) {
     return r;
 }
 
-V8Response V8Response_FromWrappedObject(Local<Context> context, Local<External> handle) {
-    V8Response v = {};
-    v.type = V8ResponseType::Handle;
-    V8Handle h = new Global<Value>();
-    h->Reset(context->GetIsolate(), handle);
-    v.result.handle.handleType = V8HandleType::Wrapped;
-    v.result.handle.handle = h;
-    v.result.handle.value.refValue = handle->Value();
-    return v;
-}
+//V8Response V8Response_FromWrappedObject(Local<Context> context, Local<External> handle) {
+//    V8Response v = {};
+//    v.type = V8ResponseType::Handle;
+//    V8Handle h = new Global<Value>();
+//    h->Reset(context->GetIsolate(), handle);
+//    v.result.handle.handleType = V8HandleType::Wrapped;
+//    v.result.handle.handle = h;
+//    v.result.handle.value.refValue = handle->Value();
+//    return v;
+//}
 
 
 

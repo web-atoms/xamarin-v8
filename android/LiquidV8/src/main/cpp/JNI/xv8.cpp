@@ -14,9 +14,9 @@ strcpy(t, msg);
 return t;
 }
 
-CTSL::HashMap<V8Context*,int> map;
+CTSL::HashMap<uint64_t,int> map;
 
-bool IsContextDisposed(V8Context* c) {
+bool IsContextDisposed(uint64_t c) {
     int n;
     return !map.find(c, n);
 }
@@ -38,13 +38,13 @@ extern "C" {
             ExternalCall externalCall,
             FreeMemory freeMemory) {
         V8Context*c = new V8Context(debug, loggerCallback, externalCall, freeMemory);
-        map.insert(c, 1);
+        map.insert((uint64_t)c, 1);
         return c;
     }
 
 
     void V8Context_Dispose(V8Context *context) {
-        map.erase(context);
+        map.erase((uint64_t)context);
         context->Dispose();
         delete context;
     }
@@ -216,8 +216,7 @@ V8Response V8Context_HasProperty(
 
     V8Response V8Context_ReleaseHandle(V8Context* context, V8Handle h) {
         try {
-            if (IsContextDisposed(context)) {
-                delete h;
+            if (IsContextDisposed((uint64_t)context)) {
                 return V8Response_FromBoolean(true);
             }
             return context->Release(h);

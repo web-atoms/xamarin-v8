@@ -6,6 +6,7 @@
 #define LIQUIDCORE_MASTER_V8CONTEXT_H
 
 #include "common.h"
+#include "HashMap.h"
 
 class V8Response;
 
@@ -14,8 +15,6 @@ typedef V8Response(*ExternalCall)(V8Response fx, V8Response target, V8Response a
 
 class V8Context {
 protected:
-    int32_t _engineID;
-
     std::unique_ptr<Platform> _platform;
     Isolate* _isolate;
     Global<Context> _context;
