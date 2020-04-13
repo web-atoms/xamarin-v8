@@ -7,7 +7,7 @@ using V8Handle = System.IntPtr;
 
 namespace Xamarin.Android.V8
 {
-    public class JSValue: IJSValue
+    public class JSValue: IJSValue, IDisposable
     {
         readonly JSContext jsContext;
         readonly V8Handle context;
@@ -180,11 +180,7 @@ namespace Xamarin.Android.V8
 
         ~JSValue()
         {
-            if (handle.handle != IntPtr.Zero)
-            {
-                JSContext.V8Context_ReleaseHandle(context, handle.handle).GetBooleanValue();
-                handle.handle = IntPtr.Zero;
-            }
+            Dispose();
         }
         internal IntPtr Detach()
         {
@@ -237,6 +233,15 @@ namespace Xamarin.Android.V8
                 descriptor.Value.ToHandle()).GetBooleanValue())
             {
                 throw new InvalidOperationException();
+            }
+        }
+
+        public void Dispose()
+        {
+            if (handle.handle != IntPtr.Zero)
+            {
+                JSContext.V8Context_ReleaseHandle(context, handle.handle).GetBooleanValue();
+                handle.handle = IntPtr.Zero;
             }
         }
     }

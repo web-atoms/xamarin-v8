@@ -12,7 +12,7 @@ using Android.Widget;
 
 namespace DroidV8Test.Droid.Tests
 {
-    public class SimpleTest: BaseTest
+    public class SimpleTest : BaseTest
     {
 
         [Test]

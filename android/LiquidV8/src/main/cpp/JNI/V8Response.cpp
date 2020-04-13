@@ -58,17 +58,13 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
     }
     else if (handle->IsExternal()) {
         v.result.handle.handleType = V8HandleType::Wrapped;
-        Local<v8::External> e = handle.As<v8::External>();
-        v.result.handle.value.refValue = e->Value();
+        V8External* e = V8External::CheckInExternal(context, handle);
+        if (e != nullptr) {
+            v.result.handle.value.refValue = e->Data();
+        }
     }
     else if (handle->IsObject()) {
-        V8External* e = V8External::CheckInExternal(context, handle->ToObject(context).ToLocalChecked());
-        if (e != nullptr) {
-            v.result.handle.handleType = V8HandleType::Wrapped;
-            v.result.handle.value.refValue = e->Data();
-        } else {
-            v.result.handle.handleType = V8HandleType::Object;
-        }
+        v.result.handle.handleType = V8HandleType::Object;
     }
 
     V8Handle h = new Global<Value>();

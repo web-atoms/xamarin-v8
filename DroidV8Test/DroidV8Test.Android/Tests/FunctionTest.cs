@@ -24,5 +24,13 @@ namespace DroidV8Test.Droid.Tests
             Assert.Equal("Test", a.ToString());
         }
 
+        [Test]
+        public void FunctionWithParameters()
+        {
+            context["clrFunction"] = context.CreateFunction(0, (c, a) => c.Convert($"{a[0]} {a[1]}") , "T2");
+            var a = context.Evaluate("clrFunction('Akash', 'Kava')");
+            Assert.Equal("Akash Kava", a.ToString());
+        }
+
     }
 }

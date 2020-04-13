@@ -179,21 +179,31 @@ namespace Xamarin.Android.V8
             Func<V8Response, V8Response, V8Response> efx = (t, a) => {
                 try
                 {
-                    var tjs = new JSValue(this, t.GetContainer());
-                    var targs = new JSValue(this, a.GetContainer());
-                    var len = targs.Length;
-                    var al = new IJSValue[len];
-                    for (int i = 0; i < len; i++)
+                    using (var tjs = new JSValue(this, t.GetContainer()))
                     {
-                        al[i] = targs[i];
-                    }
-                    var r = fx(this, al) as JSValue;
-                    return new V8Response {
-                        type = V8ResponseType.Handle,
-                        handle = new V8HandleContainer {
-                            handle = r?.Detach() ?? IntPtr.Zero
+                        using (var targs = new JSValue(this, a.GetContainer()))
+                        {
+                            var len = targs.Length;
+                            var al = new IJSValue[len];
+                            for (int i = 0; i < len; i++)
+                            {
+                                al[i] = targs[i];
+                            }
+                            var r = fx(this, al) as JSValue;
+                            for (int i = 0; i < len; i++)
+                            {
+                                ((IDisposable)al[i]).Dispose();
+                            }
+                            return new V8Response
+                            {
+                                type = V8ResponseType.Handle,
+                                handle = new V8HandleContainer
+                                {
+                                    handle = r?.Detach() ?? IntPtr.Zero
+                                }
+                            };
                         }
-                    };
+                    }
                 } catch (Exception ex)
                 {
                     IntPtr msg = Marshal.StringToAllocatedMemoryUTF8(ex.ToString());
@@ -269,7 +279,8 @@ namespace Xamarin.Android.V8
 
 
             var wgc = GCHandle.Alloc(value);
-            var wrapped = new JSValue(this, V8Context_Wrap(context, GCHandle.ToIntPtr(wgc) ).GetContainer());
+            var wgcPtr = GCHandle.ToIntPtr(wgc);
+            var wrapped = new JSValue(this, V8Context_Wrap(context, wgcPtr ).GetContainer());
             var w = new JSValue(this, V8Context_CreateObject(context).GetContainer());
 
             if (!(value is IJSContext))

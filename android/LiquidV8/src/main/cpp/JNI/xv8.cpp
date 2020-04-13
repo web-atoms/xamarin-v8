@@ -201,14 +201,14 @@ V8Response V8Context_HasProperty(
     int V8Context_Release(V8Response r) {
         if (r.type == V8ResponseType::Error) {
             if (r.result.error.message != nullptr) {
-                delete r.result.error.message;
+                free(r.result.error.message);
             }
             if (r.result.error.stack != nullptr) {
-                delete r.result.error.stack;
+                free(r.result.error.stack);
             }
         } else {
             if (r.type == V8ResponseType::StringValue) {
-                delete r.result.stringValue;
+                free(r.result.stringValue);
             }
         }
         return 0;
@@ -234,7 +234,7 @@ V8Response V8Context_HasProperty(
         if (text.IsEmpty())
             return nullptr;
         Isolate *isolate = context->GetIsolate();
-        int len = text->Utf8Length(isolate);
+        int len = text->Utf8Length(isolate) + 1;
         char *atext = (char*)malloc((uint)len);
         text->WriteUtf8(isolate, atext, len);
         return atext;

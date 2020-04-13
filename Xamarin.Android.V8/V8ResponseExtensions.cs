@@ -39,7 +39,6 @@ namespace Xamarin.Android.V8
                 return null;
             }
             string s = Marshal.PtrToStringUTF8(utf8Ptr);
-            Marshal.FreeHGlobal(utf8Ptr);
             return s;
         }
 
