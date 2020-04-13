@@ -35,11 +35,37 @@ typedef char* XString;
    Everything is sent as a pointer to Persistent object, reason is, JavaScript engine should
    not destroy it till it is explicitly destroyed by host application.
 */
-typedef Global<Value>* V8Handle;
+// typedef Global<Value> V8Handle;
+class V8Handle {
+private:
+    Global<Value> value;
+public:
+    Local<Value> Get(Isolate* isolate) {
+        return value.Get(isolate);
+    }
+
+    void Reset() {
+        value.Reset();
+    }
+
+    void Reset(Isolate* isolate, Local<Value> t) {
+        value.Reset(isolate, t);
+    }
+
+    bool IsEmpty() {
+        return value.IsEmpty();
+    }
+
+    bool IsNearDeath() {
+        return value.IsNearDeath();
+    }
+};
+
+char* CopyString(const char* msg) ;
+
 
 
 #define V8_FREE_HANDLE(h)                           \
-    h->Reset();                                     \
     delete h                                        \
 
 

@@ -470,7 +470,7 @@ namespace Xamarin.Android.V8
 
 
         [DllImport(LibName)]
-        internal extern static void V8Context_ReleaseHandle(IntPtr context, IntPtr r);
+        internal extern static V8Response V8Context_ReleaseHandle(IntPtr context, IntPtr r);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateFunction(

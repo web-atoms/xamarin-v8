@@ -12,7 +12,7 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
     Isolate* isolate = context->GetIsolate();
 
     if (handle.IsEmpty()) {
-        return V8Response_FromError(context, v8::String::NewFromUtf8(isolate, "Unexpected empty value"));
+        return V8Response_FromError("Unexpected empty value");
     }
 
 
@@ -70,19 +70,11 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
     return v;
 }
 
-V8Response V8Response_FromError(Local<Context> context, const char* text) {
-    MaybeLocal<v8::String> t = v8::String::NewFromUtf8(context->GetIsolate(), text, String::NewStringType::kNormalString);
-    return V8Response_FromError(context, t.ToLocalChecked());
-}
-
-V8Response V8Response_FromWrappedFunction(Local<Context> context, Local<v8::Function> handle) {
-    V8Response v = {};
-    v.type = V8ResponseType::Handle;
-    V8Handle h = new Global<Value>();
-    h->Reset(context->GetIsolate(), handle);
-    v.result.handle.handleType = V8HandleType::WrappedFunction;
-    v.result.handle.handle = h;
-    return v;
+V8Response V8Response_FromError(const char* text) {
+    V8Response r = {};
+    r.type = V8ResponseType ::Error;
+    r.result.error.message = CopyString(text);
+    return r;
 }
 
 V8Response V8Response_FromWrappedObject(Local<Context> context, Local<External> handle) {
@@ -127,14 +119,14 @@ V8Response V8Response_ToString(Local<Context> context, Local<Value> value) {
     return v;
 }
 
-V8Response V8Response_FromBoolean(Local<Context> context, bool value) {
+V8Response V8Response_FromBoolean(bool value) {
     V8Response v = {};
     v.type = V8ResponseType::BooleanValue;
     v.result.booleanValue = value;
     return v;
 }
 
-V8Response V8Response_FromInteger(Local<Context> context, int value) {
+V8Response V8Response_FromInteger(int value) {
     V8Response v = {};
     v.type = V8ResponseType::IntegerValue;
     v.result.intValue = value;

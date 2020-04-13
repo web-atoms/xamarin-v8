@@ -7,13 +7,12 @@ using namespace v8;
 
 static bool _V8Initialized = false;
 
-char* CopyString(const char* msg) {
-    uint len = strlen(msg);
-    char* t = (char*) malloc(len);
-    strcpy(t, msg);
-    return t;
+char* CopyString (const char* msg){
+uint len = strlen(msg);
+char* t = (char*) malloc(len);
+strcpy(t, msg);
+return t;
 }
-
 
 CTSL::HashMap<V8Context*,int> map;
 
@@ -215,14 +214,16 @@ V8Response V8Context_HasProperty(
         return 0;
     }
 
-    int V8Context_ReleaseHandle(V8Context* context, V8Handle r) {
-        if (IsContextDisposed(context)) {
-            r->Reset();
-            delete r;
-            return -1;
+    V8Response V8Context_ReleaseHandle(V8Context* context, V8Handle h) {
+        try {
+            if (IsContextDisposed(context)) {
+                delete h;
+                return V8Response_FromBoolean(true);
+            }
+            return context->Release(h);
+        }  catch (std::exception const &ex) {
+            return V8Response_FromError(ex.what());
         }
-        context->Release(r);
-        return 0;
     }
 
 

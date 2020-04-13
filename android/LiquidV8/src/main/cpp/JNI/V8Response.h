@@ -71,18 +71,16 @@ disposed by the caller by calling V8Context_Release method.
 }
 V8Response V8Response_From(Local<Context> context, Local<Value> handle);
 
-V8Response V8Response_FromWrappedFunction(Local<Context> context, Local<v8::Function> handle);
-
 V8Response V8Response_FromWrappedObject(Local<Context> context, Local<v8::External> handle);
 
-V8Response V8Response_FromError(Local<Context> context, const char* text);
+V8Response V8Response_FromError(const char* text);
 
 V8Response V8Response_FromError(Local<Context> context, Local<Value> error);
 
 V8Response V8Response_ToString(Local<Context> context, Local<Value> error);
 
-V8Response V8Response_FromBoolean(Local<Context> context, bool value);
+V8Response V8Response_FromBoolean(bool value);
 
-V8Response V8Response_FromInteger(Local<Context> context, int value);
+V8Response V8Response_FromInteger(int value);
 
 #endif //LIQUIDCORE_MASTER_V8RESPONSE_H

@@ -38,7 +38,7 @@ public:
             FreeMemory fm);
     void Dispose();
 
-    void Release(V8Handle handle);
+    V8Response Release(V8Handle handle);
     void FreeWrapper(V8Handle value);
 
     V8Response CreateObject();
@@ -73,7 +73,6 @@ public:
     V8Response GetPropertyAt(V8Handle target, int index);
     V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
     V8Response Wrap(void* value);
-    V8Response Unwrap(V8Handle target);
     V8Response ToString(V8Handle target);
     V8Response GC();
 private:

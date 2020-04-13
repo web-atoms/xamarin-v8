@@ -182,7 +182,8 @@ namespace Xamarin.Android.V8
         {
             if (handle.handle != IntPtr.Zero)
             {
-                JSContext.V8Context_ReleaseHandle(context, handle.handle);
+                JSContext.V8Context_ReleaseHandle(context, handle.handle).GetBooleanValue();
+                handle.handle = IntPtr.Zero;
             }
         }
         internal IntPtr Detach()
