@@ -54,7 +54,11 @@ V8Context::V8Context(
 
     if (debug) {
         // initialize inspector...
-        
+        v8_inspector::V8InspectorClient* inspectorClient = new v8_inspector::V8InspectorClient();
+
+        std::unique_ptr<v8_inspector::V8Inspector> inspector = v8_inspector::V8Inspector::create(_isolate, inspectorClient);
+
+        v8_inspector::V8Inspector::Channel* channel = new v8_inspector::V8Inspector::Channel();
     }
 
 

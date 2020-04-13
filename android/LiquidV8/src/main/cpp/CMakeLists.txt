@@ -8,6 +8,7 @@ set( SOURCES
 		JNI/V8Context.cpp
 		JNI/V8Response.cpp
 		JNI/V8External.cpp
+		JNI/InspectorChannel.cpp
 
 		# icui18n
 		../../../../deps/node-10.15.3/deps/icu-small/source/i18n/nultrans.cpp
