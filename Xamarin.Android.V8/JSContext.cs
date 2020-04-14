@@ -147,12 +147,14 @@ namespace Xamarin.Android.V8
 
             if (debug)
             {
-                this.SetupDebugging();
+                if (!MainThread.IsMainThread)
+                    throw new NotSupportedException($"Debugging can only be enabled from Main Thread");
+                MainThread.InvokeOnMainThreadAsync(() => this.SetupDebugging());
             }
 
         }
 
-        private void SetupDebugging()
+        private async Task SetupDebugging()
         {
             List<WebSocket> clientList = new List<WebSocket>();
 
@@ -162,80 +164,75 @@ namespace Xamarin.Android.V8
             options.Standards.RegisterRfc6455();
             var server = new WebSocketListener(new IPEndPoint(IPAddress.Any, 9222), options);
 
-            server.StartAsync().ContinueWith((a) =>
+            this["receive"] = this.CreateFunction(1, (c, p) =>
+            {
+                using (var msg = (JSValue)p[0])
+                {
+                    string data = msg.ToString();
+                    // System.Diagnostics.Debug.WriteLine($"To Chrome: {data}");
+                    foreach (var client in clientList)
+                    {
+                        AtomAsyncDispatcher.Instance.EnqueueTask(() =>
+                            client.WriteStringAsync(data, cancellationTokenSource.Token));
+                    }
+
+                    return this.Undefined;
+                }
+            }, "DebugReceiver");
+
+            await server.StartAsync();
+
+            while (true)
             {
 
-                if (a.IsFaulted)
+                var client = await server.AcceptWebSocketAsync(cancellationTokenSource.Token);
+
+                if (client == null)
+                    continue;
+
+                lock (clientList)
                 {
-                    System.Diagnostics.Debug.WriteLine(a.Exception);
-                    return;
+                    clientList.Add(client);
                 }
 
 
-                this["receive"] = this.CreateFunction(1, (c, p) =>
-                {
-                    using (var msg = (JSValue)p[0])
-                    {
-                        string data = msg.ToString();
-                        foreach (var client in clientList)
-                        {
-                            AtomAsyncDispatcher.Instance.EnqueueTask(() =>
-                                client.WriteStringAsync(data, cancellationTokenSource.Token)
-
-                            );
-                        }
-
-                        return this.Undefined;
-                    }
-                }, "DebugReceiver");
-
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 Task.Run(async () =>
                 {
 
-                    while (true)
+                    try
                     {
 
-                        var client = await server.AcceptWebSocketAsync(cancellationTokenSource.Token);
-
-                        if (client == null)
-                            continue;
-
-                        lock (clientList)
+                        while (true)
                         {
-                            clientList.Add(client);
-                        }
-
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                        Task.Run(async () =>
-                        {
-
-                            try
-                            {
-
-                                while (true)
+                            var text = await client.ReadStringAsync(cancellationTokenSource.Token);
+                            MainThread.BeginInvokeOnMainThread(() => {
+                                using (var js = (JSValue)this.CreateString(text))
                                 {
-                                    var text = await client.ReadStringAsync(cancellationTokenSource.Token);
-                                    using (var js = (JSValue)this.CreateString(text))
+                                    try
                                     {
+                                        System.Diagnostics.Debug.WriteLine(text);
                                         Global["send"].InvokeFunction(Global, js);
+                                    }catch (Exception ex)
+                                    {
+                                        System.Diagnostics.Debug.WriteLine(ex);
                                     }
                                 }
-                            }
-                            catch (Exception ex)
-                            {
-                                System.Diagnostics.Debug.WriteLine(ex);
-                                lock (clientList)
-                                {
-                                    clientList.Remove(client);
-                                }
-                            }
-                        });
-#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(ex);
+                        lock (clientList)
+                        {
+                            clientList.Remove(client);
+                        }
                     }
                 });
-            });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+            }
         }
 
         public IJSValue CreateObject()

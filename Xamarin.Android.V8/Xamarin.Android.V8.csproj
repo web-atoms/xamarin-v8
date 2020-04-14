@@ -58,6 +58,7 @@
     <Compile Include="JSContext.cs" />
     <Compile Include="JSExtensions.cs" />
     <Compile Include="JSValue.cs" />
+    <Compile Include="MainThread.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SafeV8Handle.cs" />

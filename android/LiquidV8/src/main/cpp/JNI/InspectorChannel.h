@@ -8,7 +8,7 @@
 #include "common.h"
 #include "v8-inspector.h"
 
-#define kInspectorClientIndex 4
+const int kInspectorClientIndex = v8::Context::kDebugIdIndex + 1;
 
 class InspectorFrontend final : public v8_inspector::V8Inspector::Channel {
 public:
@@ -105,6 +105,7 @@ public:
 
         context_.Reset(isolate_, context);
     }
+
 
 private:
     static v8_inspector::V8InspectorSession* GetSession(Local<Context> context) {

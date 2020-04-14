@@ -16,45 +16,64 @@ namespace Xamarin.Android.V8
     {
         public static AtomAsyncDispatcher Instance = new AtomAsyncDispatcher();
 
-        private bool isRunning = false;
-
         private Queue<Func<Task>> tasks = new Queue<Func<Task>>();
+
+        private System.Threading.CancellationTokenSource cancellation;
+
+        public AtomAsyncDispatcher()
+        {
+            Task.Run(() => Run());
+        }
+
+        private async Task Run()
+        {
+            while (true)
+            {
+                Func<Task> task = null;
+                lock (tasks)
+                {
+                    if(tasks.TryDequeue(out task))
+                    {
+                        cancellation = null;
+                    } else
+                    {
+                        cancellation = new System.Threading.CancellationTokenSource();
+                    }
+                }
+
+
+
+                if (task != null)
+                {
+                    try
+                    {
+                        await task();
+                    }catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(ex);
+                    }
+                    continue;
+                }
+
+                // setup wait...
+                try
+                {
+                    await Task.Delay(1000, cancellation.Token);
+                } catch (TaskCanceledException)
+                {
+
+                }
+
+            }
+        }
 
         public void EnqueueTask(Func<Task> task)
         {
             lock (tasks)
             {
                 tasks.Enqueue(task);
+                cancellation?.Cancel();
             }
-            var app = global::Android.App.Application.Context.ApplicationContext as global::Android.App.Application;
-            
-            Task.Run(() => this.DequeueTaskAsync());
-        }
-
-        async Task DequeueTaskAsync()
-        {
-            if (isRunning)
-                return;
-            isRunning = true;
-            try
-            {
-                Func<Task> task = null;
-                lock (tasks)
-                {
-                    if (!tasks.TryDequeue(out task))
-                    {
-                        return;
-                    }
-                }
-
-                await task();
-            }
-            finally
-            {
-                isRunning = false;
-            }
-
-            await this.DequeueTaskAsync();
         }
 
         public void Dispose()
