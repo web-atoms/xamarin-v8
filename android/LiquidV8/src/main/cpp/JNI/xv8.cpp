@@ -36,8 +36,14 @@ extern "C" {
             bool debug,
             LoggerCallback loggerCallback,
             ExternalCall externalCall,
-            FreeMemory freeMemory) {
-        V8Context*c = new V8Context(debug, loggerCallback, externalCall, freeMemory);
+            FreeMemory  freeMemory,
+            DebugReceiver  debugReceiver) {
+        V8Context*c = new V8Context(
+                debug,
+                loggerCallback,
+                externalCall,
+                freeMemory,
+                debugReceiver);
         map.insert((uint64_t)c, 1);
         return c;
     }

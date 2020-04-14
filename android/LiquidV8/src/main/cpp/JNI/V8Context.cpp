@@ -12,11 +12,41 @@ static bool _V8Initialized = false;
 static ExternalCall externalCall;
 static FreeMemory  freeMemory;
 
+void ReceiveDebug(const FunctionCallbackInfo<v8::Value> &args) {
+    Isolate* isolate = args.GetIsolate();
+    Isolate* _isolate = isolate;
+    Local<Context> context(isolate->GetCurrentContext());
+    Context::Scope context_scope(context);
+    Local<External> _dfe = Local<External>::Cast(args.Data());
+
+    DebugReceiver debugReceiver = (DebugReceiver) _dfe->Value();
+
+    Local<Value> msg = args[0];
+
+    V8Response target = V8Response_From(context, msg);
+    V8Response r = debugReceiver(target);
+
+    if (r.type == V8ResponseType::Error) {
+        Local<v8::String> error = V8_STRING(r.result.error.message);
+        delete r.result.error.message;
+        Local<Value> ex = Exception::Error(error);
+        isolate->ThrowException(ex);
+    } else {
+        if (r.result.handle.handle != nullptr) {
+            Local<Value> rx = r.result.handle.handle->Get(isolate);
+            V8_FREE_HANDLE(r.result.handle.handle);
+            args.GetReturnValue().Set(rx);
+        }
+    }
+}
+
+
 V8Context::V8Context(
         bool debug,
         LoggerCallback loggerCallback,
-        ExternalCall ec,
-        FreeMemory fm) {
+        ExternalCall  _externalCall,
+        FreeMemory _freeMemory,
+        DebugReceiver _debugReceiver) {
     if (!_V8Initialized) // (the API changed: https://groups.google.com/forum/#!topic/v8-users/wjMwflJkfso)
     {
         V8::InitializeICU();
@@ -28,12 +58,11 @@ V8Context::V8Context(
         V8::InitializePlatform(_platform.get());
 
         V8::Initialize();
-        externalCall = ec;
-        freeMemory = fm;
+        externalCall = _externalCall;
+        freeMemory = _freeMemory;
         _V8Initialized = true;
     }
     _logger = loggerCallback;
-    _externalCall = ec;
 
     Isolate::CreateParams params;
     _arrayBufferAllocator = ArrayBuffer::Allocator::NewDefaultAllocator();
@@ -55,6 +84,13 @@ V8Context::V8Context(
 
     if (debug) {
         // initialize inspector...
+
+        // setup global function receive...
+        // Local<v8::External> _debug = v8::External::New(_isolate, (void*)_debugReceiver);
+        // Local<v8::Function> fn = v8::Function::New(_isolate, ReceiveDebug, _debug );
+//
+        // global->Set(V8_STRING("receive"), fn);
+//
         XV8InspectorClient* client = new XV8InspectorClient(c, true);
     }
 

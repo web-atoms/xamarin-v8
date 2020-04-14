@@ -47,18 +47,16 @@ extern "C" { ;
 
 XString V8StringToXString(Local<Context> context, Local<v8::String> text);
 
-typedef XString(*StringAllocator)(int length);
-
 typedef void (*FreeMemory)(void *location);
 
 typedef void (*LoggerCallback)(XString text);
+
 
 enum NullableBool: int8_t {
     NotSet = 0,
     False = 1,
     True = 2
 };
-
 }
 
 #endif //LIQUIDCORE_MASTER_COMMON_H

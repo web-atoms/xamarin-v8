@@ -26,6 +26,8 @@ namespace Xamarin.Android.V8
 
     public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
 
+    internal delegate V8Response DebugReceiver(V8Response msg);
+
     internal delegate void JSContextLog(IntPtr text); 
 
     internal enum NullableBool: byte
@@ -98,7 +100,7 @@ namespace Xamarin.Android.V8
                         {
                             var fxc = fx.GetContainer();
                             var gc = GCHandle.FromIntPtr(fxc.value.refValue);
-                            Func<V8Response, V8Response, V8Response> ffx = (Func<V8Response, V8Response, V8Response>)gc.Target;
+                            var ffx = (CLRExternalCall)gc.Target;
                             return ffx(t, a);
                         }
                         catch (Exception ex)
@@ -119,7 +121,13 @@ namespace Xamarin.Android.V8
                     externalCaller = Marshal.GetFunctionPointerForDelegate(ec);
 
                 }
-                this.context = V8Context_Create(debug, logger, externalCaller, deAllocator);
+
+                this.context = V8Context_Create(
+                    debug,
+                    logger: logger,
+                    externalCall: externalCaller,
+                    freeMemory: deAllocator,
+                    debugReceiver: IntPtr.Zero);
             }
 
             if (Logger == null)
@@ -139,53 +147,95 @@ namespace Xamarin.Android.V8
 
             if (debug)
             {
-                cancellationTokenSource = new System.Threading.CancellationTokenSource();
+                this.SetupDebugging();
+            }
 
-                var options = new WebSocketListenerOptions();
-                options.Standards.RegisterRfc6455();
-                var server = new WebSocketListener(new IPEndPoint(IPAddress.Any, 8006), options);
+        }
 
-                server.StartAsync().ContinueWith((a) => {
-                
-                    if (a.IsFaulted)
+        private void SetupDebugging()
+        {
+            List<WebSocket> clientList = new List<WebSocket>();
+
+            cancellationTokenSource = new System.Threading.CancellationTokenSource();
+
+            var options = new WebSocketListenerOptions();
+            options.Standards.RegisterRfc6455();
+            var server = new WebSocketListener(new IPEndPoint(IPAddress.Any, 9222), options);
+
+            server.StartAsync().ContinueWith((a) =>
+            {
+
+                if (a.IsFaulted)
+                {
+                    System.Diagnostics.Debug.WriteLine(a.Exception);
+                    return;
+                }
+
+
+                this["receive"] = this.CreateFunction(1, (c, p) =>
+                {
+                    using (var msg = (JSValue)p[0])
                     {
-                        System.Diagnostics.Debug.WriteLine(a.Exception);
+                        string data = msg.ToString();
+                        foreach (var client in clientList)
+                        {
+                            AtomAsyncDispatcher.Instance.EnqueueTask(() =>
+                                client.WriteStringAsync(data, cancellationTokenSource.Token)
+
+                            );
+                        }
+
+                        return this.Undefined;
                     }
-                });
+                }, "DebugReceiver");
 
-                Task.Run(async () => {
+                Task.Run(async () =>
+                {
 
-                    var client = await server.AcceptWebSocketAsync(cancellationTokenSource.Token);
+                    while (true)
+                    {
+
+                        var client = await server.AcceptWebSocketAsync(cancellationTokenSource.Token);
+
+                        if (client == null)
+                            continue;
+
+                        lock (clientList)
+                        {
+                            clientList.Add(client);
+                        }
 
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                    Task.Run(async () => {
+                        Task.Run(async () =>
+                        {
 
-                        // setup receive function...
-                        Global["receive"] = CreateFunction(0, (c, a) => {
-                            using(var f = (JSValue)a[0])
+                            try
                             {
-                                string msg = f.ToString();
-                                AtomAsyncDispatcher.Instance.EnqueueTask(() => client.WriteStringAsync(f.ToString(), cancellationTokenSource.Token));
-                            }
-                            return c.Undefined;
-                        }, "Receive");
 
-
-                        while (true) {
-                            var text = await client.ReadStringAsync(cancellationTokenSource.Token);
-                            using (var js = (JSValue)this.CreateString(text)) {
-                                using (var result = (JSValue)Global["send"].InvokeFunction(Global, js))
+                                while (true)
                                 {
-                                    AtomAsyncDispatcher.Instance.EnqueueTask(() => client.WriteStringAsync(result.ToString(), cancellationTokenSource.Token));
+                                    var text = await client.ReadStringAsync(cancellationTokenSource.Token);
+                                    using (var js = (JSValue)this.CreateString(text))
+                                    {
+                                        Global["send"].InvokeFunction(Global, js);
+                                    }
                                 }
                             }
-                        }
-                    });
+                            catch (Exception ex)
+                            {
+                                System.Diagnostics.Debug.WriteLine(ex);
+                                lock (clientList)
+                                {
+                                    clientList.Remove(client);
+                                }
+                            }
+                        });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
+                    }
                 });
-            }
+            });
         }
 
         public IJSValue CreateObject()
@@ -231,7 +281,7 @@ namespace Xamarin.Android.V8
 
         public IJSValue CreateFunction(int args, Func<IJSContext, IJSValue[], IJSValue> fx, string debugDescription)
         {
-            Func<V8Response, V8Response, V8Response> efx = (t, a) => {
+            CLRExternalCall efx = (t, a) => {
                 try
                 {
                     using (var tjs = new JSValue(this, t.GetContainer()))
@@ -385,7 +435,12 @@ namespace Xamarin.Android.V8
         }
 
         [DllImport(LibName)]
-        internal extern static V8Handle V8Context_Create(bool debug, IntPtr logger, IntPtr allocator, IntPtr deAllocator);
+        internal extern static V8Handle V8Context_Create(
+            bool debug, 
+            IntPtr logger, 
+            IntPtr externalCall,
+            IntPtr freeMemory,
+            IntPtr debugReceiver);
 
         [DllImport(LibName)]
         internal extern static void V8Context_Dispose(V8Handle context);

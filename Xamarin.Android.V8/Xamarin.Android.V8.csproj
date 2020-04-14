@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AtomAsyncDispatcher.cs" />
+    <Compile Include="CLREnv.cs" />
     <Compile Include="JSContext.cs" />
     <Compile Include="JSExtensions.cs" />
     <Compile Include="JSValue.cs" />
