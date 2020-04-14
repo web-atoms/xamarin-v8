@@ -135,13 +135,31 @@ namespace Xamarin.Android.V8
         /// <summary>
         /// Since number of elements can change, we need to retrive value from v8
         /// </summary>
-        public int Length => JSContext.V8Context_GetArrayLength(context, handle.handle).GetIntegerValue();
+        public int Length =>
+            this.IsArray ?
+            JSContext.V8Context_GetArrayLength(context, handle.handle).GetIntegerValue()
+            : 0;
 
         public long LongValue => this.handle.value.longValue;
 
-        public string DebugView => "";
+        public string DebugView => this.ToString();
 
-        public IEnumerable<JSProperty> Entries => throw new NotImplementedException();
+        public IEnumerable<JSProperty> Entries
+        {
+            get
+            {
+                using (var keys = (JSValue)this.jsContext["Object"].InvokeMethod("keys", this))
+                {
+                    int len = keys.Length;
+                    for (int i = 0; i < len; i++)
+                    {
+                        using (var key = (JSValue)keys[i]) {
+                            yield return new JSProperty(key.ToString(), keys[i]);
+                        }
+                    }
+                }
+            }
+        }
 
         public bool HasProperty(string name)
         {
@@ -194,8 +212,7 @@ namespace Xamarin.Android.V8
 
         public IJSValue InvokeMethod(string name, params IJSValue[] args)
         {
-            V8Handle th = handle.handle;
-            var r = JSContext.V8Context_InvokeFunction(context, handle.handle, th, args.Length, args.ToHandles()).GetContainer();
+            var r = JSContext.V8Context_InvokeMethod(context, handle.handle, name, args.Length, args.ToHandles()).GetContainer();
             return new JSValue(jsContext, r);
         }
 

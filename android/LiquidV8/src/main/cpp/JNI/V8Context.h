@@ -62,6 +62,7 @@ public:
             V8Handle value            );
     V8Response Evaluate(XString script, XString location);
     V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, V8Handle* args);
+    V8Response InvokeMethod(V8Handle target, XString name, int len, V8Handle* args);
     V8Response GetGlobal();
     V8Response GetArrayLength(V8Handle target);
     V8Response NewInstance(V8Handle target, int len, V8Handle* args);

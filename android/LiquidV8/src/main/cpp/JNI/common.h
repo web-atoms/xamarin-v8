@@ -5,7 +5,6 @@
 #ifndef LIQUIDCORE_MASTER_COMMON_H
 #define LIQUIDCORE_MASTER_COMMON_H
 #include "v8.h"
-#include "v8-inspector.h
 #include "libplatform/libplatform.h"
 
 

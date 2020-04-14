@@ -5,6 +5,7 @@
 #include "V8Context.h"
 #include "V8Response.h"
 #include "V8External.h"
+#include "InspectorChannel.h"
 
 static bool _V8Initialized = false;
 
@@ -54,11 +55,7 @@ V8Context::V8Context(
 
     if (debug) {
         // initialize inspector...
-        v8_inspector::V8InspectorClient* inspectorClient = new v8_inspector::V8InspectorClient();
-
-        std::unique_ptr<v8_inspector::V8Inspector> inspector = v8_inspector::V8Inspector::create(_isolate, inspectorClient);
-
-        v8_inspector::V8Inspector::Channel* channel = new v8_inspector::V8Inspector::Channel();
+        XV8InspectorClient* client = new XV8InspectorClient(c, true);
     }
 
 
@@ -341,6 +338,36 @@ V8Response V8Context::Release(V8Handle handle) {
     } catch (std::exception const &ex) {
         return V8Response_FromError(ex.what());
     }
+}
+
+V8Response V8Context::InvokeMethod(V8Handle target, XString name, int len, V8Handle* args) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsObject()) {
+        return V8Response_FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_STRING(name);
+
+    Local<v8::Object> fxObj = targetValue->ToObject(context).ToLocalChecked();
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return V8Response_FromError("Method does not exist");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+
+    Local<v8::Value>* argList = new Local<v8::Value> [len];
+    for (int i = 0; i < len; ++i) {
+        V8Handle h = args[i];
+        argList[0] = h->Get(_isolate);
+    }
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, len, argList).ToLocal(&result)) {
+        delete[] argList;
+        return V8Response_FromError(context, tryCatch.Exception());
+    }
+    delete[] argList;
+    return V8Response_From(context, result);
 }
 
 V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, int len, V8Handle* args) {

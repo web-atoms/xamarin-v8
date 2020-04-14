@@ -58,6 +58,9 @@
     <Reference Include="System.Numerics.Vectors" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="deniszykov.WebSocketListener">
+      <Version>4.2.4</Version>
+    </PackageReference>
     <PackageReference Include="WebAtoms.Core">
       <Version>1.4.71</Version>
     </PackageReference>

@@ -47,9 +47,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="deniszykov.WebSocketListener">
+      <Version>4.2.4</Version>
+    </PackageReference>
     <PackageReference Include="WebAtoms.Core" Version="1.4.71" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AtomAsyncDispatcher.cs" />
     <Compile Include="JSContext.cs" />
     <Compile Include="JSExtensions.cs" />
     <Compile Include="JSValue.cs" />
@@ -69,6 +73,9 @@
   <ItemGroup>
     <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86\libliquidjs.so" Link="libs\x86\libliquidjs.so" />
     <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86_64\libliquidjs.so" Link="libs\x86_64\libliquidjs.so" />
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <!-- <EmbeddedNativeLibrary Include="libs\x86_64\libliquidjs.so" /> -->
     <None Include="Resources\AboutResources.txt" />
   </ItemGroup>

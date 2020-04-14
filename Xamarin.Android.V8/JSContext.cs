@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,8 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using vtortola.WebSockets;
+using vtortola.WebSockets.Rfc6455;
 using WebAtoms;
 using V8Handle = System.IntPtr;
 
@@ -60,6 +63,8 @@ namespace Xamarin.Android.V8
         public IJSValue this[string name] { get => this.Global[name]; set => this.Global[name] = value; }
 
         internal IJSValue WrappedSymbol { get; }
+
+        private System.Threading.CancellationTokenSource cancellationTokenSource;
 
         public JSContext(bool debug = false)
         {
@@ -131,6 +136,56 @@ namespace Xamarin.Android.V8
             this.Null = new JSValue(this, V8Context_CreateNull(context).GetContainer());
 
             this.WrappedSymbol = new JSValue(this, V8Context_CreateSymbol(context, "WrappedSymbol").GetContainer());
+
+            if (debug)
+            {
+                cancellationTokenSource = new System.Threading.CancellationTokenSource();
+
+                var options = new WebSocketListenerOptions();
+                options.Standards.RegisterRfc6455();
+                var server = new WebSocketListener(new IPEndPoint(IPAddress.Any, 8006), options);
+
+                server.StartAsync().ContinueWith((a) => {
+                
+                    if (a.IsFaulted)
+                    {
+                        System.Diagnostics.Debug.WriteLine(a.Exception);
+                    }
+                });
+
+                Task.Run(async () => {
+
+                    var client = await server.AcceptWebSocketAsync(cancellationTokenSource.Token);
+
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                    Task.Run(async () => {
+
+                        // setup receive function...
+                        Global["receive"] = CreateFunction(0, (c, a) => {
+                            using(var f = (JSValue)a[0])
+                            {
+                                string msg = f.ToString();
+                                AtomAsyncDispatcher.Instance.EnqueueTask(() => client.WriteStringAsync(f.ToString(), cancellationTokenSource.Token));
+                            }
+                            return c.Undefined;
+                        }, "Receive");
+
+
+                        while (true) {
+                            var text = await client.ReadStringAsync(cancellationTokenSource.Token);
+                            using (var js = (JSValue)this.CreateString(text)) {
+                                using (var result = (JSValue)Global["send"].InvokeFunction(Global, js))
+                                {
+                                    AtomAsyncDispatcher.Instance.EnqueueTask(() => client.WriteStringAsync(result.ToString(), cancellationTokenSource.Token));
+                                }
+                            }
+                        }
+                    });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+                });
+            }
         }
 
         public IJSValue CreateObject()
@@ -375,6 +430,16 @@ namespace Xamarin.Android.V8
             V8Handle[] args);
 
         [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethod(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPUTF8Str)]
+            string name,
+            int len,
+            [MarshalAs(UnmanagedType.LPArray)]
+            V8Handle[] args);
+
+
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_InvokeFunction(V8Handle context,
             V8Handle target,
             V8Handle thisValue,
@@ -499,6 +564,7 @@ namespace Xamarin.Android.V8
         {
             if (context == IntPtr.Zero)
                 return;
+            cancellationTokenSource?.Cancel();
             V8Context_Dispose(context);
             context = IntPtr.Zero;
         }

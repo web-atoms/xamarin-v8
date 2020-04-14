@@ -24,11 +24,15 @@ namespace DroidV8Test.Droid
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
 
-            this.RunOnUiThread(async () => {
+            var jc = new JSContext(true);
 
-                await BaseTest.RunAll();
+            jc.Evaluate("console.log('hey')");
 
-            });
+            //this.RunOnUiThread(async () => {
+
+            //    await BaseTest.RunAll();
+
+            //});
 
         }
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)

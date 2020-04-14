@@ -35,7 +35,7 @@ private:
         v8::HandleScope handle_scope(isolate_);
         int length = static_cast<int>(string.length());
         // DCHECK_LT(length, v8::String::kMaxLength);
-        Local<String> message =
+        Local<v8::String> message =
                 (string.is8Bit()
                  ? v8::String::NewFromOneByte(
                                 isolate_,
@@ -46,7 +46,7 @@ private:
                                 reinterpret_cast<const uint16_t*>(string.characters16()),
                                 v8::NewStringType::kNormal, length))
                         .ToLocalChecked();
-        Local<String> callback_name =
+        Local<v8::String> callback_name =
                 v8::String::NewFromUtf8(isolate_, "receive", v8::NewStringType::kNormal)
                         .ToLocalChecked();
         Local<Context> context = context_.Get(isolate_);
@@ -55,15 +55,15 @@ private:
         if (callback->IsFunction()) {
             v8::TryCatch try_catch(isolate_);
             Local<Value> args[] = {message};
-            Local<Function>::Cast(callback)->Call(context, Undefined(isolate_), 1,
+            Local<v8::Function>::Cast(callback)->Call(context, v8::Undefined(isolate_), 1,
                                                       args).ToLocalChecked();
 #ifdef DEBUG
             if (try_catch.HasCaught()) {
-                Local<Object> exception = Local<Object>::Cast(try_catch.Exception());
-                Local<String> key = v8::String::NewFromUtf8(isolate_, "message",
+                Local<v8::Object> exception = Local<v8::Object>::Cast(try_catch.Exception());
+                Local<v8::String> key = v8::String::NewFromUtf8(isolate_, "message",
                                                             v8::NewStringType::kNormal)
                         .ToLocalChecked();
-                Local<String> expected =
+                Local<v8::String> expected =
                         v8::String::NewFromUtf8(isolate_,
                                                 "Maximum call stack size exceeded",
                                                 v8::NewStringType::kNormal)
@@ -79,9 +79,11 @@ private:
     Global<Context> context_;
 };
 
-class InspectorClient : public v8_inspector::V8InspectorClient {
+class XV8InspectorClient : public v8_inspector::V8InspectorClient {
 public:
-    InspectorClient(Local<Context> context, bool connect) {
+    XV8InspectorClient(Local<Context> context, bool connect)
+    :v8_inspector::V8InspectorClient()
+    {
         if (!connect) return;
         isolate_ = context->GetIsolate();
         channel_.reset(new InspectorFrontend(context));
@@ -96,7 +98,7 @@ public:
                 FunctionTemplate::New(isolate_, SendInspectorMessage)
                         ->GetFunction(context)
                         .ToLocalChecked();
-        Local<String> function_name =
+        Local<v8::String> function_name =
                 String::NewFromUtf8(isolate_, "send", NewStringType::kNormal)
                         .ToLocalChecked();
         context->Global()->Set(context, function_name, function).ToChecked();
@@ -106,7 +108,7 @@ public:
 
 private:
     static v8_inspector::V8InspectorSession* GetSession(Local<Context> context) {
-        InspectorClient* inspector_client = static_cast<InspectorClient*>(
+        XV8InspectorClient* inspector_client = static_cast<XV8InspectorClient*>(
                 context->GetAlignedPointerFromEmbedderData(kInspectorClientIndex));
         return inspector_client->session_.get();
     }
@@ -122,10 +124,10 @@ private:
         Isolate* isolate = args.GetIsolate();
         v8::HandleScope handle_scope(isolate);
         Local<Context> context = isolate->GetCurrentContext();
-        args.GetReturnValue().Set(Undefined(isolate));
-        Local<String> message = args[0]->ToString(context).ToLocalChecked();
+        args.GetReturnValue().Set(v8::Undefined(isolate));
+        Local<v8::String> message = args[0]->ToString(context).ToLocalChecked();
         v8_inspector::V8InspectorSession* session =
-                InspectorClient::GetSession(context);
+                XV8InspectorClient::GetSession(context);
         int length = message->Length();
         std::unique_ptr<uint16_t[]> buffer(new uint16_t[length]);
         message->Write(isolate, buffer.get(), 0, length);
@@ -134,7 +136,7 @@ private:
             v8::SealHandleScope seal_handle_scope(isolate);
             session->dispatchProtocolMessage(message_view);
         }
-        args.GetReturnValue().Set(Boolean::New(isolate, true));
+        args.GetReturnValue().Set(v8::True(isolate));
     }
 
     static const int kContextGroupId = 1;
