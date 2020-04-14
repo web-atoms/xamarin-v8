@@ -28,7 +28,9 @@ namespace Xamarin.Android.V8
 
     internal delegate V8Response DebugReceiver(V8Response msg);
 
-    internal delegate void JSContextLog(IntPtr text); 
+    internal delegate void JSContextLog(IntPtr text);
+
+    internal delegate void FatalErrorCallback(IntPtr location, IntPtr message);
 
     internal enum NullableBool: byte
     {
@@ -45,7 +47,8 @@ namespace Xamarin.Android.V8
         const string LibName = "liquidjs";
 
         static IntPtr deAllocator;
-        static IntPtr logger;
+        IntPtr logger;
+        IntPtr fatalErrorCallback;
         static IntPtr externalCaller;
 
         public Action<string> Logger { get; set; }
@@ -69,16 +72,26 @@ namespace Xamarin.Android.V8
         private System.Threading.CancellationTokenSource cancellationTokenSource;
 
         public JSContext(bool debug = false)
-        {
+        {                    
+            
+            JSContextLog _logger = (t) => {
+                var s = Marshal.PtrToStringUTF8(t);
+                Logger?.Invoke(s);
+            };
+            logger = Marshal.GetFunctionPointerForDelegate(_logger);
+
+            fatalErrorCallback = Marshal.GetFunctionPointerForDelegate<FatalErrorCallback>((l, m) => {
+                string ls = Marshal.PtrToStringUTF8(l);
+                string ms = Marshal.PtrToStringUTF8(m);
+                Logger?.Invoke(ms);
+                Logger?.Invoke(ls);
+            });
+
             lock (creationLock)
             {
                 if (deAllocator == IntPtr.Zero)
                 {
-                    JSContextLog _logger = (t) => {
-                        var s = Marshal.PtrToStringUTF8(t);
-                        Logger?.Invoke(s);
-                    };
-                    logger = Marshal.GetFunctionPointerForDelegate(_logger);
+
                     Action<IntPtr> deallocator = (p) =>
                     {
                         try
@@ -127,7 +140,8 @@ namespace Xamarin.Android.V8
                     logger: logger,
                     externalCall: externalCaller,
                     freeMemory: deAllocator,
-                    debugReceiver: IntPtr.Zero);
+                    debugReceiver: IntPtr.Zero,
+                    fatalErrorCallback: fatalErrorCallback);
             }
 
             if (Logger == null)
@@ -144,6 +158,58 @@ namespace Xamarin.Android.V8
             this.Null = new JSValue(this, V8Context_CreateNull(context).GetContainer());
 
             this.WrappedSymbol = new JSValue(this, V8Context_CreateSymbol(context, "WrappedSymbol").GetContainer());
+
+            // Add SetTimeout...
+
+            Dictionary<int, System.Threading.CancellationTokenSource> timeouts = new Dictionary<int, System.Threading.CancellationTokenSource>();
+
+            int id = 0;
+
+            this["clearTimeout"] = this.CreateFunction(1, (c, a) => {
+                var tid = a[0].IntValue;
+                if(timeouts.TryGetValue(tid, out var token))
+                {
+                    token.Cancel();
+                }
+                return this.Undefined;
+            }, "clearTimeout");
+
+            this["setTimeout"] = this.CreateFunction(2, (c, a) => {
+
+                var fn = a[0];
+                var timeout = a[1];
+                if (timeout.IsUndefined || timeout.IntValue == 0)
+                {
+                    // invoke..
+                    MainThread.InvokeOnMainThreadAsync(() => {
+                        fn.InvokeFunction(Global);
+                    });
+                    return this.CreateNumber(0);
+                }
+
+                var ct = new System.Threading.CancellationTokenSource();
+
+                var tid = System.Threading.Interlocked.Increment(ref id);
+
+                timeouts[tid] = ct;
+
+                MainThread.InvokeOnMainThreadAsync(async () => {
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromMilliseconds(timeout.DoubleValue), ct.Token);
+                    } catch (TaskCanceledException)
+                    {
+
+                    }
+                    timeouts.Remove(tid);
+                    if (ct.IsCancellationRequested)
+                        return;
+                    fn.InvokeFunction(Global);
+                });
+
+                return this.CreateNumber(tid);
+
+            }, "setTimeout");
 
             if (debug)
             {
@@ -166,18 +232,16 @@ namespace Xamarin.Android.V8
 
             this["receive"] = this.CreateFunction(1, (c, p) =>
             {
-                using (var msg = (JSValue)p[0])
+                var msg = p[0];
+                string data = msg.ToString();
+                // System.Diagnostics.Debug.WriteLine($"To Chrome: {data}");
+                foreach (var client in clientList)
                 {
-                    string data = msg.ToString();
-                    // System.Diagnostics.Debug.WriteLine($"To Chrome: {data}");
-                    foreach (var client in clientList)
-                    {
-                        AtomAsyncDispatcher.Instance.EnqueueTask(() =>
-                            client.WriteStringAsync(data, cancellationTokenSource.Token));
-                    }
-
-                    return this.Undefined;
+                    AtomAsyncDispatcher.Instance.EnqueueTask(() =>
+                        client.WriteStringAsync(data, cancellationTokenSource.Token));
                 }
+
+                return this.Undefined;
             }, "DebugReceiver");
 
             await server.StartAsync();
@@ -207,16 +271,14 @@ namespace Xamarin.Android.V8
                         {
                             var text = await client.ReadStringAsync(cancellationTokenSource.Token);
                             MainThread.BeginInvokeOnMainThread(() => {
-                                using (var js = (JSValue)this.CreateString(text))
+                                var js = this.CreateString(text);
+                                try
                                 {
-                                    try
-                                    {
-                                        System.Diagnostics.Debug.WriteLine(text);
-                                        Global["send"].InvokeFunction(Global, js);
-                                    }catch (Exception ex)
-                                    {
-                                        System.Diagnostics.Debug.WriteLine(ex);
-                                    }
+                                    System.Diagnostics.Debug.WriteLine(text);
+                                    Global["send"].InvokeFunction(Global, js);
+                                }catch (Exception ex)
+                                {
+                                    System.Diagnostics.Debug.WriteLine(ex);
                                 }
                             });
                         }
@@ -281,31 +343,24 @@ namespace Xamarin.Android.V8
             CLRExternalCall efx = (t, a) => {
                 try
                 {
-                    using (var tjs = new JSValue(this, t.GetContainer()))
+                    var tjs = new JSValue(this, t.GetContainer());
+
+                    var targs = new JSValue(this, a.GetContainer());
+                    var len = targs.Length;
+                    var al = new IJSValue[len];
+                    for (int i = 0; i < len; i++)
                     {
-                        using (var targs = new JSValue(this, a.GetContainer()))
-                        {
-                            var len = targs.Length;
-                            var al = new IJSValue[len];
-                            for (int i = 0; i < len; i++)
-                            {
-                                al[i] = targs[i];
-                            }
-                            var r = fx(this, al) as JSValue;
-                            for (int i = 0; i < len; i++)
-                            {
-                                ((IDisposable)al[i]).Dispose();
-                            }
-                            return new V8Response
-                            {
-                                type = V8ResponseType.Handle,
-                                handle = new V8HandleContainer
-                                {
-                                    handle = r?.Detach() ?? IntPtr.Zero
-                                }
-                            };
-                        }
+                        al[i] = targs[i];
                     }
+                    var r = fx(this, al) as JSValue;
+                    return new V8Response
+                    {
+                        type = V8ResponseType.Handle,
+                        handle = new V8HandleContainer
+                        {
+                            handle = r?.Detach() ?? IntPtr.Zero
+                        }
+                    };
                 } catch (Exception ex)
                 {
                     IntPtr msg = Marshal.StringToAllocatedMemoryUTF8(ex.ToString());
@@ -437,7 +492,8 @@ namespace Xamarin.Android.V8
             IntPtr logger, 
             IntPtr externalCall,
             IntPtr freeMemory,
-            IntPtr debugReceiver);
+            IntPtr debugReceiver,
+            IntPtr fatalErrorCallback);
 
         [DllImport(LibName)]
         internal extern static void V8Context_Dispose(V8Handle context);

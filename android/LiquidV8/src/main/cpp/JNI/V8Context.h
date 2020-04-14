@@ -39,7 +39,8 @@ public:
             LoggerCallback loggerCallback,
             ExternalCall externalCall,
             FreeMemory freeMemory,
-            DebugReceiver debugReceiver);
+            DebugReceiver debugReceiver,
+            FatalErrorCallback errorCallback);
     void Dispose();
 
     V8Response Release(V8Handle handle);

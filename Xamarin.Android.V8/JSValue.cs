@@ -7,7 +7,7 @@ using V8Handle = System.IntPtr;
 
 namespace Xamarin.Android.V8
 {
-    public class JSValue: IJSValue, IDisposable
+    public class JSValue: IJSValue
     {
         readonly JSContext jsContext;
         readonly V8Handle context;
@@ -148,15 +148,12 @@ namespace Xamarin.Android.V8
         {
             get
             {
-                using (var keys = (JSValue)this.jsContext["Object"].InvokeMethod("keys", this))
+                var keys = (JSValue)this.jsContext["Object"].InvokeMethod("keys", this);
+                int len = keys.Length;
+                for (int i = 0; i < len; i++)
                 {
-                    int len = keys.Length;
-                    for (int i = 0; i < len; i++)
-                    {
-                        using (var key = (JSValue)keys[i]) {
-                            yield return new JSProperty(key.ToString(), keys[i]);
-                        }
-                    }
+                    var key = keys[i];
+                    yield return new JSProperty(key.ToString(), keys[i]);
                 }
             }
         }
@@ -198,7 +195,11 @@ namespace Xamarin.Android.V8
 
         ~JSValue()
         {
-            Dispose();
+            if (handle.handle != IntPtr.Zero)
+            {
+                JSContext.V8Context_ReleaseHandle(context, handle.handle).GetBooleanValue();
+                handle.handle = IntPtr.Zero;
+            }
         }
         internal IntPtr Detach()
         {
@@ -253,13 +254,5 @@ namespace Xamarin.Android.V8
             }
         }
 
-        public void Dispose()
-        {
-            if (handle.handle != IntPtr.Zero)
-            {
-                JSContext.V8Context_ReleaseHandle(context, handle.handle).GetBooleanValue();
-                handle.handle = IntPtr.Zero;
-            }
-        }
     }
 }

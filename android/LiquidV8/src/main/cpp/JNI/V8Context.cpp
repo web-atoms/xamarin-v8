@@ -46,7 +46,8 @@ V8Context::V8Context(
         LoggerCallback loggerCallback,
         ExternalCall  _externalCall,
         FreeMemory _freeMemory,
-        DebugReceiver _debugReceiver) {
+        DebugReceiver _debugReceiver,
+        FatalErrorCallback errorCallback) {
     if (!_V8Initialized) // (the API changed: https://groups.google.com/forum/#!topic/v8-users/wjMwflJkfso)
     {
         V8::InitializeICU();
@@ -71,6 +72,8 @@ V8Context::V8Context(
     _isolate = Isolate::New(params);
 
     V8_HANDLE_SCOPE
+
+    _isolate->SetFatalErrorHandler(errorCallback);
 
     Local<v8::ObjectTemplate> global = ObjectTemplate::New(_isolate);
     Local<v8::Context> c = Context::New(_isolate, nullptr, global);
