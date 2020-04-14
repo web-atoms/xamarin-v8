@@ -75,6 +75,8 @@ V8Context::V8Context(
 
     _isolate->SetFatalErrorHandler(errorCallback);
 
+    // _isolate->SetMicrotasksPolicy(MicrotasksPolicy::kScoped);
+
     Local<v8::ObjectTemplate> global = ObjectTemplate::New(_isolate);
     Local<v8::Context> c = Context::New(_isolate, nullptr, global);
     _context.Reset(_isolate, c);
