@@ -26,7 +26,7 @@ namespace Xamarin.Android.V8
 
     public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
 
-    internal delegate V8Response DebugReceiver(V8Response msg);
+    internal delegate IntPtr ReadDebugMessage();
 
     internal delegate void JSContextLog(IntPtr text);
 
@@ -50,6 +50,7 @@ namespace Xamarin.Android.V8
         IntPtr logger;
         IntPtr fatalErrorCallback;
         static IntPtr externalCaller;
+        IntPtr readDebugMessage;
 
         public Action<string> Logger { get; set; }
 
@@ -85,6 +86,13 @@ namespace Xamarin.Android.V8
                 string ms = Marshal.PtrToStringUTF8(m);
                 Logger?.Invoke(ms);
                 Logger?.Invoke(ls);
+            });
+
+            readDebugMessage = Marshal.GetFunctionPointerForDelegate<ReadDebugMessage>(() => {
+
+                string msg = AsyncHelpers.RunSync<string>(ReadDebugMessageAsync);
+                return Marshal.StringToAllocatedMemoryUTF8(msg);
+                
             });
 
             lock (creationLock)
@@ -140,7 +148,7 @@ namespace Xamarin.Android.V8
                     logger: logger,
                     externalCall: externalCaller,
                     freeMemory: deAllocator,
-                    debugReceiver: IntPtr.Zero,
+                    debugReceiver: readDebugMessage,
                     fatalErrorCallback: fatalErrorCallback);
             }
 
@@ -211,18 +219,21 @@ namespace Xamarin.Android.V8
 
             }, "setTimeout");
 
-            if (debug)
-            {
-                if (!MainThread.IsMainThread)
-                    throw new NotSupportedException($"Debugging can only be enabled from Main Thread");
-                MainThread.InvokeOnMainThreadAsync(() => this.SetupDebugging());
-            }
+            MainThread.InvokeOnMainThreadAsync(() => this.SetupDebugging());
 
         }
 
+
+        private Task<string> ReadDebugMessageAsync()
+        {
+            return debugMessages.DequeueAsync();
+        }
+
+        private AsyncQueue<string> debugMessages = new AsyncQueue<string>();
+
         private async Task SetupDebugging()
         {
-            List<WebSocket> clientList = new List<WebSocket>();
+            var clientList = new List<WebSocket>();
 
             cancellationTokenSource = new System.Threading.CancellationTokenSource();
 
@@ -234,11 +245,15 @@ namespace Xamarin.Android.V8
             {
                 var msg = p[0];
                 string data = msg.ToString();
-                // System.Diagnostics.Debug.WriteLine($"To Chrome: {data}");
-                foreach (var client in clientList)
-                {
-                    AtomAsyncDispatcher.Instance.EnqueueTask(() =>
-                        client.WriteStringAsync(data, cancellationTokenSource.Token));
+                lock (clientList) {
+                    foreach (var client in clientList) {
+                        try {
+                            AtomAsyncDispatcher.Instance.EnqueueTask(() =>
+                                client.WriteStringAsync(data, cancellationTokenSource.Token));
+                        } catch (Exception ex) {
+                            System.Diagnostics.Debug.WriteLine(ex);
+                        }
+                    }
                 }
 
                 return this.Undefined;
@@ -248,52 +263,44 @@ namespace Xamarin.Android.V8
 
             while (true)
             {
-
                 var client = await server.AcceptWebSocketAsync(cancellationTokenSource.Token);
-
-                if (client == null)
-                    continue;
-
-                lock (clientList)
-                {
+                lock (clientList) {
                     clientList.Add(client);
                 }
 
-
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                Task.Run(async () =>
-                {
-
-                    try
+                Task.Run(async () => {
+                    while (true)
                     {
-
-                        while (true)
+                        try
                         {
-                            var text = await client.ReadStringAsync(cancellationTokenSource.Token);
-                            MainThread.BeginInvokeOnMainThread(() => {
-                                var js = this.CreateString(text);
-                                try
-                                {
-                                    System.Diagnostics.Debug.WriteLine(text);
-                                    Global["send"].InvokeFunction(Global, js);
-                                }catch (Exception ex)
-                                {
-                                    System.Diagnostics.Debug.WriteLine(ex);
-                                }
-                            });
+                            var msg = await client.ReadStringAsync(cancellationTokenSource.Token);
+                            debugMessages.Enqueue(msg);
+
+                            await Task.Delay(1000);
+
+                            string last = debugMessages.UnUsedMessage;
+                            while (last != null)
+                            {
+                                string lm = last;
+                                MainThread.BeginInvokeOnMainThread(() => {
+
+                                    var jsMsg = this.CreateString(lm);
+                                    this["send"].InvokeFunction(Global, jsMsg);
+                                });
+                                last = debugMessages.UnUsedMessage;
+                            }
+
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine(ex);
-                        lock (clientList)
-                        {
-                            clientList.Remove(client);
+                        catch {
+                            lock (clientList)
+                            {
+                                clientList.Remove(client);
+                            }
                         }
                     }
                 });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
             }
         }
 

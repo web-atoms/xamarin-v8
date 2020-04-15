@@ -51,6 +51,8 @@ typedef void (*FreeMemory)(void *location);
 
 typedef void (*LoggerCallback)(XString text);
 
+typedef char* (*ReadDebugMessage)();
+
 enum NullableBool: int8_t {
     NotSet = 0,
     False = 1,

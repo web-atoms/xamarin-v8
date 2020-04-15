@@ -53,6 +53,8 @@
     <PackageReference Include="WebAtoms.Core" Version="1.4.71" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncHelpers.cs" />
+    <Compile Include="AsyncQueue.cs" />
     <Compile Include="AtomAsyncDispatcher.cs" />
     <Compile Include="CLREnv.cs" />
     <Compile Include="JSContext.cs" />

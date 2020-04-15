@@ -46,8 +46,8 @@ V8Context::V8Context(
         LoggerCallback loggerCallback,
         ExternalCall  _externalCall,
         FreeMemory _freeMemory,
-        DebugReceiver _debugReceiver,
-        FatalErrorCallback errorCallback) {
+        FatalErrorCallback errorCallback,
+        ReadDebugMessage readDebugMessage) {
     if (!_V8Initialized) // (the API changed: https://groups.google.com/forum/#!topic/v8-users/wjMwflJkfso)
     {
         V8::InitializeICU();
@@ -88,15 +88,7 @@ V8Context::V8Context(
     // _isolate->SetData(0, &_wrapSymbol);
 
     if (debug) {
-        // initialize inspector...
-
-        // setup global function receive...
-        // Local<v8::External> _debug = v8::External::New(_isolate, (void*)_debugReceiver);
-        // Local<v8::Function> fn = v8::Function::New(_isolate, ReceiveDebug, _debug );
-//
-        // global->Set(V8_STRING("receive"), fn);
-//
-        XV8InspectorClient* client = new XV8InspectorClient(c, true);
+        XV8InspectorClient* client = new XV8InspectorClient(c, true, _platform.get(), readDebugMessage);
     }
 
 

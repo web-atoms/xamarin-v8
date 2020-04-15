@@ -26,9 +26,9 @@ namespace DroidV8Test.Droid
 
             var jc = new JSContext(true);
 
-            // jc.Evaluate("console.log('hey')");
+            jc.Evaluate("console.log('hey')");
             // jc.Evaluate("setTimeout(function() { console.log('1'); },1);");
-            jc.Evaluate(@"new Promise(function(r,e) {})");
+            // jc.Evaluate(@"new Promise(function(r,e) {})");
 
             //this.RunOnUiThread(async () => {
 
