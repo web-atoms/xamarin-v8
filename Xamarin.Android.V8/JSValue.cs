@@ -188,6 +188,7 @@ namespace Xamarin.Android.V8
             if (this.IsObject)
             {
                 return JSContext.V8Context_ToString(context, handle.handle).GetString();
+                //return "";
             }
             if (this.IsBoolean) return this.BooleanValue.ToString();
             return base.ToString();

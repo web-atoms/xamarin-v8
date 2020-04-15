@@ -112,7 +112,7 @@ public:
         context_.Reset(isolate_, context);
     }
 
-    void runMessageLoopOnPause(int context_group_id)
+    void runMessageLoopOnPause(int context_group_id) override
     {
         if (running_nested_loop_) {
             return;
@@ -140,7 +140,7 @@ public:
         running_nested_loop_ = false;
     }
 
-    void quitMessageLoopOnPause() {
+    void quitMessageLoopOnPause() override {
         terminated_ = true;
     }
 

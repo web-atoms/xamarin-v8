@@ -130,10 +130,13 @@ namespace Xamarin.Android.V8
                             return new V8Response
                             {
                                 type = V8ResponseType.Error,
-                                error = new V8Error
+                                result = new V8ResponseResult
                                 {
-                                    message = msg,
-                                    stack = IntPtr.Zero
+                                    error = new V8Error
+                                    {
+                                        message = msg,
+                                        stack = IntPtr.Zero
+                                    }
                                 }
                             };
                         }
@@ -297,6 +300,7 @@ namespace Xamarin.Android.V8
                             {
                                 clientList.Remove(client);
                             }
+                            break;
                         }
                     }
                 });
@@ -363,9 +367,12 @@ namespace Xamarin.Android.V8
                     return new V8Response
                     {
                         type = V8ResponseType.Handle,
-                        handle = new V8HandleContainer
+                        result = new V8ResponseResult
                         {
-                            handle = r?.Detach() ?? IntPtr.Zero
+                            handle = new V8HandleContainer
+                            {
+                                handle = r?.Detach() ?? IntPtr.Zero
+                            }
                         }
                     };
                 } catch (Exception ex)
@@ -374,9 +381,13 @@ namespace Xamarin.Android.V8
                     // IntPtr stack = Marshal.StringToAllocatedMemoryUTF8(ex.StackTrace);
                     return new V8Response {
                         type = V8ResponseType.Error,
-                        error = new V8Error {
-                            message = msg,
-                            stack = IntPtr.Zero
+                        result = new V8ResponseResult
+                        {
+                            error = new V8Error
+                            {
+                                message = msg,
+                                stack = IntPtr.Zero
+                            }
                         }
                     };
                 }

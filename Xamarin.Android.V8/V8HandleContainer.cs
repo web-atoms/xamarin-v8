@@ -4,10 +4,10 @@ using System.Runtime.InteropServices;
 
 namespace Xamarin.Android.V8
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 4)]
+    [StructLayout(LayoutKind.Sequential)]
     internal struct V8HandleContainer
     {
-        [MarshalAs(UnmanagedType.U1)]
+        [MarshalAs(UnmanagedType.SysInt)]
         public V8HandleType handleType;
 
         public V8Value value;

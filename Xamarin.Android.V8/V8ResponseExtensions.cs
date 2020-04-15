@@ -46,10 +46,10 @@ namespace Xamarin.Android.V8
         {
             if (r.type == V8ResponseType.Error)
             {
-                string msg = r.error.message.ToUTF8StringFromPtr();
-                if (r.error.stack != IntPtr.Zero)
+                string msg = r.result.error.message.ToUTF8StringFromPtr();
+                if (r.result.error.stack != IntPtr.Zero)
                 {
-                    msg += "\r\n" + r.error.stack.ToUTF8StringFromPtr();
+                    msg += "\r\n" + r.result.error.stack.ToUTF8StringFromPtr();
                 }
                 JSContext.V8Context_Release(r);
                 throw new Exception(msg);
@@ -64,7 +64,7 @@ namespace Xamarin.Android.V8
                 JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
-            return r.handle;
+            return r.result.handle;
         }
 
         internal static bool GetBooleanValue(this V8Response r)
@@ -75,7 +75,7 @@ namespace Xamarin.Android.V8
                 JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
-            return r.booleanValue;
+            return r.result.booleanValue;
         }
 
         internal static int GetIntegerValue(this V8Response r)
@@ -86,7 +86,7 @@ namespace Xamarin.Android.V8
                 JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
-            return r.intValue;
+            return r.result.intValue;
         }
 
 
@@ -98,7 +98,7 @@ namespace Xamarin.Android.V8
                 JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
-            return r.stringValue.ToUTF8StringFromPtr();
+            return r.result.stringValue.ToUTF8StringFromPtr();
         }
     }
 }
