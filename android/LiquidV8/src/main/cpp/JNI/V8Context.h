@@ -21,7 +21,7 @@ typedef V8Response(*DebugReceiver)(V8Response msg);
 
 class V8Context {
 protected:
-    std::unique_ptr<Platform> _platform;
+    // std::unique_ptr<Platform> _platform;
     Isolate* _isolate;
     Global<Context> _context;
     Global<Symbol> _wrapSymbol;

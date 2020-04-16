@@ -74,6 +74,7 @@ static bool _V8Initialized = false;
 
 static ExternalCall externalCall;
 static FreeMemory  freeMemory;
+static TV8Platform* _platform;
 
 V8Context::V8Context(
         bool debug,
@@ -91,10 +92,10 @@ V8Context::V8Context(
         // (Startup data is not included by default anymore)
 
         // _platform = platform::NewDefaultPlatform();
-        TV8Platform* p1 = new TV8Platform();
-        _platform = std::make_unique<TV8Platform>(p1);
+        _platform = new TV8Platform();
+        // _platform = std::make_unique<TV8Platform>(p1);
 
-        V8::InitializePlatform(_platform.get());
+        V8::InitializePlatform(_platform);
 
         V8::Initialize();
         externalCall = _externalCall;
@@ -131,7 +132,7 @@ V8Context::V8Context(
     // _isolate->SetData(0, &_wrapSymbol);
 
     if (debug) {
-        inspectorClient = new XV8InspectorClient(c, true, _platform.get(), readDebugMessage, sendDebugMessage);
+        inspectorClient = new XV8InspectorClient(c, true, _platform, readDebugMessage, sendDebugMessage);
     }
 
 
