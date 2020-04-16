@@ -7,39 +7,73 @@
 #include "V8External.h"
 #include "InspectorChannel.h"
 
+class TV8Platform : public v8::Platform
+{
+    using Isolate = v8::Isolate;
+    using Task = v8::Task;
+    using IdleTask = v8::IdleTask;
+    using PageAllocator = v8::PageAllocator;
+    using TaskRunner = v8::TaskRunner;
+    using TracingController = v8::TracingController;
+
+public:
+    TV8Platform()
+    {
+        mPlatform = v8::platform::NewDefaultPlatform();
+    }
+
+    virtual PageAllocator* GetPageAllocator() override {	return mPlatform->GetPageAllocator();	}
+    virtual void OnCriticalMemoryPressure() override {	mPlatform->OnCriticalMemoryPressure();	}
+    virtual bool OnCriticalMemoryPressure(size_t length) override {	return mPlatform->OnCriticalMemoryPressure(length);	}
+    virtual int NumberOfWorkerThreads() override{	return mPlatform->NumberOfWorkerThreads();	}
+    virtual std::shared_ptr<TaskRunner> GetForegroundTaskRunner(Isolate* isolate) override{	return mPlatform->GetForegroundTaskRunner(isolate);	}
+    virtual std::shared_ptr<TaskRunner> GetBackgroundTaskRunner(Isolate* isolate) override{	return mPlatform->GetBackgroundTaskRunner(isolate);	}
+    virtual std::shared_ptr<TaskRunner> GetWorkerThreadsTaskRunner(Isolate* isolate) override {
+        return mPlatform->GetWorkerThreadsTaskRunner(isolate);
+    }
+    virtual size_t NumberOfAvailableBackgroundThreads() override {
+        return mPlatform->NumberOfAvailableBackgroundThreads();
+    }
+    virtual void CallOnWorkerThread(std::unique_ptr<Task> task) override{	mPlatform->CallOnWorkerThread( std::move(task) );	}
+    virtual void CallBlockingTaskOnWorkerThread(std::unique_ptr<Task> task) override	{	mPlatform->CallBlockingTaskOnWorkerThread( std::move(task) );	}
+//    virtual void CallOnBackgroundThread(Task* task) {
+//        mPlatform->CallOnBackgroundThread(task);
+//    }
+    virtual void CallOnBackgroundThread(Task* task, ExpectedRuntime r) override {
+        mPlatform->CallOnBackgroundThread(task, r);
+    }
+    // virtual void CallDelayedOnWorkerThread(std::unique_ptr<Task> task,double delay_in_seconds) override	{	mPlatform->CallDelayedOnWorkerThread( std::move(task),delay_in_seconds);	}
+    virtual void CallOnForegroundThread(Isolate* isolate, Task* task) override	{	mPlatform->CallOnForegroundThread(isolate, task);	}
+    virtual void CallDelayedOnForegroundThread(Isolate* isolate, Task* task, double delay_in_seconds) override	{
+        delay_in_seconds = 0;
+        mPlatform->CallDelayedOnForegroundThread( isolate, task, delay_in_seconds );
+    }
+    virtual void CallIdleOnForegroundThread(Isolate* isolate, IdleTask* task) override	{	mPlatform->CallIdleOnForegroundThread(isolate, task);	}
+    virtual bool IdleTasksEnabled(Isolate* isolate) override	{	return mPlatform->IdleTasksEnabled(isolate);	}
+    virtual double MonotonicallyIncreasingTime() override	{	return mPlatform->MonotonicallyIncreasingTime();	}
+    virtual double CurrentClockTimeMillis() override	{	return mPlatform->CurrentClockTimeMillis();	}
+    virtual StackTracePrinter GetStackTracePrinter() override	{	return mPlatform->GetStackTracePrinter();	}
+    virtual TracingController* GetTracingController() override	{	return mPlatform->GetTracingController();	}
+
+    //	here's the bodged fix to avoid the assert. Seems to work!
+//    virtual void CallDelayedOnWorkerThread(std::unique_ptr<Task> task,double delay_in_seconds) override
+//    {
+//        delay_in_seconds = 0;
+//        mPlatform->CallDelayedOnWorkerThread( std::move(task),delay_in_seconds);
+//    }
+
+protected:
+    // std::shared_ptr<v8::Platform>	mpPlatform;
+    std::unique_ptr<v8::Platform>	mPlatform;
+
+
+};
+
+
 static bool _V8Initialized = false;
 
 static ExternalCall externalCall;
 static FreeMemory  freeMemory;
-
-void ReceiveDebug(const FunctionCallbackInfo<v8::Value> &args) {
-    Isolate* isolate = args.GetIsolate();
-    Isolate* _isolate = isolate;
-    Local<Context> context(isolate->GetCurrentContext());
-    Context::Scope context_scope(context);
-    Local<External> _dfe = Local<External>::Cast(args.Data());
-
-    DebugReceiver debugReceiver = (DebugReceiver) _dfe->Value();
-
-    Local<Value> msg = args[0];
-
-    V8Response target = V8Response_From(context, msg);
-    V8Response r = debugReceiver(target);
-
-    if (r.type == V8ResponseType::Error) {
-        Local<v8::String> error = V8_STRING(r.result.error.message);
-        delete r.result.error.message;
-        Local<Value> ex = Exception::Error(error);
-        isolate->ThrowException(ex);
-    } else {
-        if (r.result.handle.handle != nullptr) {
-            Local<Value> rx = r.result.handle.handle->Get(isolate);
-            V8_FREE_HANDLE(r.result.handle.handle);
-            args.GetReturnValue().Set(rx);
-        }
-    }
-}
-
 
 V8Context::V8Context(
         bool debug,
@@ -47,7 +81,8 @@ V8Context::V8Context(
         ExternalCall  _externalCall,
         FreeMemory _freeMemory,
         FatalErrorCallback errorCallback,
-        ReadDebugMessage readDebugMessage) {
+        ReadDebugMessage readDebugMessage,
+        LoggerCallback sendDebugMessage) {
     if (!_V8Initialized) // (the API changed: https://groups.google.com/forum/#!topic/v8-users/wjMwflJkfso)
     {
         V8::InitializeICU();
@@ -55,7 +90,10 @@ V8Context::V8Context(
         //?v8::V8::InitializeExternalStartupData(PLATFORM_TARGET "\\");
         // (Startup data is not included by default anymore)
 
-        _platform = platform::NewDefaultPlatform();
+        // _platform = platform::NewDefaultPlatform();
+        TV8Platform* p1 = new TV8Platform();
+        _platform = std::make_unique<TV8Platform>(p1);
+
         V8::InitializePlatform(_platform.get());
 
         V8::Initialize();
@@ -70,15 +108,20 @@ V8Context::V8Context(
     params.array_buffer_allocator = _arrayBufferAllocator;
 
     _isolate = Isolate::New(params);
+    _isolate->Enter();
 
     V8_HANDLE_SCOPE
 
     _isolate->SetFatalErrorHandler(errorCallback);
 
+
     // _isolate->SetMicrotasksPolicy(MicrotasksPolicy::kScoped);
+
+    _isolate->SetCaptureStackTraceForUncaughtExceptions(true, 10, v8::StackTrace::kOverview);
 
     Local<v8::ObjectTemplate> global = ObjectTemplate::New(_isolate);
     Local<v8::Context> c = Context::New(_isolate, nullptr, global);
+    c->Enter();
     _context.Reset(_isolate, c);
 
     Local<v8::Symbol> s = v8::Symbol::New(_isolate, V8_STRING("WrappedInstance"));
@@ -88,7 +131,7 @@ V8Context::V8Context(
     // _isolate->SetData(0, &_wrapSymbol);
 
     if (debug) {
-        XV8InspectorClient* client = new XV8InspectorClient(c, true, _platform.get(), readDebugMessage);
+        inspectorClient = new XV8InspectorClient(c, true, _platform.get(), readDebugMessage, sendDebugMessage);
     }
 
 
@@ -139,6 +182,11 @@ void V8Context::FreeWrapper(V8Handle value, bool force) {
 }
 
 void V8Context::Dispose() {
+
+    if (inspectorClient != nullptr) {
+        delete inspectorClient;
+    }
+
     V8WrappedVisitor v;
     v.context = this;
     v.force = true;
@@ -574,6 +622,12 @@ V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) 
     Local<v8::Object> obj = t->ToObject(context).ToLocalChecked();
     obj->Set(context, (uint)index, v).ToChecked();
     return V8Response_From(context, v);
+}
+
+void V8Context::SendDebugMessage(XString message) {
+    if (inspectorClient != nullptr) {
+        inspectorClient->SendDebugMessage(message);
+    }
 }
 
 V8Response V8Context::ToString(V8Handle target) {

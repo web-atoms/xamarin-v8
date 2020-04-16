@@ -9,6 +9,7 @@
 #include "HashMap.h"
 
 #include "v8-inspector.h"
+class XV8InspectorClient;
 
 class V8Response;
 
@@ -24,6 +25,7 @@ protected:
     Isolate* _isolate;
     Global<Context> _context;
     Global<Symbol> _wrapSymbol;
+    XV8InspectorClient* inspectorClient;
 
     // delete array allocator
     ArrayBuffer::Allocator* _arrayBufferAllocator;
@@ -40,7 +42,8 @@ public:
             ExternalCall externalCall,
             FreeMemory freeMemory,
             FatalErrorCallback errorCallback,
-            ReadDebugMessage readDebugMessage);
+            ReadDebugMessage readDebugMessage,
+            LoggerCallback sendDebugMessage);
     void Dispose();
 
     V8Response Release(V8Handle handle);
@@ -78,6 +81,7 @@ public:
     V8Response SetProperty(V8Handle target, XString name, V8Handle value);
     V8Response GetPropertyAt(V8Handle target, int index);
     V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
+    void SendDebugMessage(XString message);
     V8Response Wrap(void* value);
     V8Response ToString(V8Handle target);
     V8Response GC();

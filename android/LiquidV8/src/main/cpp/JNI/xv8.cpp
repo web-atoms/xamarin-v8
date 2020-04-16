@@ -38,6 +38,7 @@ extern "C" {
             ExternalCall externalCall,
             FreeMemory  freeMemory,
             ReadDebugMessage readDebugMessage,
+            LoggerCallback sendDebugMessage,
             FatalErrorCallback errorCallback) {
         V8Context*c = new V8Context(
                 debug,
@@ -45,7 +46,8 @@ extern "C" {
                 externalCall,
                 freeMemory,
                 errorCallback,
-                readDebugMessage);
+                readDebugMessage,
+                sendDebugMessage);
         map.insert((uint64_t)c, 1);
         return c;
     }
@@ -133,14 +135,14 @@ extern "C" {
         return context->InvokeFunction(target, thisValue, len, args);
     }
 
-V8Response V8Context_InvokeMethod(
-        V8Context* context,
-        V8Handle target,
-        XString name,
-        int len,
-        V8Handle* args) {
-    return context->InvokeMethod(target, name, len, args);
-}
+    V8Response V8Context_InvokeMethod(
+            V8Context* context,
+            V8Handle target,
+            XString name,
+            int len,
+            V8Handle* args) {
+        return context->InvokeMethod(target, name, len, args);
+    }
 
     V8Response V8Context_Has(
             V8Context* context,
@@ -150,8 +152,14 @@ V8Response V8Context_InvokeMethod(
         return context->Has(target, index);
     }
 
+    void V8Context_SendDebugMessage(
+            V8Context* context,
+            XString message) {
+        return context->SendDebugMessage(message);
+    }
 
-V8Response V8Context_HasProperty(
+
+    V8Response V8Context_HasProperty(
             V8Context* context,
             V8Handle  target,
             XString text

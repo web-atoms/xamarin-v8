@@ -51,6 +51,7 @@ namespace Xamarin.Android.V8
         IntPtr fatalErrorCallback;
         static IntPtr externalCaller;
         IntPtr readDebugMessage;
+        IntPtr receiveDebugFromV8;
 
         public Action<string> Logger { get; set; }
 
@@ -93,6 +94,23 @@ namespace Xamarin.Android.V8
                 string msg = AsyncHelpers.RunSync<string>(ReadDebugMessageAsync);
                 return Marshal.StringToAllocatedMemoryUTF8(msg);
                 
+            });
+
+            receiveDebugFromV8 = Marshal.GetFunctionPointerForDelegate<JSContextLog>((m) => {
+                try {
+                    string msg = Marshal.PtrToStringUTF8(m);
+                    Log($"From V8:{msg}");
+                    lock (clientList) {
+                        foreach(var client in clientList)
+                        {
+                            Log($"To Chrome: {msg}");
+                            AtomAsyncDispatcher.Instance.EnqueueTask(() => client.WriteStringAsync(msg));
+                        }
+                    }
+                } catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex);
+                }
             });
 
             lock (creationLock)
@@ -145,14 +163,6 @@ namespace Xamarin.Android.V8
                     externalCaller = Marshal.GetFunctionPointerForDelegate(ec);
 
                 }
-
-                this.context = V8Context_Create(
-                    debug,
-                    logger: logger,
-                    externalCall: externalCaller,
-                    freeMemory: deAllocator,
-                    debugReceiver: readDebugMessage,
-                    fatalErrorCallback: fatalErrorCallback);
             }
 
             if (Logger == null)
@@ -162,6 +172,15 @@ namespace Xamarin.Android.V8
                 };
             }
 
+            this.context = V8Context_Create(
+                debug,
+                logger: logger,
+                externalCall: externalCaller,
+                freeMemory: deAllocator,
+                debugReceiver: readDebugMessage,
+                receiveDebugFromV8: receiveDebugFromV8,
+                fatalErrorCallback: fatalErrorCallback); ;
+            
             this.Undefined = new JSValue(this, V8Context_CreateUndefined(context).GetContainer());
 
             this.Global = new JSValue(this, V8Context_GetGlobal(context).GetContainer());
@@ -227,84 +246,95 @@ namespace Xamarin.Android.V8
         }
 
 
-        private Task<string> ReadDebugMessageAsync()
+        private async Task<string> ReadDebugMessageAsync()
         {
-            return debugMessages.DequeueAsync();
+            lock(this)
+            {
+                readMessageTask = new TaskCompletionSource<string>();
+            }
+            var msg = await readMessageTask.Task;
+            lock(this)
+            {
+                readMessageTask = null;
+            }
+            return msg;
         }
 
-        private AsyncQueue<string> debugMessages = new AsyncQueue<string>();
+        private TaskCompletionSource<string> readMessageTask;
+
+        private List<WebSocket> clientList = new List<WebSocket>();
+
+        private static void Log(object message)
+        {
+            System.Diagnostics.Debug.WriteLine(message);
+        }
 
         private async Task SetupDebugging()
         {
-            var clientList = new List<WebSocket>();
-
-            cancellationTokenSource = new System.Threading.CancellationTokenSource();
-
-            var options = new WebSocketListenerOptions();
-            options.Standards.RegisterRfc6455();
-            var server = new WebSocketListener(new IPEndPoint(IPAddress.Any, 9222), options);
-
-            this["receive"] = this.CreateFunction(1, (c, p) =>
+            try
             {
-                var msg = p[0];
-                string data = msg.ToString();
-                lock (clientList) {
-                    foreach (var client in clientList) {
-                        try {
-                            AtomAsyncDispatcher.Instance.EnqueueTask(() =>
-                                client.WriteStringAsync(data, cancellationTokenSource.Token));
-                        } catch (Exception ex) {
-                            System.Diagnostics.Debug.WriteLine(ex);
-                        }
+
+                lock (clientList)
+                {
+                    clientList.Clear();
+                }
+
+                cancellationTokenSource = new System.Threading.CancellationTokenSource();
+
+                var options = new WebSocketListenerOptions();
+                options.Standards.RegisterRfc6455();
+                var server = new WebSocketListener(new IPEndPoint(IPAddress.Any, 9222), options);
+
+                await server.StartAsync();
+
+                while (true)
+                {
+                    var client = await server.AcceptWebSocketAsync(cancellationTokenSource.Token);
+                    lock (clientList)
+                    {
+                        clientList.Add(client);
                     }
-                }
 
-                return this.Undefined;
-            }, "DebugReceiver");
-
-            await server.StartAsync();
-
-            while (true)
-            {
-                var client = await server.AcceptWebSocketAsync(cancellationTokenSource.Token);
-                lock (clientList) {
-                    clientList.Add(client);
-                }
+                    Log("Client connected");
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-                Task.Run(async () => {
-                    while (true)
+                    Task.Run(async () =>
                     {
-                        try
+                        while (true)
                         {
-                            var msg = await client.ReadStringAsync(cancellationTokenSource.Token);
-                            debugMessages.Enqueue(msg);
-
-                            await Task.Delay(1000);
-
-                            string last = debugMessages.UnUsedMessage;
-                            while (last != null)
+                            try
                             {
-                                string lm = last;
-                                MainThread.BeginInvokeOnMainThread(() => {
-
-                                    var jsMsg = this.CreateString(lm);
-                                    this["send"].InvokeFunction(Global, jsMsg);
+                                var msg = await client.ReadStringAsync(cancellationTokenSource.Token);
+                                lock (this)
+                                {
+                                    if (readMessageTask != null)
+                                    {
+                                        readMessageTask.TrySetResult(msg);
+                                        continue;
+                                    }
+                                }
+                                MainThread.BeginInvokeOnMainThread(() =>
+                                {
+                                    Log($"To VM: {msg}");
+                                    V8Context_SendDebugMessage(this.context, msg);
                                 });
-                                last = debugMessages.UnUsedMessage;
-                            }
 
-                        }
-                        catch {
-                            lock (clientList)
-                            {
-                                clientList.Remove(client);
                             }
-                            break;
+                            catch
+                            {
+                                lock (clientList)
+                                {
+                                    clientList.Remove(client);
+                                }
+                                break;
+                            }
                         }
-                    }
-                });
+                    });
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+                }
+            }catch (Exception ex)
+            {
+                Log(ex);
             }
         }
 
@@ -511,6 +541,7 @@ namespace Xamarin.Android.V8
             IntPtr externalCall,
             IntPtr freeMemory,
             IntPtr debugReceiver,
+            IntPtr receiveDebugFromV8,
             IntPtr fatalErrorCallback);
 
         [DllImport(LibName)]
@@ -655,6 +686,13 @@ namespace Xamarin.Android.V8
             int index,
             IntPtr value);
 
+
+        [DllImport(LibName)]
+        internal extern static void V8Context_SendDebugMessage(
+            V8Handle context,
+            [MarshalAs(UnmanagedType.LPUTF8Str)]
+            string message
+            );
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_ToString(
