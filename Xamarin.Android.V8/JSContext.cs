@@ -99,11 +99,11 @@ namespace Xamarin.Android.V8
             receiveDebugFromV8 = Marshal.GetFunctionPointerForDelegate<JSContextLog>((m) => {
                 try {
                     string msg = Marshal.PtrToStringUTF8(m);
-                    Log($"From V8:{msg}");
+                    // Log($"From V8:{msg}");
                     lock (clientList) {
                         foreach(var client in clientList)
                         {
-                            Log($"To Chrome: {msg}");
+                            // Log($"To Chrome: {msg}");
                             AtomAsyncDispatcher.Instance.EnqueueTask(() => client.WriteStringAsync(msg));
                         }
                     }
@@ -315,7 +315,7 @@ namespace Xamarin.Android.V8
                                 }
                                 MainThread.BeginInvokeOnMainThread(() =>
                                 {
-                                    Log($"To VM: {msg}");
+                                    // Log($"To VM: {msg}");
                                     V8Context_SendDebugMessage(this.context, msg);
                                 });
 

@@ -12,6 +12,10 @@ using namespace v8;
 
 #define WRAPPED_CLASS 0xA0A
 
+#define FOREGROUD_TASK_RUNNER_SLOT 101
+#define BACKGROUND_TASK_RUNNER_SLOT 102
+#define WORKER_TASK_RUNNER_SLOT 103
+
 
 #define V8_HANDLE_SCOPE \
     v8::Isolate::Scope isolate_scope(_isolate);\

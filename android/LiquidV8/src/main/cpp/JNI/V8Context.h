@@ -17,8 +17,6 @@ typedef V8Response(*ExternalCall)(V8Response fx, V8Response target, V8Response a
 
 typedef V8Response(*DebugReceiver)(V8Response msg);
 
-
-
 class V8Context {
 protected:
     // std::unique_ptr<Platform> _platform;
@@ -85,6 +83,11 @@ public:
     V8Response Wrap(void* value);
     V8Response ToString(V8Handle target);
     V8Response GC();
+
+    std::shared_ptr<TaskRunner> foregroundTaskRunner;
+    std::shared_ptr<TaskRunner> backgroundTaskRunner;
+    std::shared_ptr<TaskRunner> workerTaskRunner;
+
 private:
 
 };
