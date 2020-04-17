@@ -18,7 +18,7 @@ static TV8Platform* _platform;
 static FatalErrorCallback fatalErrorCallback;
 void LogAndroid(const char* location, const char* message) {
     __android_log_print(ANDROID_LOG_ERROR, "V8", "%s %s", location, message);
-    fatalErrorCallback(CopyString(location), CopyString(message));
+    // fatalErrorCallback(CopyString(location), CopyString(message));
 }
 
 V8Context::V8Context(
@@ -124,16 +124,24 @@ V8Response V8Context::GC() {
 
 void V8Context::FreeWrapper(V8Handle value, bool force) {
     V8_CONTEXT_SCOPE
+    LogAndroid("FreeWrapper", "Begin");
+    auto i = reinterpret_cast<std::uintptr_t>(value);
+    __android_log_print(ANDROID_LOG_ERROR, "V8", "Inspecting Pointer %d", i);
     Local<Value> v = value->Get(_isolate);
+    LogAndroid("FreeWrapper", "Check Empty");
     if (v.IsEmpty())
         return;
+    LogAndroid("FreeWrapper", "Check External");
     if (!v->IsExternal()) {
         if (force) {
             delete value;
         }
+        LogAndroid("FreeWrapper", "Not External");
         return;
     }
+    LogAndroid("FreeWrapper", "Checkout External");
     V8External::CheckoutExternal(context, v, force);
+    LogAndroid("FreeWrapper", "Checkout External Done");
 }
 
 void V8Context::Dispose() {
@@ -365,8 +373,11 @@ V8Response V8Context::Evaluate(XString script, XString location) {
 
 V8Response V8Context::Release(V8Handle handle) {
     try {
-        this->FreeWrapper(handle, false);
+        LogAndroid("Release", "Begin");
+        FreeWrapper(handle, false);
+        LogAndroid("Release", "Delete");
         delete handle;
+        LogAndroid("Release", "Delete Done");
         V8Response r = {};
         r.type = V8ResponseType ::BooleanValue;
         r.result.booleanValue = true;
@@ -606,7 +617,12 @@ V8Response V8Context::ToString(V8Handle target) {
     return V8Response_ToString(GetContext(), value);
 }
 
+void V8External::Log(const char *msg) {
+    LogAndroid("Log", msg);
+}
+
 void V8External::Release(void *data) {
+    LogAndroid("V8External", "Release");
     if (data != nullptr) {
         freeMemory(data);
     }

@@ -108,9 +108,14 @@ namespace Xamarin.Android.V8
             };
             logger = Marshal.GetFunctionPointerForDelegate(_logger);
 
+            Logger = (s) => {
+                System.Diagnostics.Debug.WriteLine(s);
+            };
+
+
             fatalErrorCallback = Marshal.GetFunctionPointerForDelegate<FatalErrorCallback>((l, m) => {
-                string ls = l == IntPtr.Zero  ? null : Marshal.PtrToStringAnsi(l);
-                string ms = m == IntPtr.Zero ? null : Marshal.PtrToStringAnsi(m);
+                string ls = l == IntPtr.Zero  ? null : Marshal.PtrToStringAuto(l);
+                string ms = m == IntPtr.Zero ? null : Marshal.PtrToStringAuto(m);
                 Logger?.Invoke(ms);
                 Logger?.Invoke(ls);
             });
@@ -189,13 +194,6 @@ namespace Xamarin.Android.V8
                     externalCaller = Marshal.GetFunctionPointerForDelegate(ec);
 
                 }
-            }
-
-            if (Logger == null)
-            {
-                Logger = (s) => {
-                    System.Diagnostics.Debug.WriteLine(s);
-                };
             }
 
             this.context = V8Context_Create(

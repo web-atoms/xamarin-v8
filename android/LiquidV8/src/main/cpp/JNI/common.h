@@ -18,6 +18,7 @@ using namespace v8;
 
 
 #define V8_HANDLE_SCOPE \
+    v8::Locker locker(_isolate);\
     v8::Isolate::Scope isolate_scope(_isolate);\
     HandleScope scope(_isolate);
 

@@ -13,6 +13,9 @@ namespace DroidV8Test.Droid
 {
     public class AndroidSystem
     {
+
+        public Activity Activity { get; set; }
+
         public void Log(string msg)
         {
             System.Diagnostics.Debug.WriteLine(msg);
@@ -35,10 +38,10 @@ namespace DroidV8Test.Droid
 
 
             var sys = new AndroidSystem();
-
+            sys.Activity = this;
             var jc = new JSContext(true);
 
-           // jc["system"] = jc.Serialize(sys, SerializationMode.WeakReference);
+            jc["system"] = jc.Serialize(sys, SerializationMode.WeakReference);
 
             jc["log"] = jc.CreateFunction(0, (c, a) => {
                 System.Diagnostics.Debug.WriteLine(a[0]);

@@ -123,6 +123,7 @@ public:
     }
 
     static void CheckoutExternal(Local<Context> context, Local<Value> value, bool force) {
+        Log("Checkout External");
         if (value.IsEmpty())
             return;
         if (!value->IsExternal())
@@ -140,6 +141,7 @@ public:
     }
 
     static V8External* CheckInExternal(Local<Context> context, Local<v8::Value> ex) {
+        Log("Checkin External");
         Local<External> ex1 = Local<External>::Cast(ex);
         V8External* e1 = (V8External*)ex1->Value();
         e1->AddRef();
@@ -160,6 +162,8 @@ public:
 
 private:
 
+    static void Log(const char* msg);
+
     static void Release(void* data);
 
     inline void MakeWeak() {
@@ -170,6 +174,9 @@ private:
 
     static void WeakCallback(
             const v8::WeakCallbackInfo<V8External>& data) {
+
+        Log("Weak Callback");
+
         V8External* wrap = data.GetParameter();
         wrap->selfValue.Reset();
         Release(wrap->_data);
