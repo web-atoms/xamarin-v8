@@ -72,6 +72,11 @@ dependencies {
 //    androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
 }
 
+copy {
+    from "build/intermediates/stripped_native_libs/debug/out/lib"
+    into "../../Xamarin.Android.V8/libs"
+}
+
 task copyHeadersToAARRelease(type: Zip) {
     baseName = 'liquidcore-V8-release'
     extension = 'aar.in'
