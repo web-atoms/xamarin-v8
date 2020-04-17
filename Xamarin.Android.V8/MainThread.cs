@@ -37,6 +37,14 @@ namespace Xamarin.Android.V8
             handler.Post(action);
         }
 
+        static void PlatformBeginInvokeOnMainThread(Action action, long delayMillis)
+        {
+            if (handler?.Looper != Looper.MainLooper)
+                handler = new Handler(Looper.MainLooper);
+
+            handler.PostDelayed(action, delayMillis);
+        }
+
         public static bool IsMainThread =>
             PlatformIsMainThread;
 
@@ -50,6 +58,11 @@ namespace Xamarin.Android.V8
             {
                 PlatformBeginInvokeOnMainThread(action);
             }
+        }
+
+        public static void BeginInvokeOnMainThread(Action action, long delayMillis)
+        {
+            PlatformBeginInvokeOnMainThread(action, delayMillis);
         }
 
         public static Task InvokeOnMainThreadAsync(Action action)

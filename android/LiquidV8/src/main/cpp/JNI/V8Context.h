@@ -41,7 +41,8 @@ public:
             FreeMemory freeMemory,
             FatalErrorCallback errorCallback,
             ReadDebugMessage readDebugMessage,
-            LoggerCallback sendDebugMessage);
+            LoggerCallback sendDebugMessage,
+            QueueTask queueTask);
     void Dispose();
 
     V8Response Release(V8Handle handle);

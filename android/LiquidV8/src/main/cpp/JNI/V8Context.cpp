@@ -2,6 +2,7 @@
 // Created by ackav on 08-04-2020.
 //
 
+#include <android/log.h>
 #include "V8Context.h"
 #include "V8Response.h"
 #include "V8External.h"
@@ -14,6 +15,11 @@ static bool _V8Initialized = false;
 static ExternalCall externalCall;
 static FreeMemory  freeMemory;
 static TV8Platform* _platform;
+static FatalErrorCallback fatalErrorCallback;
+void LogAndroid(const char* location, const char* message) {
+    __android_log_print(ANDROID_LOG_ERROR, "V8", "%s %s", location, message);
+    fatalErrorCallback(CopyString(location), CopyString(message));
+}
 
 V8Context::V8Context(
         bool debug,
@@ -22,16 +28,18 @@ V8Context::V8Context(
         FreeMemory _freeMemory,
         FatalErrorCallback errorCallback,
         ReadDebugMessage readDebugMessage,
-        LoggerCallback sendDebugMessage) {
+        LoggerCallback sendDebugMessage,
+        QueueTask queueTask) {
     if (!_V8Initialized) // (the API changed: https://groups.google.com/forum/#!topic/v8-users/wjMwflJkfso)
     {
+        fatalErrorCallback = errorCallback;
         V8::InitializeICU();
 
         //?v8::V8::InitializeExternalStartupData(PLATFORM_TARGET "\\");
         // (Startup data is not included by default anymore)
 
         // _platform = platform::NewDefaultPlatform();
-        _platform = new TV8Platform();
+        _platform = new TV8Platform(queueTask);
         // _platform = std::make_unique<TV8Platform>(p1);
 
         V8::InitializePlatform(_platform);
@@ -52,7 +60,7 @@ V8Context::V8Context(
 
     V8_HANDLE_SCOPE
 
-    _isolate->SetFatalErrorHandler(errorCallback);
+    _isolate->SetFatalErrorHandler(&LogAndroid);
 
 
     // _isolate->SetMicrotasksPolicy(MicrotasksPolicy::kScoped);
@@ -73,7 +81,12 @@ V8Context::V8Context(
     _isolate->SetData(0, this);
 
     if (debug) {
-        inspectorClient = new XV8InspectorClient(c, true, _platform, readDebugMessage, sendDebugMessage);
+        inspectorClient = new XV8InspectorClient(
+                c,
+                true,
+                _platform,
+                readDebugMessage,
+                sendDebugMessage);
     }
 
 

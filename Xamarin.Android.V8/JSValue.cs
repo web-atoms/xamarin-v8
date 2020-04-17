@@ -196,11 +196,22 @@ namespace Xamarin.Android.V8
 
         ~JSValue()
         {
-            if (handle.handle != IntPtr.Zero)
-            {
-                JSContext.V8Context_ReleaseHandle(context, handle.handle).GetBooleanValue();
-                handle.handle = IntPtr.Zero;
-            }
+            //if (handle.handle != IntPtr.Zero)
+            //{
+            //    IntPtr h = handle.handle;
+            //    if (MainThread.IsMainThread)
+            //    {
+            //        JSContext.V8Context_ReleaseHandle(context, h).GetBooleanValue();
+            //    }
+            //    else
+            //    {
+            //        MainThread.BeginInvokeOnMainThread(() =>
+            //        {
+            //            JSContext.V8Context_ReleaseHandle(context, h).GetBooleanValue();
+            //        });
+            //    }
+            //    handle.handle = IntPtr.Zero;
+            //}
         }
         internal IntPtr Detach()
         {

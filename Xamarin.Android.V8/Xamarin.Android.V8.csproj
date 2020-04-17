@@ -51,6 +51,12 @@
       <Version>4.2.4</Version>
     </PackageReference>
     <PackageReference Include="WebAtoms.Core" Version="1.4.71" />
+    <PackageReference Include="GitVersionTask" Version="5.1.3">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Net.WebSockets.Client">
+      <Version>4.3.2</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsyncHelpers.cs" />
@@ -67,6 +73,7 @@
     <Compile Include="V8Error.cs" />
     <Compile Include="V8HandleContainer.cs" />
     <Compile Include="V8HandleType.cs" />
+    <Compile Include="V8InspectorProtocol.cs" />
     <Compile Include="V8Response.cs" />
     <Compile Include="V8ResponseExtensions.cs" />
     <Compile Include="V8ResponseType.cs" />
@@ -81,10 +88,10 @@
     <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\merged_native_libs\debug\out\lib\x86_64\libliquidjs.so" Link="libs\x86_64\libliquidjs.so" />
   </ItemGroup> -->
   <ItemGroup>
-    <EmbeddedNativeLibrary Include="libs\arm64-v8a\libliquidjs.so"/>
-    <EmbeddedNativeLibrary Include="libs\armeabi-v7a\libliquidjs.so"/>
-    <EmbeddedNativeLibrary Include="libs\x86\libliquidjs.so"/>
-    <EmbeddedNativeLibrary Include="libs\x86_64\libliquidjs.so"/>
+    <EmbeddedNativeLibrary Include="libs\arm64-v8a\libliquidjs.so" />
+    <EmbeddedNativeLibrary Include="libs\armeabi-v7a\libliquidjs.so" />
+    <EmbeddedNativeLibrary Include="libs\x86\libliquidjs.so" />
+    <EmbeddedNativeLibrary Include="libs\x86_64\libliquidjs.so" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.editorconfig">

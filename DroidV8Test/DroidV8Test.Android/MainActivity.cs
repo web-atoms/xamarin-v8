@@ -7,9 +7,18 @@ using Android.Views;
 using Android.Widget;
 using Android.OS;
 using Xamarin.Android.V8;
+using WebAtoms;
 
 namespace DroidV8Test.Droid
 {
+    public class AndroidSystem
+    {
+        public void Log(string msg)
+        {
+            System.Diagnostics.Debug.WriteLine(msg);
+        }
+    }
+
     [Activity(Label = "DroidV8Test", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
@@ -24,7 +33,17 @@ namespace DroidV8Test.Droid
             global::Xamarin.Forms.Forms.Init(this, savedInstanceState);
             LoadApplication(new App());
 
+
+            var sys = new AndroidSystem();
+
             var jc = new JSContext(true);
+
+           // jc["system"] = jc.Serialize(sys, SerializationMode.WeakReference);
+
+            jc["log"] = jc.CreateFunction(0, (c, a) => {
+                System.Diagnostics.Debug.WriteLine(a[0]);
+                return c.Undefined;
+            }, "systemLogger");
 
             jc.Evaluate("console.log('hey')");
             // jc.Evaluate("setTimeout(function() { console.log('1'); },1);");

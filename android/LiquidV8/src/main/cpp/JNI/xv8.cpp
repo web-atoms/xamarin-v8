@@ -2,23 +2,28 @@
 #include "V8Response.h"
 #include "V8Context.h"
 #include "HashMap.h"
+#include "V8Hack.h"
 
 using namespace v8;
 
 static bool _V8Initialized = false;
 
 char* CopyString (const char* msg){
+    if (msg == nullptr)
+        return nullptr;
 uint len = strlen(msg);
-char* t = (char*) malloc(len);
+char* t = (char*) malloc(len + 1);
 strcpy(t, msg);
+t[len] = 0;
 return t;
 }
 
-CTSL::HashMap<uint64_t,int> map;
+static CTSL::HashMap<uintptr_t,int> map;
 
-bool IsContextDisposed(uint64_t c) {
+bool IsContextDisposed(V8Context* c) {
     int n;
-    return !map.find(c, n);
+    auto i = reinterpret_cast<std::uintptr_t>(c);
+    return !map.find(i, n);
 }
 
 #define VerifyContext(c) \
@@ -30,6 +35,8 @@ bool IsContextDisposed(uint64_t c) {
     }\
 
 
+LoggerCallback _logger;
+
 extern "C" {
 
     V8Context *V8Context_Create(
@@ -39,6 +46,7 @@ extern "C" {
             FreeMemory  freeMemory,
             ReadDebugMessage readDebugMessage,
             LoggerCallback sendDebugMessage,
+            QueueTask queueTask,
             FatalErrorCallback errorCallback) {
         V8Context*c = new V8Context(
                 debug,
@@ -47,14 +55,18 @@ extern "C" {
                 freeMemory,
                 errorCallback,
                 readDebugMessage,
-                sendDebugMessage);
-        map.insert((uint64_t)c, 1);
+                sendDebugMessage,
+                queueTask);
+        _logger = loggerCallback;
+        auto i = reinterpret_cast<std::uintptr_t>(c);
+        map.insert(i, 1);
         return c;
     }
 
 
     void V8Context_Dispose(V8Context *context) {
-        map.erase((uint64_t)context);
+        auto i = reinterpret_cast<std::uintptr_t>(context);
+        map.erase(i);
         context->Dispose();
         delete context;
     }
@@ -75,6 +87,10 @@ extern "C" {
         return context->CreateBoolean(value);
     }
 
+    void V8Context_PostTask(V8Task* task) {
+        task->taskRunner->PostDelayedTask(std::move(task->task), 0);
+        delete task;
+    }
 
     V8Response V8Context_CreateNumber(V8Context *context, double value) {
         return context->CreateNumber(value);
@@ -155,7 +171,15 @@ extern "C" {
     void V8Context_SendDebugMessage(
             V8Context* context,
             XString message) {
-        return context->SendDebugMessage(message);
+        try {
+            if (IsContextDisposed(context))
+                return;
+            return context->SendDebugMessage(message);
+        } catch (std::exception const &ex) {
+            _logger(CopyString(ex.what()));
+        } catch (){
+
+        }
     }
 
 
@@ -241,7 +265,7 @@ extern "C" {
 
     V8Response V8Context_ReleaseHandle(V8Context* context, V8Handle h) {
         try {
-            if (IsContextDisposed((uint64_t)context)) {
+            if (IsContextDisposed(context)) {
                 return V8Response_FromBoolean(true);
             }
             return context->Release(h);

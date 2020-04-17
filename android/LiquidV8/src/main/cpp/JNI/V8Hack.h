@@ -8,12 +8,23 @@
 #include "common.h"
 #include "V8Context.h"
 
+class V8HackedTaskRunner;
+
+class V8Task {
+public:
+    std::unique_ptr<Task> task;
+    V8HackedTaskRunner* taskRunner;
+};
+
 class V8HackedTaskRunner: public v8::TaskRunner {
 
 public:
 
-    V8HackedTaskRunner(std::shared_ptr<TaskRunner> pTaskRunner) {
+    V8HackedTaskRunner(
+            std::shared_ptr<TaskRunner> pTaskRunner,
+            QueueTask pQueueTask) {
         taskRunner = pTaskRunner;
+        queueTask = pQueueTask;
     }
 
     virtual void PostTask(std::unique_ptr<Task> task) override {
@@ -22,8 +33,14 @@ public:
 
     virtual void PostDelayedTask(std::unique_ptr<Task> task,
                                  double delay_in_seconds) override {
-        delay_in_seconds = 0;
-        taskRunner->PostDelayedTask(std::move(task), delay_in_seconds);
+        if (delay_in_seconds == 0) {
+            taskRunner->PostDelayedTask(std::move(task), 0);
+        } else {
+            V8Task* t = new V8Task();
+            t->taskRunner = this;
+            t->task = std::move(task);
+            queueTask((void*)t, delay_in_seconds);
+        }
     }
 
     virtual void PostIdleTask(std::unique_ptr<IdleTask> task) override {}
@@ -33,6 +50,7 @@ public:
     }
 private:
     std::shared_ptr<TaskRunner> taskRunner;
+    QueueTask queueTask;
 };
 
 class TV8Platform : public v8::Platform
@@ -45,9 +63,11 @@ class TV8Platform : public v8::Platform
     using TracingController = v8::TracingController;
 
 public:
-    TV8Platform()
+    TV8Platform(QueueTask queueTask)
     {
+        mQueueTask = queueTask;
         mPlatform = v8::platform::NewDefaultPlatform();
+
     }
 
     virtual PageAllocator* GetPageAllocator() override {	return mPlatform->GetPageAllocator();	}
@@ -57,7 +77,7 @@ public:
     virtual std::shared_ptr<TaskRunner> GetForegroundTaskRunner(Isolate* isolate) override{
         V8Context* context = (V8Context*)isolate->GetData(0);
         if(context->foregroundTaskRunner.get() == nullptr) {
-            V8HackedTaskRunner* tr = new V8HackedTaskRunner(mPlatform->GetForegroundTaskRunner(isolate));
+            V8HackedTaskRunner* tr = new V8HackedTaskRunner(mPlatform->GetForegroundTaskRunner(isolate), mQueueTask);
             std::shared_ptr<TaskRunner> ptr(tr);
             context->foregroundTaskRunner.swap(ptr);
         }
@@ -66,7 +86,7 @@ public:
     virtual std::shared_ptr<TaskRunner> GetBackgroundTaskRunner(Isolate* isolate) override{
         V8Context* context = (V8Context*)isolate->GetData(0);
         if(context->backgroundTaskRunner.get() == nullptr) {
-            V8HackedTaskRunner* tr = new V8HackedTaskRunner(mPlatform->GetBackgroundTaskRunner(isolate));
+            V8HackedTaskRunner* tr = new V8HackedTaskRunner(mPlatform->GetBackgroundTaskRunner(isolate), mQueueTask);
             std::shared_ptr<TaskRunner> ptr(tr);
             context->backgroundTaskRunner.swap(ptr);
         }
@@ -75,7 +95,7 @@ public:
     virtual std::shared_ptr<TaskRunner> GetWorkerThreadsTaskRunner(Isolate* isolate) override {
         V8Context* context = (V8Context*)isolate->GetData(0);
         if(context->workerTaskRunner.get() == nullptr) {
-            V8HackedTaskRunner* tr = new V8HackedTaskRunner(mPlatform->GetWorkerThreadsTaskRunner(isolate));
+            V8HackedTaskRunner* tr = new V8HackedTaskRunner(mPlatform->GetWorkerThreadsTaskRunner(isolate), mQueueTask);
             std::shared_ptr<TaskRunner> ptr(tr);
             context->workerTaskRunner.swap(ptr);
         }
@@ -115,7 +135,7 @@ public:
 protected:
     // std::shared_ptr<v8::Platform>	mpPlatform;
     std::unique_ptr<v8::Platform>	mPlatform;
-
+    QueueTask mQueueTask;
 
 };
 
