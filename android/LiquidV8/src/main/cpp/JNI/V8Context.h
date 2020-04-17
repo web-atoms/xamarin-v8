@@ -80,7 +80,7 @@ public:
     V8Response SetProperty(V8Handle target, XString name, V8Handle value);
     V8Response GetPropertyAt(V8Handle target, int index);
     V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
-    void SendDebugMessage(XString message);
+    V8Response SendDebugMessage(XString message);
     V8Response Wrap(void* value);
     V8Response ToString(V8Handle target);
     V8Response GC();

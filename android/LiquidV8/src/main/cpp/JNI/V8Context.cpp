@@ -579,10 +579,18 @@ V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) 
     return V8Response_From(context, v);
 }
 
-void V8Context::SendDebugMessage(XString message) {
+V8Response V8Context::SendDebugMessage(XString msg) {
+    V8_CONTEXT_SCOPE
     if (inspectorClient != nullptr) {
-        inspectorClient->SendDebugMessage(message);
+        Local<v8::String> message = V8_STRING(msg);
+        String::Value buffer(_isolate, message);
+        v8_inspector::StringView messageView(*buffer, buffer.length());
+        inspectorClient->SendDebugMessage(messageView);
     }
+    if (tryCatch.HasCaught()) {
+        return V8Response_FromError(context, tryCatch.Exception());
+    }
+    return V8Response_FromBoolean(true);
 }
 
 V8Response V8Context::ToString(V8Handle target) {

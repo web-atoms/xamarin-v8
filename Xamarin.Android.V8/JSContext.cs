@@ -310,7 +310,13 @@ namespace Xamarin.Android.V8
                     }
 
                     MainThread.BeginInvokeOnMainThread(() => {
-                        V8Context_SendDebugMessage(context, msg);
+                        try
+                        {
+                            V8Context_SendDebugMessage(context, msg).GetBooleanValue();
+                        } catch (Exception ex)
+                        {
+                            Log(ex);
+                        }
                     });
                 });
             } catch (Exception ex)
@@ -675,7 +681,7 @@ namespace Xamarin.Android.V8
 
 
         [DllImport(LibName)]
-        internal extern static void V8Context_SendDebugMessage(
+        internal extern static V8Response V8Context_SendDebugMessage(
             V8Handle context,
             [MarshalAs(UnmanagedType.LPUTF8Str)]
             string message

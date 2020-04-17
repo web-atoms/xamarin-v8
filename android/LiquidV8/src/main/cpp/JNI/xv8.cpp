@@ -168,18 +168,20 @@ extern "C" {
         return context->Has(target, index);
     }
 
-    void V8Context_SendDebugMessage(
+    V8Response V8Context_SendDebugMessage(
             V8Context* context,
             XString message) {
+
         try {
             if (IsContextDisposed(context))
-                return;
+                return V8Response_FromError("Context disposed");
             return context->SendDebugMessage(message);
         } catch (std::exception const &ex) {
             _logger(CopyString(ex.what()));
-        } catch (){
-
+        } catch (...){
+            _logger(CopyString("Something went wrong"));
         }
+        return V8Response_FromError("Something went wrong");
     }
 
 

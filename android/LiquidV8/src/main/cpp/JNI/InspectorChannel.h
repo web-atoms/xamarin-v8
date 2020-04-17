@@ -116,15 +116,7 @@ public:
         terminated_ = true;
     }
 
-    void SendDebugMessage(XString msg) {
-        Isolate* _isolate = isolate_;
-        HandleScope handleScope(isolate_);
-        Isolate::Scope scope (isolate_);
-        Local<Context> context = context_.Get(_isolate);
-        Context::Scope contextScope(context);
-        Local<v8::String> message = V8_STRING(msg);
-        String::Value buffer(isolate_, message);
-        v8_inspector::StringView messageView(*buffer, buffer.length());
+    inline void SendDebugMessage(v8_inspector::StringView &messageView) {
         session_->dispatchProtocolMessage(messageView);
     }
 
