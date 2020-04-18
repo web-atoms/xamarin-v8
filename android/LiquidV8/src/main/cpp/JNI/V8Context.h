@@ -15,8 +15,6 @@ class V8Response;
 
 typedef V8Response(*ExternalCall)(V8Response fx, V8Response target, V8Response args);
 
-typedef V8Response(*DebugReceiver)(V8Response msg);
-
 class V8Context {
 protected:
     // std::unique_ptr<Platform> _platform;
@@ -34,6 +32,12 @@ protected:
         return _context.Get(_isolate);
     }
 public:
+    Global<Private> wrapField;
+
+    static V8Context* From(Isolate* isolate) {
+        return static_cast<V8Context*>(isolate->GetData(0));
+    }
+
     V8Context(
             bool debug,
             LoggerCallback loggerCallback,
@@ -67,11 +71,11 @@ public:
             V8Handle set,
             V8Handle value            );
     V8Response Evaluate(XString script, XString location);
-    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, V8Handle* args);
-    V8Response InvokeMethod(V8Handle target, XString name, int len, V8Handle* args);
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, void** args);
+    V8Response InvokeMethod(V8Handle target, XString name, int len, void** args);
     V8Response GetGlobal();
     V8Response GetArrayLength(V8Handle target);
-    V8Response NewInstance(V8Handle target, int len, V8Handle* args);
+    V8Response NewInstance(V8Handle target, int len, void** args);
     V8Response Has(V8Handle target, V8Handle index);
     V8Response Get(V8Handle target, V8Handle index);
     V8Response Set(V8Handle target, V8Handle index, V8Handle value);
@@ -116,18 +120,30 @@ public:
         V8External* ex = new V8External();
         ex->_data= data;
         Local<External> ev = External::New(isolate, ex);
-        ex->selfValue.Reset(isolate, ev);
+        Local<v8::Object> wrapper = v8::Object::New(isolate);
+
+        V8Context* v8Context = V8Context::From(isolate);
+        Local<Private> wrapField = v8Context->wrapField.Get(isolate);
+        wrapper->SetPrivate(context, wrapField, ev);
+        ex->selfValue.Reset(isolate, wrapper);
         ex->selfValue.SetWrapperClassId(WRAPPED_CLASS);
         ex->AddRef();
-        return ev;
+        return wrapper;
     }
 
-    static void CheckoutExternal(Local<Context> context, Local<Value> value, bool force) {
-        Log("Checkout External");
+    static bool CheckoutExternal(Local<Context> context, Local<Value> value, bool force) {
         if (value.IsEmpty())
-            return;
-        if (!value->IsExternal())
-            return;
+            return false;
+        if (!value->IsObject())
+            return false;
+        Isolate* isolate = context->GetIsolate();
+        Local<v8::Object> wrapper = value->ToObject(context).ToLocalChecked();
+        V8Context* v8Context = V8Context::From(isolate);
+        Local<Private> wrapField = v8Context->wrapField.Get(isolate);
+        if (!wrapper->HasPrivate(context, wrapField).ToChecked())
+            return false;
+        if(!wrapper->GetPrivate(context, wrapField).ToLocal(&value))
+            return false;
         Local<External> evalue = Local<External>::Cast(value);
         V8External* external = (V8External*)evalue->Value();
         if (force) {
@@ -135,15 +151,27 @@ public:
             external->selfValue.Reset();
             Release(external->_data);
             external->_data = nullptr;
-            return;
+            return true;
         }
         external->Release();
+        return true;
     }
 
     static V8External* CheckInExternal(Local<Context> context, Local<v8::Value> ex) {
-        Log("Checkin External");
-        Local<External> ex1 = Local<External>::Cast(ex);
-        V8External* e1 = (V8External*)ex1->Value();
+        if (!ex->IsObject())
+            return nullptr;
+        Isolate* isolate = context->GetIsolate();
+        Local<v8::Object> obj = ex->ToObject(context).ToLocalChecked();
+        V8Context* v8Context = V8Context::From(isolate);
+        Local<Private> wrapField = v8Context->wrapField.Get(isolate);
+        if (!obj->HasPrivate(context, wrapField).ToChecked()) {
+            return nullptr;
+        }
+        Local<Value> value;
+        if (!obj->GetPrivate(context, wrapField).ToLocal(&value))
+            return nullptr;
+        Local<External> ex1 = Local<External>::Cast(value);
+        V8External* e1 = static_cast<V8External*>(ex1->Value());
         e1->AddRef();
         return e1;
     }
@@ -177,7 +205,7 @@ private:
 
         Log("Weak Callback");
 
-        V8External* wrap = data.GetParameter();
+        V8External* wrap = static_cast<V8External*>(data.GetParameter());
         wrap->selfValue.Reset();
         Release(wrap->_data);
         delete wrap;

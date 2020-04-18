@@ -80,6 +80,11 @@ V8Context::V8Context(
 
     _isolate->SetData(0, this);
 
+    Local<Private> pWrapField =
+            Private::New(_isolate, V8_STRING("WA_V8_WrappedInstance"));
+
+    wrapField.Reset(_isolate, pWrapField);
+
     if (debug) {
         inspectorClient = new XV8InspectorClient(
                 c,
@@ -124,24 +129,16 @@ V8Response V8Context::GC() {
 
 void V8Context::FreeWrapper(V8Handle value, bool force) {
     V8_CONTEXT_SCOPE
-    LogAndroid("FreeWrapper", "Begin");
-    auto i = reinterpret_cast<std::uintptr_t>(value);
-    __android_log_print(ANDROID_LOG_ERROR, "V8", "Inspecting Pointer %d", i);
     Local<Value> v = value->Get(_isolate);
-    LogAndroid("FreeWrapper", "Check Empty");
     if (v.IsEmpty())
         return;
-    LogAndroid("FreeWrapper", "Check External");
-    if (!v->IsExternal()) {
+    if (!V8External::CheckoutExternal(context, v, force)) {
+        LogAndroid("FreeWrapper", "Exit");
         if (force) {
             delete value;
         }
-        LogAndroid("FreeWrapper", "Not External");
-        return;
     }
-    LogAndroid("FreeWrapper", "Checkout External");
-    V8External::CheckoutExternal(context, v, force);
-    LogAndroid("FreeWrapper", "Checkout External Done");
+    LogAndroid("FreeWrapper", "Exit");
 }
 
 void V8Context::Dispose() {
@@ -372,12 +369,12 @@ V8Response V8Context::Evaluate(XString script, XString location) {
 
 
 V8Response V8Context::Release(V8Handle handle) {
+    LogAndroid("CLR", "Release Handle");
+    V8_CONTEXT_SCOPE
     try {
-        LogAndroid("Release", "Begin");
         FreeWrapper(handle, false);
-        LogAndroid("Release", "Delete");
+        LogAndroid("Release", "Handle Deleted");
         delete handle;
-        LogAndroid("Release", "Delete Done");
         V8Response r = {};
         r.type = V8ResponseType ::BooleanValue;
         r.result.booleanValue = true;
@@ -387,7 +384,7 @@ V8Response V8Context::Release(V8Handle handle) {
     }
 }
 
-V8Response V8Context::InvokeMethod(V8Handle target, XString name, int len, V8Handle* args) {
+V8Response V8Context::InvokeMethod(V8Handle target, XString name, int len, void** args) {
 
     V8_CONTEXT_SCOPE
     Local<Value> targetValue = target->Get(_isolate);
@@ -405,7 +402,7 @@ V8Response V8Context::InvokeMethod(V8Handle target, XString name, int len, V8Han
 
     Local<v8::Value>* argList = new Local<v8::Value> [len];
     for (int i = 0; i < len; ++i) {
-        V8Handle h = args[i];
+        V8Handle h = TO_HANDLE(args[i]);
         argList[0] = h->Get(_isolate);
     }
     Local<Value> result;
@@ -417,7 +414,7 @@ V8Response V8Context::InvokeMethod(V8Handle target, XString name, int len, V8Han
     return V8Response_From(context, result);
 }
 
-V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, int len, V8Handle* args) {
+V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, int len, void** args) {
     V8_CONTEXT_SCOPE
     Local<Value> targetValue = target->Get(_isolate);
     if (!targetValue->IsFunction()) {
@@ -432,7 +429,7 @@ V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, int le
 
     Local<v8::Value>* argList = new Local<v8::Value> [len];
     for (int i = 0; i < len; ++i) {
-        V8Handle h = args[i];
+        V8Handle h = TO_HANDLE(args[i]);
         argList[0] = h->Get(_isolate);
     }
     Local<Value> result;
@@ -469,7 +466,7 @@ V8Response V8Context::GetGlobal() {
     return V8Response_From(context, context->Global());
 }
 
-V8Response V8Context::NewInstance(V8Handle target, int len, V8Handle *args) {
+V8Response V8Context::NewInstance(V8Handle target, int len, void** args) {
     V8_CONTEXT_SCOPE
     Local<Value> targetValue = target->Get(_isolate);
     if (!targetValue->IsFunction()) {
@@ -480,7 +477,7 @@ V8Response V8Context::NewInstance(V8Handle target, int len, V8Handle *args) {
 
     Local<v8::Value>* argList = new Local<v8::Value> [len];
     for (int i = 0; i < len; ++i) {
-        V8Handle h = args[i];
+        V8Handle h = TO_HANDLE(args[i]);
         argList[0] = h->Get(_isolate);
     }
     Local<Value> result;
@@ -622,7 +619,7 @@ void V8External::Log(const char *msg) {
 }
 
 void V8External::Release(void *data) {
-    LogAndroid("V8External", "Release");
+    LogAndroid("V8External", "Wrapper Released");
     if (data != nullptr) {
         freeMemory(data);
     }

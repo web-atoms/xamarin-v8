@@ -64,6 +64,11 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
         }
     }
     else if (handle->IsObject()) {
+        v.result.handle.handleType = V8HandleType::Wrapped;
+        V8External* e = V8External::CheckInExternal(context, handle);
+        if (e != nullptr) {
+            v.result.handle.value.refValue = e->Data();
+        }
         v.result.handle.handleType = V8HandleType::Object;
     }
 

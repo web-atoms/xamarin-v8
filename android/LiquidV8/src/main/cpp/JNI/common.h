@@ -43,6 +43,10 @@ typedef char* XString;
 */
 typedef Global<Value>* V8Handle;
 
+typedef void* ClrPointer;
+
+#define TO_HANDLE(n) static_cast<V8Handle>(n)
+
 char* CopyString(const char* msg) ;
 
 #define V8_FREE_HANDLE(h)                           \

@@ -25,6 +25,9 @@ namespace DroidV8Test.Droid
     [Activity(Label = "DroidV8Test", Icon = "@mipmap/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
     public class MainActivity : global::Xamarin.Forms.Platform.Android.FormsAppCompatActivity
     {
+
+        private JSContext jc;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             TabLayoutResource = Resource.Layout.Tabbar;
@@ -39,7 +42,7 @@ namespace DroidV8Test.Droid
 
             var sys = new AndroidSystem();
             sys.Activity = this;
-            var jc = new JSContext(true);
+            jc = new JSContext(true);
 
             jc["system"] = jc.Serialize(sys, SerializationMode.WeakReference);
 
