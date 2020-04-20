@@ -29,7 +29,7 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
     }
     else if (handle->IsBoolean() || handle->IsBooleanObject()) {
         v.result.handle.handleType = V8HandleType::Boolean;
-        v.result.handle.value.boolValue = (uint8_t)handle->BooleanValue(context).ToChecked();
+        v.result.handle.value.boolValue = (uint8_t)handle->BooleanValue(isolate);
     } else if (handle->IsInt32()) {
         v.result.handle.handleType = V8HandleType::Integer;
         v.result.handle.value.intValue = handle->Int32Value(context).ToChecked();
@@ -74,7 +74,7 @@ V8Response V8Response_From(Local<Context> context, Local<Value> handle)
 
     V8Handle h = new Global<Value>();
     h->SetWrapperClassId(WRAPPED_CLASS);
-    v.result.handle.handle = h;
+    v.result.handle.handle = (void*)h;
     h->Reset(isolate, handle);
     return v;
 }

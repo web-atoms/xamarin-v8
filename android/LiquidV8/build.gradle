@@ -35,7 +35,8 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11 -fexceptions"
-                arguments "-DANDROID_STL=c++_static"
+                //arguments "-DANDROID_STL=c++_static"
+                arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_STL=c++_shared"
             }
         }
 
@@ -84,7 +85,7 @@ task copyHeadersToAARRelease(type: Zip) {
     def aarNameO = "build/outputs/aar/liquidcore-V8-release.aar"
 
     from zipTree(aarNameO)
-    from("../deps/node-10.15.3/deps/v8/include") {
+    from("../include") {
         into('include/v8')
         include ('**/*.h')
     }

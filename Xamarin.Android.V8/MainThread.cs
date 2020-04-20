@@ -45,6 +45,15 @@ namespace Xamarin.Android.V8
             handler.PostDelayed(action, delayMillis);
         }
 
+        public static IDisposable PostTimeout(Action action, long delayMillis)
+        {
+            if (handler?.Looper != Looper.MainLooper)
+                handler = new Handler(Looper.MainLooper);
+
+            return new Timeout(handler, action, delayMillis);
+        }
+
+
         public static bool IsMainThread =>
             PlatformIsMainThread;
 

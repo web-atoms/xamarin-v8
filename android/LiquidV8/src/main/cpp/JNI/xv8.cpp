@@ -2,7 +2,7 @@
 #include "V8Response.h"
 #include "V8Context.h"
 #include "HashMap.h"
-#include "V8Hack.h"
+// #include "V8Hack.h"
 
 #define INIT_CONTEXT V8Context* context = static_cast<V8Context*>(ctx);
 
@@ -47,7 +47,7 @@ extern "C" {
             ExternalCall externalCall,
             FreeMemory  freeMemory,
             ReadDebugMessage readDebugMessage,
-            LoggerCallback sendDebugMessage,
+            SendDebugMessage sendDebugMessage,
             QueueTask queueTask,
             FatalErrorCallback errorCallback) {
         V8Context*c = new V8Context(
@@ -95,9 +95,8 @@ extern "C" {
     }
 
     void V8Context_PostTask(ClrPointer tsk) {
-        V8Task* task = static_cast<V8Task*>(tsk);
-        task->taskRunner->PostDelayedTask(std::move(task->task), 0);
-        delete task;
+        // V8Task* task = static_cast<V8Task*>(tsk);
+        // task->taskRunner->PostTaskWithInterrupt(task);
     }
 
     V8Response V8Context_CreateNumber(ClrPointer ctx, double value) {
@@ -206,7 +205,7 @@ extern "C" {
         try {
             if (IsContextDisposed(context))
                 return V8Response_FromError("Context disposed");
-            return context->SendDebugMessage(message);
+            return context->SendDebugMessage(message, true);
         } catch (std::exception const &ex) {
             _logger(CopyString(ex.what()));
         } catch (...){
@@ -311,7 +310,7 @@ extern "C" {
             if (IsContextDisposed(context)) {
                 return V8Response_FromBoolean(true);
             }
-            return context->Release(TO_HANDLE(h));
+            return context->Release(TO_HANDLE(h), true);
         }  catch (std::exception const &ex) {
             return V8Response_FromError(ex.what());
         }

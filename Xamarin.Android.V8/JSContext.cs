@@ -26,6 +26,8 @@ namespace Xamarin.Android.V8
 
     internal delegate IntPtr ReadDebugMessage();
 
+    internal delegate void ReadDebugMessageFromV8(IntPtr char8);
+
     internal delegate void JSContextLog(IntPtr text);
 
     internal delegate void FatalErrorCallback(IntPtr location, IntPtr message);
@@ -127,10 +129,10 @@ namespace Xamarin.Android.V8
                 
             });
 
-            receiveDebugFromV8 = Marshal.GetFunctionPointerForDelegate<JSContextLog>((m) => {
+            receiveDebugFromV8 = Marshal.GetFunctionPointerForDelegate<ReadDebugMessageFromV8>((m) => {
                 try {
                     string msg = Marshal.PtrToStringUTF8(m);
-                    protocol.SendMessage(msg);
+                    this.inspectorProtocol.SendMessage(msg);
                 } catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine(ex);
@@ -216,7 +218,7 @@ namespace Xamarin.Android.V8
 
             // Add SetTimeout...
 
-            Dictionary<int, System.Threading.CancellationTokenSource> timeouts = new Dictionary<int, System.Threading.CancellationTokenSource>();
+            Dictionary<int, IDisposable> timeouts = new Dictionary<int, IDisposable>();
 
             int id = 0;
 
@@ -224,7 +226,7 @@ namespace Xamarin.Android.V8
                 var tid = a[0].IntValue;
                 if(timeouts.TryGetValue(tid, out var token))
                 {
-                    token.Cancel();
+                    token.Dispose();
                 }
                 return this.Undefined;
             }, "clearTimeout");
@@ -233,35 +235,12 @@ namespace Xamarin.Android.V8
 
                 var fn = a[0];
                 var timeout = a[1];
-                if (timeout.IsUndefined || timeout.IntValue == 0)
-                {
-                    // invoke..
-                    MainThread.InvokeOnMainThreadAsync(() => {
-                        fn.InvokeFunction(Global);
-                    });
-                    return this.CreateNumber(0);
-                }
-
-                var ct = new System.Threading.CancellationTokenSource();
+                var delay = timeout.IsUndefined ? 0 : timeout.LongValue;
+                var ct = MainThread.PostTimeout(() => {
+                    fn.InvokeFunction(Global);
+                }, delay);
 
                 var tid = System.Threading.Interlocked.Increment(ref id);
-
-                timeouts[tid] = ct;
-
-                MainThread.InvokeOnMainThreadAsync(async () => {
-                    try
-                    {
-                        await Task.Delay(TimeSpan.FromMilliseconds(timeout.DoubleValue), ct.Token);
-                    } catch (TaskCanceledException)
-                    {
-
-                    }
-                    timeouts.Remove(tid);
-                    if (ct.IsCancellationRequested)
-                        return;
-                    fn.InvokeFunction(Global);
-                });
-
                 return this.CreateNumber(tid);
 
             }, "setTimeout");
@@ -310,6 +289,7 @@ namespace Xamarin.Android.V8
                     MainThread.BeginInvokeOnMainThread(() => {
                         try
                         {
+                            System.Diagnostics.Debug.WriteLine(msg);
                             V8Context_SendDebugMessage(context, msg).GetBooleanValue();
                         } catch (Exception ex)
                         {
@@ -386,7 +366,7 @@ namespace Xamarin.Android.V8
                         {
                             handle = new V8HandleContainer
                             {
-                                handle = r?.Detach() ?? IntPtr.Zero
+                                handle = r?.GetHandle() ?? IntPtr.Zero
                             }
                         }
                     };

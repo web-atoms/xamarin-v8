@@ -7,12 +7,42 @@
 
 #include "common.h"
 #include "v8-inspector.h"
+#include "V8Context.h"
 
 const int kInspectorClientIndex = v8::Context::kDebugIdIndex + 1;
 
+class V8OutputInspectorMessageTask: public v8::Task {
+private:
+    V8Context* context;
+    std::unique_ptr<v8_inspector::StringBuffer> message;
+public:
+
+    V8OutputInspectorMessageTask(
+            V8Context* c,
+            std::unique_ptr<v8_inspector::StringBuffer> &msg) {
+        context = c;
+        message.swap(msg);
+    }
+
+    static void Post(Isolate* isolate, std::unique_ptr<v8_inspector::StringBuffer> buffer) {
+        V8Context* context = V8Context::From(isolate);
+        std::unique_ptr<V8OutputInspectorMessageTask> =
+                std::make_unique<V8OutputInspectorMessageTask>(context, buffer);
+        std::unique_ptr<Task> t1 =
+                std::make_unique<Task>(&t);
+        context
+           ->GetPlatform()
+           ->CallOnWorkerThread(std::move(t1));
+    }
+
+    void Run() override {
+        context->OutputInspectorMessage(message);
+    }
+};
+
 class InspectorFrontend final : public v8_inspector::V8Inspector::Channel {
 public:
-    explicit InspectorFrontend(Local<Context> context, LoggerCallback sendDebugMessage) {
+    explicit InspectorFrontend(Local<Context> context, SendDebugMessage sendDebugMessage) {
         sendDebugMessage_ = sendDebugMessage;
         isolate_ = context->GetIsolate();
         context_.Reset(isolate_, context);
@@ -23,41 +53,46 @@ private:
     void sendResponse(
             int callId,
             std::unique_ptr<v8_inspector::StringBuffer> message) override {
-        Send(message->string());
+        // Send(message->string());
     }
     void sendNotification(
             std::unique_ptr<v8_inspector::StringBuffer> message) override {
-        Send(message->string());
+        // Send(message->string());
     }
     void flushProtocolNotifications() override {}
 
     void Send(const v8_inspector::StringView& string) {
-        v8::HandleScope scope(isolate_);
-
-        int length = string.length();
-        v8::TryCatch tryCatch(isolate_);
-        v8::Local<v8::String> message;
-        v8::MaybeLocal<v8::String> maybeString =
-                (string.is8Bit()
-                 ? v8::String::NewFromOneByte(
-                                isolate_,
-                                reinterpret_cast<const uint8_t*>(string.characters8()),
-                                v8::NewStringType::kNormal, length)
-                 : v8::String::NewFromTwoByte(
-                                isolate_,
-                                reinterpret_cast<const uint16_t*>(string.characters16()),
-                                v8::NewStringType::kNormal, length));
-        Local<v8::String> v8Msg = maybeString.ToLocalChecked();
-        int utfLen = v8Msg->Utf8Length(isolate_);
-        char* utf = (char*) malloc( utfLen + 1);
-        v8Msg->WriteUtf8(isolate_, utf);
-        sendDebugMessage_(utf);
-        free(utf);
+//        sendDebugMessage_(
+//                string.length(),
+//                (void*) (string.is8Bit() ? string.characters8() : nullptr),
+//                (void*) (!string.is8Bit() ? string.characters16() : nullptr)
+//                );
+//        Isolate* _isolate = isolate_;
+//        V8_HANDLE_SCOPE
+//        int length = string.length();
+//        v8::TryCatch tryCatch(isolate_);
+//        v8::Local<v8::String> message;
+//        v8::MaybeLocal<v8::String> maybeString =
+//                (string.is8Bit()
+//                 ? v8::String::NewFromOneByte(
+//                                isolate_,
+//                                reinterpret_cast<const uint8_t*>(string.characters8()),
+//                                v8::NewStringType::kNormal, length)
+//                 : v8::String::NewFromTwoByte(
+//                                isolate_,
+//                                reinterpret_cast<const uint16_t*>(string.characters16()),
+//                                v8::NewStringType::kNormal, length));
+//        Local<v8::String> v8Msg = maybeString.ToLocalChecked();
+//        int utfLen = v8Msg->Utf8Length(isolate_);
+//        char* utf = (char*) malloc( utfLen + 1);
+//        v8Msg->WriteUtf8(isolate_, utf);
+//        sendDebugMessage_(utf);
+//        free(utf);
     }
 
     Isolate* isolate_;
     Global<Context> context_;
-    LoggerCallback sendDebugMessage_;
+    SendDebugMessage sendDebugMessage_;
 };
 
 class XV8InspectorClient : public v8_inspector::V8InspectorClient {
@@ -67,7 +102,7 @@ public:
             bool connect,
             v8::Platform* platform,
             ReadDebugMessage readDebugMessage,
-            LoggerCallback sendDebugMessage)
+            SendDebugMessage sendDebugMessage)
     :v8_inspector::V8InspectorClient()
     {
         if (!connect) return;
@@ -102,7 +137,6 @@ public:
             free(dm);
             v8::String::Value buffer(isolate_, message);
             v8_inspector::StringView message_view(*buffer, buffer.length());
-
             session_->dispatchProtocolMessage(message_view);
 
             while (v8::platform::PumpMessageLoop(platform_, isolate_)) {}

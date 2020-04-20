@@ -52,7 +52,7 @@ namespace DroidV8Test.Droid
             }, "systemLogger");
 
             jc.Evaluate("console.log('hey')");
-            // jc.Evaluate("setTimeout(function() { console.log('1'); },1);");
+            jc.Evaluate("setTimeout(function() { log('This is long text message'); },100);");
             // jc.Evaluate(@"new Promise(function(r,e) {})");
 
             //this.RunOnUiThread(async () => {

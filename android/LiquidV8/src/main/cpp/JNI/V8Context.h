@@ -17,21 +17,32 @@ typedef V8Response(*ExternalCall)(V8Response fx, V8Response target, V8Response a
 
 class V8Context {
 protected:
-    // std::unique_ptr<Platform> _platform;
+    Platform* _platform;
     Isolate* _isolate;
     Global<Context> _context;
     Global<Symbol> _wrapSymbol;
+    Global<v8::Object> _global;
     XV8InspectorClient* inspectorClient;
-
+    SendDebugMessage _sendDebugMessage;
     // delete array allocator
     ArrayBuffer::Allocator* _arrayBufferAllocator;
 
     LoggerCallback _logger;
 
-    Local<Context> GetContext() {
+public:
+
+    inline Platform* GetPlatform() {
+        return _platform;
+    }
+
+    inline Local<Context> GetContext() {
         return _context.Get(_isolate);
     }
-public:
+
+    inline Isolate* GetIsolate() {
+        return _isolate;
+    }
+
     Global<Private> wrapField;
 
     static V8Context* From(Isolate* isolate) {
@@ -45,11 +56,11 @@ public:
             FreeMemory freeMemory,
             FatalErrorCallback errorCallback,
             ReadDebugMessage readDebugMessage,
-            LoggerCallback sendDebugMessage,
+            SendDebugMessage sendDebugMessage,
             QueueTask queueTask);
     void Dispose();
 
-    V8Response Release(V8Handle handle);
+    V8Response Release(V8Handle handle, bool post);
     void FreeWrapper(V8Handle value, bool force);
 
     V8Response CreateObject();
@@ -84,14 +95,20 @@ public:
     V8Response SetProperty(V8Handle target, XString name, V8Handle value);
     V8Response GetPropertyAt(V8Handle target, int index);
     V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
-    V8Response SendDebugMessage(XString message);
+    V8Response SendDebugMessage(XString message, bool post);
     V8Response Wrap(void* value);
     V8Response ToString(V8Handle target);
     V8Response GC();
 
-    std::shared_ptr<TaskRunner> foregroundTaskRunner;
-    std::shared_ptr<TaskRunner> backgroundTaskRunner;
-    std::shared_ptr<TaskRunner> workerTaskRunner;
+    void OutputInspectorMessage(std::unique_ptr<v8_inspector::StringBuffer> &message);
+
+//    std::shared_ptr<TaskRunner> foregroundTaskRunner;
+//    std::shared_ptr<TaskRunner> backgroundTaskRunner;
+//    std::shared_ptr<TaskRunner> workerTaskRunner;
+
+//    void PostBackgroundTask(std::unique_ptr<Task> task);
+//    void PostForegroundTask(std::unique_ptr<Task> task);
+//    void PostWorkerTask(std::unique_ptr<Task> task);
 
 private:
 
@@ -206,6 +223,7 @@ private:
         Log("Weak Callback");
 
         V8External* wrap = static_cast<V8External*>(data.GetParameter());
+        wrap->selfValue.ClearWeak();
         wrap->selfValue.Reset();
         Release(wrap->_data);
         delete wrap;

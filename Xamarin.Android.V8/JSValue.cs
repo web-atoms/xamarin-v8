@@ -213,11 +213,9 @@ namespace Xamarin.Android.V8
                 handle.handle = IntPtr.Zero;
             }
         }
-        internal IntPtr Detach()
+        internal IntPtr GetHandle()
         {
-            var h = handle.handle;
-            handle.handle = IntPtr.Zero;
-            return h;
+            return handle.handle;
         }
 
         public IJSValue InvokeMethod(string name, params IJSValue[] args)

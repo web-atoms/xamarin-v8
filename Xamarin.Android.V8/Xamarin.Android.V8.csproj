@@ -70,6 +70,7 @@
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SafeV8Handle.cs" />
+    <Compile Include="Timeout.cs" />
     <Compile Include="V8Error.cs" />
     <Compile Include="V8HandleContainer.cs" />
     <Compile Include="V8HandleType.cs" />
@@ -86,6 +87,18 @@
     <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\armeabi-v7a\libliquidjs.so" Link="libs\armeabi-v7a\libliquidjs.so" />
     <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86\libliquidjs.so" Link="libs\x86\libliquidjs.so" />
     <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86_64\libliquidjs.so" Link="libs\x86_64\libliquidjs.so" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\arm64-v8a\libc++_shared.so" Link="libs\arm64-v8a\libc++_shared.so" />
+    <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\armeabi-v7a\libc++_shared.so" Link="libs\armeabi-v7a\libc++_shared.so" />
+    <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86\libc++_shared.so" Link="libs\x86\libc++_shared.so" />
+    <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\stripped_native_libs\debug\out\lib\x86_64\libc++_shared.so" Link="libs\x86_64\libc++_shared.so" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedNativeLibrary Include="..\android\LiquidV8\prebuilt\arm64-v8a\libv8android.so" Link="libs\arm64-v8a\libv8android.so" />
+    <EmbeddedNativeLibrary Include="..\android\LiquidV8\prebuilt\armeabi-v7a\libv8android.so" Link="libs\armeabi-v7a\libv8android.so" />
+    <EmbeddedNativeLibrary Include="..\android\LiquidV8\prebuilt\x86\libv8android.so" Link="libs\x86\libv8android.so" />
+    <EmbeddedNativeLibrary Include="..\android\LiquidV8\prebuilt\x86_64\libv8android.so" Link="libs\x86_64\libv8android.so" />
   </ItemGroup>
   <!-- <ItemGroup>
     <EmbeddedNativeLibrary Include="..\android\LiquidV8\build\intermediates\merged_native_libs\debug\out\lib\arm64-v8a\libliquidjs.so" Link="libs\arm64-v8a\libliquidjs.so" />

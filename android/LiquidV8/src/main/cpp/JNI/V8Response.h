@@ -55,7 +55,7 @@ disposed by the caller by calling V8Context_Release method.
             struct {
                 uint8_t handleType;
                 V8Value value;
-                V8Handle handle;
+                ClrPointer handle;
             } handle;
             struct {
                 XString message;
@@ -64,7 +64,7 @@ disposed by the caller by calling V8Context_Release method.
             XString stringValue;
             int64_t longValue;
             int32_t intValue;
-            bool booleanValue;
+            uint8_t booleanValue;
         } result;
     };
 

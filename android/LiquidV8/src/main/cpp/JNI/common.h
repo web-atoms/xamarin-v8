@@ -63,6 +63,8 @@ typedef void (*LoggerCallback)(XString text);
 
 typedef char* (*ReadDebugMessage)();
 
+typedef char* (*SendDebugMessage)(XString text);
+
 typedef void (*QueueTask)(void* task, double delay);
 
 enum NullableBool: int8_t {

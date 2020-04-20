@@ -7,19 +7,28 @@
 #include "V8Response.h"
 #include "V8External.h"
 #include "InspectorChannel.h"
-#include "V8Hack.h"
+// #include "V8Hack.h"
+#include "V8DispatchMessageTask.h"
+// #include "V8ReleaseHandleTask.h"
 
 
 static bool _V8Initialized = false;
 
 static ExternalCall externalCall;
 static FreeMemory  freeMemory;
-static TV8Platform* _platform;
+// static TV8Platform* _platform;
+static std::unique_ptr<v8::Platform> sPlatform;
 static FatalErrorCallback fatalErrorCallback;
 void LogAndroid(const char* location, const char* message) {
     __android_log_print(ANDROID_LOG_ERROR, "V8", "%s %s", location, message);
     // fatalErrorCallback(CopyString(location), CopyString(message));
 }
+
+void LogAndroid(const char* location, const char* message, int64_t n) {
+    __android_log_print(ANDROID_LOG_ERROR, "V8", "%d %s %s",n, location, message);
+    // fatalErrorCallback(CopyString(location), CopyString(message));
+}
+
 
 V8Context::V8Context(
         bool debug,
@@ -28,7 +37,7 @@ V8Context::V8Context(
         FreeMemory _freeMemory,
         FatalErrorCallback errorCallback,
         ReadDebugMessage readDebugMessage,
-        LoggerCallback sendDebugMessage,
+        ::SendDebugMessage sendDebugMessage,
         QueueTask queueTask) {
     if (!_V8Initialized) // (the API changed: https://groups.google.com/forum/#!topic/v8-users/wjMwflJkfso)
     {
@@ -39,10 +48,11 @@ V8Context::V8Context(
         // (Startup data is not included by default anymore)
 
         // _platform = platform::NewDefaultPlatform();
-        _platform = new TV8Platform(queueTask);
+        // _platform = new TV8Platform(queueTask);
         // _platform = std::make_unique<TV8Platform>(p1);
+        sPlatform = v8::platform::NewDefaultPlatform();
 
-        V8::InitializePlatform(_platform);
+        V8::InitializePlatform(sPlatform.get());
 
         V8::Initialize();
         externalCall = _externalCall;
@@ -50,13 +60,12 @@ V8Context::V8Context(
         _V8Initialized = true;
     }
     _logger = loggerCallback;
-
+    _platform = sPlatform.get();
     Isolate::CreateParams params;
     _arrayBufferAllocator = ArrayBuffer::Allocator::NewDefaultAllocator();
     params.array_buffer_allocator = _arrayBufferAllocator;
 
     _isolate = Isolate::New(params);
-    _isolate->Enter();
 
     V8_HANDLE_SCOPE
 
@@ -69,8 +78,10 @@ V8Context::V8Context(
 
     Local<v8::ObjectTemplate> global = ObjectTemplate::New(_isolate);
     Local<v8::Context> c = Context::New(_isolate, nullptr, global);
-    c->Enter();
+    v8::Context::Scope context_scope(c);
     _context.Reset(_isolate, c);
+
+    _global.Reset(_isolate, c->Global());
 
     Local<v8::Symbol> s = v8::Symbol::New(_isolate, V8_STRING("WrappedInstance"));
     _wrapSymbol.Reset(_isolate, s);
@@ -86,10 +97,11 @@ V8Context::V8Context(
     wrapField.Reset(_isolate, pWrapField);
 
     if (debug) {
+        _sendDebugMessage = sendDebugMessage;
         inspectorClient = new XV8InspectorClient(
                 c,
                 true,
-                _platform,
+                sPlatform.get(),
                 readDebugMessage,
                 sendDebugMessage);
     }
@@ -108,8 +120,8 @@ public:
                                        uint16_t class_id) {
 
         if (!force) {
-            if (!value->IsNearDeath())
-                return;
+//            if (!value->IsNearDeath())
+//                return;
         }
         context->FreeWrapper((Global<Value>*)value, force);
     }
@@ -133,12 +145,12 @@ void V8Context::FreeWrapper(V8Handle value, bool force) {
     if (v.IsEmpty())
         return;
     if (!V8External::CheckoutExternal(context, v, force)) {
-        LogAndroid("FreeWrapper", "Exit");
+         // LogAndroid("FreeWrapper", "Exit");
         if (force) {
             delete value;
         }
     }
-    LogAndroid("FreeWrapper", "Exit");
+    // LogAndroid("FreeWrapper", "Exit");
 }
 
 void V8Context::Dispose() {
@@ -300,6 +312,24 @@ V8Response V8Context::Wrap(void *value) {
     return r;
 }
 
+//void V8Context::PostBackgroundTask(std::unique_ptr<Task> task) {
+//    _platform
+//        ->GetBackgroundTaskRunner(_isolate)
+//        ->PostTask(std::move(task));
+//}
+//
+//void V8Context::PostForegroundTask(std::unique_ptr<Task> task) {
+//    _platform
+//            ->GetForegroundTaskRunner(_isolate)
+//            ->PostTask(std::move(task));
+//}
+//
+//void V8Context::PostWorkerTask(std::unique_ptr<Task> task) {
+//    _platform
+//            ->GetWorkerThreadsTaskRunner(_isolate)
+//            ->PostTask(std::move(task));
+//}
+
 void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     Isolate* isolate = args.GetIsolate();
     Isolate* _isolate = isolate;
@@ -320,13 +350,14 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
 
     if (r.type == V8ResponseType::Error) {
         Local<v8::String> error = V8_STRING(r.result.error.message);
-        delete r.result.error.message;
+        free(r.result.error.message);
         Local<Value> ex = Exception::Error(error);
         isolate->ThrowException(ex);
     } else {
         if (r.result.handle.handle != nullptr) {
-            Local<Value> rx = r.result.handle.handle->Get(isolate);
-            V8_FREE_HANDLE(r.result.handle.handle);
+            V8Handle h = static_cast<V8Handle>(r.result.handle.handle);
+            Local<Value> rx = h->Get(isolate);
+            // V8_FREE_HANDLE(h);
             args.GetReturnValue().Set(rx);
         }
     }
@@ -368,7 +399,11 @@ V8Response V8Context::Evaluate(XString script, XString location) {
 }
 
 
-V8Response V8Context::Release(V8Handle handle) {
+V8Response V8Context::Release(V8Handle handle, bool post) {
+//    if (post) {
+//        V8ReleaseHandle::Post(this, handle);
+//        return V8Response_FromBoolean(true);
+//    }
     LogAndroid("CLR", "Release Handle");
     V8_CONTEXT_SCOPE
     try {
@@ -454,16 +489,15 @@ V8Response V8Context::GetArrayLength(V8Handle target) {
 }
 
 V8Response V8Context::GetGlobal() {
-    V8_HANDLE_SCOPE
-    Local<Context> context = GetContext();
-    Local<v8::Object> g = context->Global();
+    V8_CONTEXT_SCOPE
+    Local<v8::Object> g = _global.Get(_isolate);
     Local<v8::String> key = V8_STRING("global");
     if (!g->HasOwnProperty(context, key).ToChecked()) {
         if(!g->Set(context, key, g).ToChecked()) {
             return V8Response_FromError("Failed to create global reference !!");
         }
     }
-    return V8Response_From(context, context->Global());
+    return V8Response_From(context, g);
 }
 
 V8Response V8Context::NewInstance(V8Handle target, int len, void** args) {
@@ -587,13 +621,57 @@ V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) 
     return V8Response_From(context, v);
 }
 
-V8Response V8Context::SendDebugMessage(XString msg) {
+void V8Context::OutputInspectorMessage(std::unique_ptr<v8_inspector::StringBuffer> &msg) {
     V8_CONTEXT_SCOPE
+
+    auto string = msg->string();
+
+    int length = string.length();
+    v8::Local<v8::String> message;
+    v8::MaybeLocal<v8::String> maybeString =
+            (string.is8Bit()
+             ? v8::String::NewFromOneByte(
+                            _isolate,
+                            reinterpret_cast<const uint8_t*>(string.characters8()),
+                            v8::NewStringType::kNormal, length)
+             : v8::String::NewFromTwoByte(
+                            _isolate,
+                            reinterpret_cast<const uint16_t*>(string.characters16()),
+                            v8::NewStringType::kNormal, length));
+    Local<v8::String> v8Msg = maybeString.ToLocalChecked();
+
+    char* charMsg = V8StringToXString(context, v8Msg);
+    _sendDebugMessage(charMsg);
+    free(charMsg);
+}
+
+V8Response V8Context::SendDebugMessage(XString msg, bool post) {
+
+//    if (post) {
+//        _platform
+//                ->GetWorkerThreadsTaskRunner(_isolate)
+//                ->PostTask(
+//                        std::make_unique<V8DispatchMessageTask>(this, msg));
+//        return V8Response_FromBoolean(true);
+//    }
+
+    // LogAndroid("SendDebugMessage", "Begin");
+    V8_CONTEXT_SCOPE
+    // LogAndroid("SendDebugMessage", "Locked");
     if (inspectorClient != nullptr) {
+        // LogAndroid("SendDebugMessage", "Creating String");
         Local<v8::String> message = V8_STRING(msg);
+        if (message.IsEmpty()) {
+            // LogAndroid("SendDebugMessage", "Could not create String");
+            return V8Response_FromError("Could not create string");
+        }
+        // LogAndroid("SendDebugMessage", "Creating Bufffer");
         String::Value buffer(_isolate, message);
+        // LogAndroid("SendDebugMessage", "Creating MessageView");
         v8_inspector::StringView messageView(*buffer, buffer.length());
+        // LogAndroid("SendDebugMessage", "Dispatching Message");
         inspectorClient->SendDebugMessage(messageView);
+
     }
     if (tryCatch.HasCaught()) {
         return V8Response_FromError(context, tryCatch.Exception());
