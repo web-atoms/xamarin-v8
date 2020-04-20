@@ -12,11 +12,6 @@ using namespace v8;
 
 #define WRAPPED_CLASS 0xA0A
 
-#define FOREGROUD_TASK_RUNNER_SLOT 101
-#define BACKGROUND_TASK_RUNNER_SLOT 102
-#define WORKER_TASK_RUNNER_SLOT 103
-
-
 #define V8_HANDLE_SCOPE \
     v8::Locker locker(_isolate);\
     v8::Isolate::Scope isolate_scope(_isolate);\
@@ -49,13 +44,9 @@ typedef void* ClrPointer;
 
 char* CopyString(const char* msg) ;
 
-#define V8_FREE_HANDLE(h)                           \
-    delete h                                        \
-
-
 extern "C" { ;
 
-XString V8StringToXString(Local<Context> context, Local<v8::String> text);
+XString V8StringToXString(Isolate* isolate, Local<v8::String> text);
 
 typedef void (*FreeMemory)(void *location);
 
@@ -63,7 +54,7 @@ typedef void (*LoggerCallback)(XString text);
 
 typedef char* (*ReadDebugMessage)();
 
-typedef char* (*SendDebugMessage)(XString text);
+typedef void (*SendDebugMessage)(XString text);
 
 typedef void (*QueueTask)(void* task, double delay);
 

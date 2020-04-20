@@ -29,6 +29,13 @@ void LogAndroid(const char* location, const char* message, int64_t n) {
     // fatalErrorCallback(CopyString(location), CopyString(message));
 }
 
+bool CanAbort(Isolate* isolate) {
+    return false;
+}
+
+void FatalErrorLogger(Local<Message> message, Local<Value> data) {
+    __android_log_print(ANDROID_LOG_ERROR, "V8", "Some Error");
+}
 
 V8Context::V8Context(
         bool debug,
@@ -71,7 +78,9 @@ V8Context::V8Context(
 
     _isolate->SetFatalErrorHandler(&LogAndroid);
 
+    _isolate->AddMessageListener(FatalErrorLogger);
 
+    _isolate->SetAbortOnUncaughtExceptionCallback(CanAbort);
     // _isolate->SetMicrotasksPolicy(MicrotasksPolicy::kScoped);
 
     _isolate->SetCaptureStackTraceForUncaughtExceptions(true, 10, v8::StackTrace::kOverview);
@@ -99,7 +108,7 @@ V8Context::V8Context(
     if (debug) {
         _sendDebugMessage = sendDebugMessage;
         inspectorClient = new XV8InspectorClient(
-                c,
+                this,
                 true,
                 sPlatform.get(),
                 readDebugMessage,
@@ -357,7 +366,6 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
         if (r.result.handle.handle != nullptr) {
             V8Handle h = static_cast<V8Handle>(r.result.handle.handle);
             Local<Value> rx = h->Get(isolate);
-            // V8_FREE_HANDLE(h);
             args.GetReturnValue().Set(rx);
         }
     }
@@ -640,7 +648,7 @@ void V8Context::OutputInspectorMessage(std::unique_ptr<v8_inspector::StringBuffe
                             v8::NewStringType::kNormal, length));
     Local<v8::String> v8Msg = maybeString.ToLocalChecked();
 
-    char* charMsg = V8StringToXString(context, v8Msg);
+    char* charMsg = V8StringToXString(_isolate, v8Msg);
     _sendDebugMessage(charMsg);
     free(charMsg);
 }

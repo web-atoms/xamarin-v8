@@ -110,13 +110,13 @@ V8Response V8Response_FromError(Local<Context> context, Local<Value> error) {
     if (local->HasOwnProperty(context, name).ToChecked()) {
         Local<v8::Value> stack = local->Get(context, name).ToLocalChecked();
         Local<v8::String> stackString = stack->ToString(context).ToLocalChecked();
-        v.result.error.stack = V8StringToXString(context, stackString);
+        v.result.error.stack = V8StringToXString(isolate, stackString);
     }
     else {
         v.result.error.stack = nullptr;
     }
     Local<v8::String> msg = local->ToString(context).ToLocalChecked();
-    v.result.error.message = V8StringToXString(context, msg);
+    v.result.error.message = V8StringToXString(isolate, msg);
     return v;
 }
 
@@ -124,7 +124,7 @@ V8Response V8Response_ToString(Local<Context> context, Local<Value> value) {
     V8Response v = V8Response();
     v.type = V8ResponseType::StringValue;
     Local<v8::String> s = value->ToString(context).ToLocalChecked();
-    v.result.stringValue = V8StringToXString(context, s);
+    v.result.stringValue = V8StringToXString(context->GetIsolate(), s);
     return v;
 }
 

@@ -131,8 +131,12 @@ namespace Xamarin.Android.V8
 
             receiveDebugFromV8 = Marshal.GetFunctionPointerForDelegate<ReadDebugMessageFromV8>((m) => {
                 try {
-                    string msg = Marshal.PtrToStringUTF8(m);
-                    this.inspectorProtocol.SendMessage(msg);
+                    if (m != IntPtr.Zero)
+                    {
+                        string msg = Marshal.PtrToStringUTF8(m);
+                        // Log(msg);
+                        this.inspectorProtocol.SendMessage(msg);
+                    }
                 } catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine(ex);

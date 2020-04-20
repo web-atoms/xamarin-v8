@@ -322,13 +322,13 @@ extern "C" {
         return context->Wrap(value);
     }
 
-    XString V8StringToXString(Local<Context> context, Local<v8::String> text) {
+    XString V8StringToXString(Isolate* isolate, Local<v8::String> text) {
         if (text.IsEmpty())
             return nullptr;
-        Isolate *isolate = context->GetIsolate();
-        int len = text->Utf8Length(isolate) + 1;
-        char *atext = (char*)malloc((uint)len);
+        int len = text->Utf8Length(isolate);
+        char *atext = (char*)malloc((uint)len + 1);
         text->WriteUtf8(isolate, atext, len);
+        atext[len] = 0;
         return atext;
     }
 }

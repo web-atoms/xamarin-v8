@@ -199,6 +199,7 @@ namespace Xamarin.Android.V8
             if (handle.handle != IntPtr.Zero)
             {
                 IntPtr h = handle.handle;
+                handle.handle = IntPtr.Zero;
                 if (MainThread.IsMainThread)
                 {
                     JSContext.V8Context_ReleaseHandle(context, h).GetBooleanValue();
@@ -210,7 +211,6 @@ namespace Xamarin.Android.V8
                         JSContext.V8Context_ReleaseHandle(context, h).GetBooleanValue();
                     });
                 }
-                handle.handle = IntPtr.Zero;
             }
         }
         internal IntPtr GetHandle()
