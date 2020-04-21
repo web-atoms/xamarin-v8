@@ -43,9 +43,10 @@ public:
 
 class InspectorFrontend final : public v8_inspector::V8Inspector::Channel {
 public:
-    explicit InspectorFrontend(V8Context* vc, SendDebugMessage sendDebugMessage) {
+    explicit InspectorFrontend(V8Context* c, SendDebugMessage sendDebugMessage) {
         sendDebugMessage_ = sendDebugMessage;
-        isolate_ = vc->GetIsolate();
+        isolate_ = c->GetIsolate();
+        vc = c;
     }
     ~InspectorFrontend() override = default;
 
@@ -64,6 +65,10 @@ private:
 //            V8OutputInspectorMessageTask::Post(isolate_, message);
     }
     void flushProtocolNotifications() override {}
+
+    inline Local<Context> GetContext() {
+        return vc->GetContext();
+    }
 
     void Send(int callId, const v8_inspector::StringView& string) {
 //        sendDebugMessage_(
@@ -116,6 +121,7 @@ private:
     }
 
     Isolate* isolate_;
+    V8Context* vc;
     SendDebugMessage sendDebugMessage_;
 };
 

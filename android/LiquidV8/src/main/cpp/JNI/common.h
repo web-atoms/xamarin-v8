@@ -13,13 +13,13 @@ using namespace v8;
 #define WRAPPED_CLASS 0xA0A
 
 #define V8_HANDLE_SCOPE \
-    v8::Locker locker(_isolate);\
     v8::Isolate::Scope isolate_scope(_isolate);\
-    HandleScope scope(_isolate);
+    HandleScope scope(_isolate); \
+    Local<Context> context = GetContext(); \
+    Context::Scope context_scope(context); \
 
 
 #define V8_CONTEXT_SCOPE \
-    v8::Locker locker(_isolate);\
     v8::Isolate::Scope isolate_scope(_isolate);\
     HandleScope scope(_isolate); \
     Local<Context> context = GetContext(); \
