@@ -6,9 +6,7 @@
     "/dist"
   ],
   "scripts": {
-    "clean": "rm -rf dist; rm -rf build",
-    "export_npm_env": "./scripts/export_npm_env.sh",
-    "build": "bash -c '. ./scripts/export_npm_env.sh && ./scripts/build.sh'"
+    "postversion": "git push --follow-tags"
   },
   "config": {
     "RN_VERSION": "master"
