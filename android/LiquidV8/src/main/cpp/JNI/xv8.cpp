@@ -205,7 +205,7 @@ extern "C" {
         try {
             if (IsContextDisposed(context))
                 return V8Response_FromError("Context disposed");
-            return context->SendDebugMessage(message, true);
+            return context->DispatchDebugMessage(message, true);
         } catch (std::exception const &ex) {
             _logger(CopyString(ex.what()));
         } catch (...){
@@ -322,14 +322,15 @@ extern "C" {
         return context->Wrap(value);
     }
 
-    XString V8StringToXString(Isolate* isolate, Local<v8::String> text) {
-        if (text.IsEmpty())
-            return nullptr;
-        int len = text->Utf8Length(isolate);
-        char *atext = (char*)malloc((uint)len + 1);
-        text->WriteUtf8(isolate, atext, len);
-        atext[len] = 0;
-        return atext;
-    }
+}
+
+XString V8StringToXString(Isolate* isolate, Local<v8::String> &text) {
+    if (text.IsEmpty())
+        return nullptr;
+    int len = text->Utf8Length(isolate);
+    char *atext = (char*)malloc((uint)len + 1);
+    text->WriteUtf8(isolate, atext, len);
+    atext[len] = 0;
+    return atext;
 }
 

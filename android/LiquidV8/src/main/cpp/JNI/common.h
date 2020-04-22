@@ -44,9 +44,9 @@ typedef void* ClrPointer;
 
 char* CopyString(const char* msg) ;
 
-extern "C" { ;
+XString V8StringToXString(Isolate* isolate, Local<v8::String> &text);
 
-XString V8StringToXString(Isolate* isolate, Local<v8::String> text);
+extern "C" { ;
 
 typedef void (*FreeMemory)(void *location);
 

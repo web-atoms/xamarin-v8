@@ -30,6 +30,8 @@ namespace Xamarin.Android.V8
 
     internal delegate void JSContextLog(IntPtr text);
 
+    internal delegate void JSDeallocator(IntPtr ptr);
+
     internal delegate void FatalErrorCallback(IntPtr location, IntPtr message);
 
     internal delegate void QueueTask(IntPtr task, double delay);
@@ -48,13 +50,14 @@ namespace Xamarin.Android.V8
 
         const string LibName = "liquidjs";
 
-        static IntPtr deAllocator;
-        IntPtr logger;
-        IntPtr fatalErrorCallback;
-        static IntPtr externalCaller;
-        static IntPtr queueTask;
-        IntPtr readDebugMessage;
-        IntPtr receiveDebugFromV8;
+        static JSDeallocator deAllocator;
+        static FatalErrorCallback fatalErrorCallback;
+        static ExternalCall externalCaller;
+
+        ReadDebugMessageFromV8 receiveDebugFromV8;
+        ReadDebugMessage readDebugMessage;
+        JSContextLog logger;
+
 
         public Action<string> Logger { get; set; }
 
@@ -62,11 +65,13 @@ namespace Xamarin.Android.V8
 
         public event EventHandler<ErrorEventArgs> ErrorEvent;
 
-        public IJSValue Undefined { get; }
+        public JSValue Undefined { get; }
+
+        IJSValue IJSContext.Undefined => Undefined;
 
         public IJSValue Global { get; }
 
-        public IJSValue Null { get; }
+        public JSValue Null { get; }
 
         public string Stack => throw new NotImplementedException();
 
@@ -104,32 +109,30 @@ namespace Xamarin.Android.V8
         private JSContext(V8InspectorProtocol protocol = null)
         {
             inspectorProtocol = protocol;
-            JSContextLog _logger = (t) => {
+            logger = (t) => {
                 var s = Marshal.PtrToStringUTF8(t);
                 Logger?.Invoke(s);
             };
-            logger = Marshal.GetFunctionPointerForDelegate(_logger);
-
             Logger = (s) => {
                 System.Diagnostics.Debug.WriteLine(s);
             };
 
 
-            fatalErrorCallback = Marshal.GetFunctionPointerForDelegate<FatalErrorCallback>((l, m) => {
+            fatalErrorCallback = (l, m) => {
                 string ls = l == IntPtr.Zero  ? null : Marshal.PtrToStringAuto(l);
                 string ms = m == IntPtr.Zero ? null : Marshal.PtrToStringAuto(m);
                 Logger?.Invoke(ms);
                 Logger?.Invoke(ls);
-            });
+            };
 
-            readDebugMessage = Marshal.GetFunctionPointerForDelegate<ReadDebugMessage>(() => {
+            readDebugMessage = () => {
 
                 string msg = AsyncHelpers.RunSync<string>(ReadDebugMessageAsync);
                 return Marshal.StringToAllocatedMemoryUTF8(msg);
                 
-            });
+            };
 
-            receiveDebugFromV8 = Marshal.GetFunctionPointerForDelegate<ReadDebugMessageFromV8>((m) => {
+            receiveDebugFromV8 = (m) => {
                 try {
                     if (m != IntPtr.Zero)
                     {
@@ -141,14 +144,14 @@ namespace Xamarin.Android.V8
                 {
                     System.Diagnostics.Debug.WriteLine(ex);
                 }
-            });
+            };
 
             lock (creationLock)
             {
-                if (deAllocator == IntPtr.Zero)
+                if (deAllocator == null)
                 {
 
-                    Action<IntPtr> deallocator = (p) =>
+                    deAllocator = (p) =>
                     {
                         try
                         {
@@ -162,16 +165,8 @@ namespace Xamarin.Android.V8
                             System.Diagnostics.Debug.WriteLine(ex);
                         }
                     };
-                    deAllocator = Marshal.GetFunctionPointerForDelegate(deallocator);
 
-                    queueTask = Marshal.GetFunctionPointerForDelegate<QueueTask>((t, d) => {
-                        MainThread.BeginInvokeOnMainThread(() =>
-                        {
-                            V8Context_PostTask(t);
-                        }, (long)(d * (double)1000));
-                    });
-
-                    ExternalCall ec = (fx, t, a) => {
+                    externalCaller = (fx, t, a) => {
                         try
                         {
                             var fxc = fx.GetContainer();
@@ -197,20 +192,18 @@ namespace Xamarin.Android.V8
                         }
                     };
 
-                    externalCaller = Marshal.GetFunctionPointerForDelegate(ec);
-
                 }
             }
 
             this.context = V8Context_Create(
                 protocol != null,
-                logger: logger,
-                externalCall: externalCaller,
-                freeMemory: deAllocator,
-                debugReceiver: readDebugMessage,
-                receiveDebugFromV8: receiveDebugFromV8,
-                queueTask: queueTask,
-                fatalErrorCallback: fatalErrorCallback); ;
+                logger: Marshal.GetFunctionPointerForDelegate(logger),
+                externalCall: Marshal.GetFunctionPointerForDelegate(externalCaller),
+                freeMemory: Marshal.GetFunctionPointerForDelegate(deAllocator),
+                debugReceiver: Marshal.GetFunctionPointerForDelegate(readDebugMessage),
+                receiveDebugFromV8: Marshal.GetFunctionPointerForDelegate(receiveDebugFromV8),
+                queueTask: IntPtr.Zero,
+                fatalErrorCallback: Marshal.GetFunctionPointerForDelegate(fatalErrorCallback));
             
             this.Undefined = new JSValue(this, V8Context_CreateUndefined(context).GetContainer());
 

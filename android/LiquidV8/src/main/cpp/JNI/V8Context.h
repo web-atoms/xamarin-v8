@@ -22,6 +22,8 @@ protected:
     Global<Context> _context;
     Global<Symbol> _wrapSymbol;
     Global<v8::Object> _global;
+    Global<v8::Value> _undefined;
+    Global<v8::Value> _null;
     XV8InspectorClient* inspectorClient;
     SendDebugMessage _sendDebugMessage;
     // delete array allocator
@@ -95,7 +97,7 @@ public:
     V8Response SetProperty(V8Handle target, XString name, V8Handle value);
     V8Response GetPropertyAt(V8Handle target, int index);
     V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
-    V8Response SendDebugMessage(XString message, bool post);
+    V8Response DispatchDebugMessage(XString message, bool post);
     V8Response Wrap(void* value);
     V8Response ToString(V8Handle target);
     V8Response GC();
@@ -132,8 +134,9 @@ public:
         return _data;
     }
 
-    static Local<v8::Value> Wrap(Local<Context> context, void* data) {
+    static Local<v8::Value> Wrap(Local<Context> &context, void* data) {
         Isolate* isolate = context->GetIsolate();
+        HandleScope handleScope(isolate);
         V8External* ex = new V8External();
         ex->_data= data;
         Local<External> ev = External::New(isolate, ex);
@@ -148,12 +151,13 @@ public:
         return wrapper;
     }
 
-    static bool CheckoutExternal(Local<Context> context, Local<Value> value, bool force) {
+    static bool CheckoutExternal(Local<Context> &context, Local<Value> &value, bool force) {
         if (value.IsEmpty())
             return false;
         if (!value->IsObject())
             return false;
         Isolate* isolate = context->GetIsolate();
+        HandleScope handleScope(isolate);
         Local<v8::Object> wrapper = value->ToObject(context).ToLocalChecked();
         V8Context* v8Context = V8Context::From(isolate);
         Local<Private> wrapField = v8Context->wrapField.Get(isolate);
@@ -174,10 +178,11 @@ public:
         return true;
     }
 
-    static V8External* CheckInExternal(Local<Context> context, Local<v8::Value> ex) {
+    static V8External* CheckInExternal(Local<Context> &context, Local<v8::Value> &ex) {
         if (!ex->IsObject())
             return nullptr;
         Isolate* isolate = context->GetIsolate();
+        HandleScope handleScope(isolate);
         Local<v8::Object> obj = ex->ToObject(context).ToLocalChecked();
         V8Context* v8Context = V8Context::From(isolate);
         Local<Private> wrapField = v8Context->wrapField.Get(isolate);

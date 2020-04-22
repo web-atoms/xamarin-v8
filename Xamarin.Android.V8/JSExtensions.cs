@@ -12,11 +12,11 @@ namespace Xamarin.Android.V8
             return ((JSValue)v);
         }
 
-        public static V8Handle ToHandle(this IJSValue v)
+        public static V8Handle ToHandle(this IJSValue v, JSContext context)
         {
             if (v == null)
             {
-                return IntPtr.Zero;
+                return context.Null.handle.handle;
             }
             return ((JSValue)v).handle.handle;
         }
@@ -24,14 +24,15 @@ namespace Xamarin.Android.V8
 
         private static V8Handle[] EmptyHandles = new V8Handle[0];
 
-        public static V8Handle[] ToHandles(this IJSValue[] v)
+        public static V8Handle[] ToHandles(this IJSValue[] v, JSContext context)
         {
             if (v == null || v.Length == 0)
                 return EmptyHandles;
             var a = new V8Handle[v.Length];
             for (int i = 0; i < v.Length; i++)
             {
-                a[i] = ((JSValue)v[i]).handle.handle;
+                var vi = v[i];
+                a[i] = vi == null ? context.Null.handle.handle : ((JSValue)vi).handle.handle;
             }
             return a;
         }

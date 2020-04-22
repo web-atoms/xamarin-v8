@@ -54,15 +54,11 @@ private:
     void sendResponse(
             int callId,
             std::unique_ptr<v8_inspector::StringBuffer> message) override {
-//        if (message.get() != nullptr)
-//            V8OutputInspectorMessageTask::Post(isolate_, message);
          Send(callId, message->string());
     }
     void sendNotification(
             std::unique_ptr<v8_inspector::StringBuffer> message) override {
         Send(0, message->string());
-//        if (message.get() != nullptr)
-//            V8OutputInspectorMessageTask::Post(isolate_, message);
     }
     void flushProtocolNotifications() override {}
 
@@ -78,28 +74,9 @@ private:
 //                );
 
         int length = static_cast<int>(string.length());
-        __android_log_print(ANDROID_LOG_INFO, "V8", "Send %d %d", callId, length);
-
-        // __android_log_print(ANDROID_LOG_INFO, "V8", "Send %s ", string.characters8());
-        if (string.is8Bit()) {
-            __android_log_print(ANDROID_LOG_INFO, "V8", "Send %s ", string.characters8());
-            sendDebugMessage_((char*)string.characters8());
-            return;
-        } else {
-            __android_log_print(ANDROID_LOG_INFO, "V8", "Allocating Array for %d bytes", length);
-            long* t = new long[length + 1];
-            t[length] = 0;
-            const uint16_t * s = string.characters16();
-            for(int i = 0; i < length; i++) {
-                t[i] = s[i];
-            }
-            __android_log_print(ANDROID_LOG_INFO, "V8", "Send %ls ", t);
-        }
-
         Isolate* _isolate = isolate_;
-        V8_HANDLE_SCOPE
+        HandleScope ss(_isolate);
         v8::TryCatch tryCatch(isolate_);
-        v8::Local<v8::String> message;
         v8::MaybeLocal<v8::String> maybeString =
                 (string.is8Bit()
                  ? v8::String::NewFromOneByte(
@@ -112,11 +89,15 @@ private:
                                 v8::NewStringType::kNormal, length));
         Local<v8::String> v8Msg;
         if (!maybeString.ToLocal(&v8Msg)) {
-            __android_log_print(ANDROID_LOG_INFO, "V8", "Failed to create String");
+            // __android_log_print(ANDROID_LOG_INFO, "V8", "Failed to create String");
             return;
         }
+
+        // __android_log_print(ANDROID_LOG_INFO, "V8", "Creating V8 String to Char Array");
         char* utf = V8StringToXString(_isolate,  v8Msg);
+        // __android_log_print(ANDROID_LOG_INFO, "V8", "Sending Message");
         sendDebugMessage_(utf);
+        // __android_log_print(ANDROID_LOG_INFO, "V8", "Send Message Success");
         free(utf);
     }
 

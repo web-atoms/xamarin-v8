@@ -21,7 +21,7 @@ public:
     }
 
     void Run() override  {
-        _context->SendDebugMessage(_message, false);
+        _context->DispatchDebugMessage(_message, false);
     }
 };
 

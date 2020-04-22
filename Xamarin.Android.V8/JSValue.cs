@@ -20,7 +20,7 @@ namespace Xamarin.Android.V8
         }
 
         public IJSValue CreateNewInstance(params IJSValue[] args) {
-            var r = JSContext.V8Context_NewInstance(context, handle.handle, args.Length, args.ToHandles()).GetContainer();
+            var r = JSContext.V8Context_NewInstance(context, handle.handle, args.Length, args.ToHandles(jsContext)).GetContainer();
             return new JSValue(jsContext, r);
         }
 
@@ -65,12 +65,12 @@ namespace Xamarin.Android.V8
         {
             get
             {
-                return new JSValue(jsContext, JSContext.V8Context_Get(context, handle.handle, name.ToHandle()).GetContainer());
+                return new JSValue(jsContext, JSContext.V8Context_Get(context, handle.handle, name.ToHandle(jsContext)).GetContainer());
             }
             set
             {
                 var v = value ?? (new JSValue(jsContext, JSContext.V8Context_CreateNull(context).GetContainer()));
-                JSContext.V8Context_Set(context, handle.handle, name.ToHandle(), v.ToJSValue().handle.handle).GetContainer();
+                JSContext.V8Context_Set(context, handle.handle, name.ToHandle(jsContext), v.ToJSValue().handle.handle).GetContainer();
             }
         }
 
@@ -165,7 +165,7 @@ namespace Xamarin.Android.V8
 
         public bool Has(IJSValue value)
         {
-            return JSContext.V8Context_Has(context, handle.handle, value.ToHandle()).GetBooleanValue();
+            return JSContext.V8Context_Has(context, handle.handle, value.ToHandle(jsContext)).GetBooleanValue();
         }
 
         public bool DeleteProperty(string name)
@@ -184,13 +184,14 @@ namespace Xamarin.Android.V8
         public override string ToString()
         {
             if (this.IsUndefined) return "Undefined";
-            if (this.IsUndefined) return "Undefined";
-            if (this.IsObject)
+            if (this.IsValueNull) return "Null";
+            if (this.IsObject || this.IsString)
             {
                 return JSContext.V8Context_ToString(context, handle.handle).GetString();
                 //return "";
             }
             if (this.IsBoolean) return this.BooleanValue.ToString();
+            if (this.IsNumber) return this.DoubleValue.ToString();
             return base.ToString();
         }
 
@@ -220,7 +221,7 @@ namespace Xamarin.Android.V8
 
         public IJSValue InvokeMethod(string name, params IJSValue[] args)
         {
-            var r = JSContext.V8Context_InvokeMethod(context, handle.handle, name, args.Length, args.ToHandles()).GetContainer();
+            var r = JSContext.V8Context_InvokeMethod(context, handle.handle, name, args.Length, args.ToHandles(jsContext)).GetContainer();
             return new JSValue(jsContext, r);
         }
 
@@ -231,7 +232,7 @@ namespace Xamarin.Android.V8
             {
                 th = ((JSValue)thisValue).handle.handle;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.handle, th, args.Length, args.ToHandles()).GetContainer();
+            var r = JSContext.V8Context_InvokeFunction(context, handle.handle, th, args.Length, args.ToHandles(jsContext)).GetContainer();
             return new JSValue(jsContext, r);
         }
 
@@ -253,9 +254,9 @@ namespace Xamarin.Android.V8
                 configurable,
                 enumerable,
                 writable,
-                descriptor.Get.ToHandle(),
-                descriptor.Set.ToHandle(),
-                descriptor.Value.ToHandle()).GetBooleanValue())
+                descriptor.Get.ToHandle(jsContext),
+                descriptor.Set.ToHandle(jsContext),
+                descriptor.Value.ToHandle(jsContext)).GetBooleanValue())
             {
                 throw new InvalidOperationException();
             }
