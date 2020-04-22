@@ -31,9 +31,13 @@ using(var context = new JSContext( /*Enable Debugging*/ true)) {
 # Create New Global Function
 ```c#
 context["printf"] = context.CreateFunction(0, (c, a) => {
+  // first parameter is context isself
+  // second parameter is an array as IJSValue
   System.Diagnostics.Debug.WriteLine(a[0].ToString());
   return c.Undefined;
 });
+
+// JS : printf("a");
 ```
 
 # Evaluate Script with Location
