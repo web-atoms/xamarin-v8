@@ -131,36 +131,36 @@ public:
         context_.Reset(isolate_, context);
     }
 
-//    void runMessageLoopOnPause(int context_group_id) override
-//    {
-//        if (running_nested_loop_) {
-//            return;
-//        }
-//
-//
-//
-//        terminated_ = false;
-//        running_nested_loop_ = true;
-//        while (!terminated_) {
-//            char* dm = readDebugMessage_();
-//            Local<v8::String> message =
-//                    v8::String::NewFromUtf8(isolate_, dm, NewStringType::kNormal)
-//                    .ToLocalChecked();
-//            free(dm);
-//            v8::String::Value buffer(isolate_, message);
-//            v8_inspector::StringView message_view(*buffer, buffer.length());
-//            session_->dispatchProtocolMessage(message_view);
-//
-//            while (v8::platform::PumpMessageLoop(platform_, isolate_)) {}
-//        }
-//
-//        terminated_ = false;
-//        running_nested_loop_ = false;
-//    }
-//
-//    void quitMessageLoopOnPause() override {
-//        terminated_ = true;
-//    }
+    void runMessageLoopOnPause(int context_group_id) override
+    {
+        if (running_nested_loop_) {
+            return;
+        }
+
+
+
+        terminated_ = false;
+        running_nested_loop_ = true;
+        while (!terminated_) {
+            char* dm = readDebugMessage_();
+            Local<v8::String> message =
+                    v8::String::NewFromUtf8(isolate_, dm, NewStringType::kNormal)
+                    .ToLocalChecked();
+            free(dm);
+            v8::String::Value buffer(isolate_, message);
+            v8_inspector::StringView message_view(*buffer, buffer.length());
+            session_->dispatchProtocolMessage(message_view);
+
+            while (v8::platform::PumpMessageLoop(platform_, isolate_)) {}
+        }
+
+        terminated_ = false;
+        running_nested_loop_ = false;
+    }
+
+    void quitMessageLoopOnPause() override {
+        terminated_ = true;
+    }
 
     inline void SendDebugMessage(v8_inspector::StringView &messageView) {
         session_->dispatchProtocolMessage(messageView);
