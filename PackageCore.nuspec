@@ -29,7 +29,7 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="Xamarin.Android.V8\bin\Debug\Xamarin.Android.V8" target="lib\MonoAndroid10" />
-    <file src="Xamarin.Android.V8\bin\Debug\Xamarin.Android.V8" target="lib\MonoAndroid10" />
+    <file src="Xamarin.Android.V8\bin\Debug\Xamarin.Android.V8.dll" target="lib\MonoAndroid10" />
+    <file src="Xamarin.Android.V8\bin\Debug\Xamarin.Android.V8.pdb" target="lib\MonoAndroid10" />
   </files>
 </package>
