@@ -22,14 +22,14 @@
     <tags>xamarin, javascript, v8, engine, inspector, debug</tags>
     <dependencies>
       <group targetFramework="monoandroid10">
-        <dependency id="WebAtoms.Core" version="1.4.66"/>
+        <dependency id="WebAtoms.Core" version="1.4.76"/>
         <dependency id="System.Net.WebSockets.Client" version="4.3.2"/>
         <dependency id="deniszykov.WebSocketListener" version="4.2.4"/>
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="Xamarin.Android.V8\bin\Debug\WebAtoms.XF.dll" target="lib\MonoAndroid10" />
-    <file src="Xamarin.Android.V8\bin\Debug\WebAtoms.XF.pdb" target="lib\MonoAndroid10" />
+    <file src="Xamarin.Android.V8\bin\Debug\Xamarin.Android.V8" target="lib\MonoAndroid10" />
+    <file src="Xamarin.Android.V8\bin\Debug\Xamarin.Android.V8" target="lib\MonoAndroid10" />
   </files>
 </package>

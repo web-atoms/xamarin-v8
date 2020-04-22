@@ -158,7 +158,6 @@ public:
 V8Response V8Context::GC() {
 
     V8_CONTEXT_SCOPE
-
     V8WrappedVisitor v;
     v.context = this;
     _isolate->VisitHandlesWithClassIds(&v);
@@ -418,7 +417,8 @@ V8Response V8Context::Evaluate(XString script, XString location) {
     V8_HANDLE_SCOPE
 
     TryCatch tryCatch(_isolate);
-    // 
+    //
+
     Local<v8::String> v8ScriptSrc = V8_STRING(script);
     Local<v8::String> v8ScriptLocation = V8_STRING(location);
 

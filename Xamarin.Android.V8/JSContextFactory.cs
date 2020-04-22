@@ -19,5 +19,10 @@ namespace Xamarin.Android.V8
         {
             return new JSContext(true);
         }
+
+        public IJSContext Create(Uri inverseWebSocketUri)
+        {
+            return new JSContext(inverseWebSocketUri);
+        }
     }
 }

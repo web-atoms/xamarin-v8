@@ -74,7 +74,7 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
     }
 
     V8Handle h = new Global<Value>();
-    // h->SetWrapperClassId(WRAPPED_CLASS);
+    h->SetWrapperClassId(WRAPPED_CLASS);
     v.result.handle.handle = (void*)h;
     h->Reset(isolate, handle);
     return v;
