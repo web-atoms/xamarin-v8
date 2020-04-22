@@ -6,7 +6,7 @@ V8 Bindings for Xamarin for Android (iOS coming soon, only for local development
 <PackageReference Include="Xamarin.Android.V8" Version="1.0.5" />
 ```
 # Inspector Protocol Port
-
+Visual Studio > Tools > Android > Android Adb Command Prompt
 ```
 adb forward tcp:9222 tcp:9222
 ```
