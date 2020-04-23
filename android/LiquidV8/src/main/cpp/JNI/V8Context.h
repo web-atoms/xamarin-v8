@@ -84,7 +84,7 @@ public:
             V8Handle set,
             V8Handle value            );
     V8Response DeleteProperty(V8Handle target, XString name);
-    V8Response Evaluate(XString script, XString location);
+    V8Response Evaluate(int len, X16String script,int lenLocation, X16String location);
     V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, void** args);
     V8Response InvokeMethod(V8Handle target, XString name, int len, void** args);
     V8Response Equals(V8Handle left, V8Handle right);
@@ -99,7 +99,7 @@ public:
     V8Response SetProperty(V8Handle target, XString name, V8Handle value);
     V8Response GetPropertyAt(V8Handle target, int index);
     V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
-    V8Response DispatchDebugMessage(XString message, bool post);
+    V8Response DispatchDebugMessage(int len, X16String message, bool post);
     V8Response Wrap(void* value);
     V8Response ToString(V8Handle target);
     V8Response GC();
@@ -160,7 +160,7 @@ public:
             return false;
         Isolate* isolate = context->GetIsolate();
         HandleScope handleScope(isolate);
-        Local<v8::Object> wrapper = value->ToObject(context).ToLocalChecked();
+        Local<v8::Object> wrapper = TO_CHECKED(value->ToObject(context));
         V8Context* v8Context = V8Context::From(isolate);
         Local<Private> wrapField = v8Context->wrapField.Get(isolate);
         if (!wrapper->HasPrivate(context, wrapField).ToChecked())
@@ -185,7 +185,7 @@ public:
             return nullptr;
         Isolate* isolate = context->GetIsolate();
         HandleScope handleScope(isolate);
-        Local<v8::Object> obj = ex->ToObject(context).ToLocalChecked();
+        Local<v8::Object> obj = TO_CHECKED(ex->ToObject(context));
         V8Context* v8Context = V8Context::From(isolate);
         Local<Private> wrapField = v8Context->wrapField.Get(isolate);
         if (!obj->HasPrivate(context, wrapField).ToChecked()) {

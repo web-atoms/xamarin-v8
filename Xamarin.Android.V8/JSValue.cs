@@ -44,7 +44,9 @@ namespace Xamarin.Android.V8
 
         public bool IsArray => handle.handleType == V8HandleType.Array;
 
-        public bool IsWrapped => handle.handleType == V8HandleType.Object && Has(jsContext.WrappedSymbol);
+        public bool IsWrapped => 
+            handle.handleType == V8HandleType.Wrapped
+            || ((handle.handleType & V8HandleType.Object) > 0 && Has(jsContext.WrappedSymbol));
 
         public bool IsSymbol => handle.handleType == V8HandleType.Symbol;
 
@@ -287,16 +289,19 @@ namespace Xamarin.Android.V8
             NullableBool enumerable = descriptor.Enumerable.ToNullableBool();
             NullableBool writable = descriptor.Writable.ToNullableBool();
 
-            if(!JSContext.V8Context_DefineProperty(
+            IntPtr value = descriptor.Value == null ? IntPtr.Zero : ((JSValue)descriptor.Value).handle.handle;
+            IntPtr get = descriptor.Get == null ? IntPtr.Zero : ((JSValue)descriptor.Get).handle.handle;
+            IntPtr set = descriptor.Set == null ? IntPtr.Zero : ((JSValue)descriptor.Set).handle.handle;
+            if (!JSContext.V8Context_DefineProperty(
                 context,
                 handle.handle,
                 name,
                 configurable,
                 enumerable,
                 writable,
-                descriptor.Get.ToHandle(jsContext),
-                descriptor.Set.ToHandle(jsContext),
-                descriptor.Value.ToHandle(jsContext)).GetBooleanValue())
+                get,
+                set,
+                value).GetBooleanValue())
             {
                 throw new InvalidOperationException();
             }

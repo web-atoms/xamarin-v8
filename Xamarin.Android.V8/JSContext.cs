@@ -26,7 +26,12 @@ namespace Xamarin.Android.V8
 
     internal delegate IntPtr ReadDebugMessage();
 
-    internal delegate void ReadDebugMessageFromV8(IntPtr char8);
+    internal delegate void ReadDebugMessageFromV8(
+        int len,
+        [MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
+        string char8,
+        [MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 0)]
+        string char16);
 
     internal delegate void JSContextLog(IntPtr text);
 
@@ -132,11 +137,11 @@ namespace Xamarin.Android.V8
                 
             };
 
-            receiveDebugFromV8 = (m) => {
+            receiveDebugFromV8 = (n, c8, c16) => {
                 try {
-                    if (m != IntPtr.Zero)
+                    if (n > 0)
                     {
-                        string msg = Marshal.PtrToStringUTF8(m);
+                        var msg = c8 ?? c16;                        
                         // Log(msg);
                         this.inspectorProtocol.SendMessage(msg);
                     }
@@ -283,12 +288,14 @@ namespace Xamarin.Android.V8
                         }
                     }
 
-                    MainThread.BeginInvokeOnMainThread(() => {
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
                         try
                         {
-                            System.Diagnostics.Debug.WriteLine(msg);
-                            V8Context_SendDebugMessage(context, msg).GetBooleanValue();
-                        } catch (Exception ex)
+                            // System.Diagnostics.Debug.WriteLine(msg);
+                            V8Context_SendDebugMessage(context, msg.Length, msg).GetBooleanValue();
+                        }
+                        catch (Exception ex)
                         {
                             Log(ex);
                         }
@@ -393,7 +400,13 @@ namespace Xamarin.Android.V8
 
         public IJSValue Evaluate(string script, string location = null)
         {
-            var c = V8Context_Evaluate(context, script, location ?? "vm" ).GetContainer();
+            location = location ?? "vm";
+            var c = V8Context_Evaluate(
+                context, 
+                script.Length, 
+                script, 
+                location.Length,
+                location).GetContainer();
             return new JSValue(this, c);
         }
 
@@ -401,7 +414,7 @@ namespace Xamarin.Android.V8
         {
             if (value == null)
             {
-                return this.Null;
+                return this.Undefined;
             }
             if (value is IJSValue jsv)
             {
@@ -572,11 +585,11 @@ namespace Xamarin.Android.V8
             V8Handle target,
             [MarshalAs(UnmanagedType.LPUTF8Str)]
             string name,
-            [MarshalAs(UnmanagedType.U1)]
+            [MarshalAs(UnmanagedType.SysInt)]
             NullableBool configurable,
-            [MarshalAs(UnmanagedType.U1)]
+            [MarshalAs(UnmanagedType.SysInt)]
             NullableBool enumerable,
-            [MarshalAs(UnmanagedType.U1)]
+            [MarshalAs(UnmanagedType.SysInt)]
             NullableBool writable,
             IntPtr get,
             IntPtr set,
@@ -658,7 +671,8 @@ namespace Xamarin.Android.V8
         [DllImport(LibName)]
         internal extern static V8Response V8Context_SendDebugMessage(
             V8Handle context,
-            [MarshalAs(UnmanagedType.LPUTF8Str)]
+            int len,
+            [MarshalAs(UnmanagedType.LPWStr)]
             string message
             );
 
@@ -690,9 +704,11 @@ namespace Xamarin.Android.V8
         [DllImport(LibName)]
         internal extern static V8Response V8Context_Evaluate(
             V8Handle context,
-            [MarshalAs(UnmanagedType.LPUTF8Str)]
+            int lenScript,
+            [MarshalAs(UnmanagedType.LPWStr)]
             string script,
-            [MarshalAs(UnmanagedType.LPUTF8Str)]
+            int lenLocation,
+            [MarshalAs(UnmanagedType.LPWStr)]
             string location);
 
         public void Dispose()

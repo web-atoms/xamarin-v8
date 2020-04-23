@@ -47,7 +47,7 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
     }
     else if (handle->IsDate()) {
         v.result.handle.handleType = V8HandleType::Date;
-        v.result.handle.value.doubleValue = handle->ToObject(context).ToLocalChecked().As<v8::Date>()->ValueOf();
+        v.result.handle.value.doubleValue = TO_CHECKED(handle->ToObject(context)).As<v8::Date>()->ValueOf();
     }
     else if (handle->IsArray()
              || handle->IsArgumentsObject()

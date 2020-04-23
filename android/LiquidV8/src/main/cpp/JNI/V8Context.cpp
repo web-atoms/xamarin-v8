@@ -7,18 +7,39 @@
 #include "V8Response.h"
 #include "V8External.h"
 #include "InspectorChannel.h"
-// #include "V8Hack.h"
-#include "V8DispatchMessageTask.h"
-// #include "V8ReleaseHandleTask.h"
+#include "ExternalX16String.h"
+
+//#define RETURN_EXCEPTION(e) \
+//    Local<v8::String> exToString;  \
+//    exToString = TO_CHECKED(e.Exception()->ToString(context)); \
+//    Local<v8::String> exStack = TO_CHECKED(                     \
+//            TO_CHECKED(e.StackTrace(context))->ToString(context)); \
+//    return V8Response_FromErrorWithStack(                               \
+//            V8StringToXString(_isolate, exToString),                    \
+//            V8StringToXString(_isolate, exStack));                   \
+
 
 #define RETURN_EXCEPTION(e) \
-    Local<v8::String> exToString;  \
-    exToString = e.Exception()->ToString(context).ToLocalChecked(); \
-    Local<v8::String> exStack = e.StackTrace(context).ToLocalChecked()->ToString(context).ToLocalChecked(); \
-    return V8Response_FromErrorWithStack(                               \
-            V8StringToXString(_isolate, exToString),                    \
-            V8StringToXString(_isolate, exStack));                   \
+    return FromException(context, _isolate, e, __FILE__, __LINE__);                    \
 
+V8Response FromException(Local<Context> context, Isolate* _isolate, TryCatch &tc, const char* file, const int line) {
+    HandleScope s(_isolate);
+    Local<Value> ex = tc.Exception();
+    if (ex.IsEmpty()) {
+        return V8Response_FromError("No error specified");
+    }
+    Local<v8::Object> exObj = Local<v8::Object>::Cast(ex);
+    Local<Value> st;
+    Local<v8::String> key = V8_STRING("stack");
+    if (exObj->Get(context,  key).ToLocal(&st)) {
+        Local<v8::String> stack = Checked(file, line, st->ToString(context));
+        auto utfStack = V8StringToXString(_isolate, stack);
+        return V8Response_FromError(utfStack);
+    }
+    Local<v8::String> msg = Checked(file, line, exObj->ToString(context));
+    auto utf = V8StringToXString(_isolate, msg);
+    return V8Response_FromError(utf);
+}
 
 static bool _V8Initialized = false;
 
@@ -85,7 +106,8 @@ V8Context::V8Context(
     // V8_HANDLE_SCOPE
 
     // v8::Isolate::Scope isolate_scope(_isolate);
-    Isolate::Scope iscope(_isolate);
+    /// Isolate::Scope iscope(_isolate);
+    _isolate->Enter();
 
     HandleScope scope(_isolate);
 
@@ -101,8 +123,10 @@ V8Context::V8Context(
 
     Local<v8::ObjectTemplate> global = ObjectTemplate::New(_isolate);
     Local<v8::Context> c = Context::New(_isolate, nullptr, global);
-    v8::Context::Scope context_scope(c);
+    // v8::Context::Scope context_scope(c);
     _context.Reset(_isolate, c);
+
+    c->Enter();
 
 
     Local<v8::Object> g = c->Global();
@@ -336,28 +360,6 @@ V8Response V8Context::DefineProperty(
     return V8Response_FromBoolean(true);
 }
 
-//class V8Wrapper {
-//private:
-//    V8Context* _context;
-//    Global<Value>* _value;
-//public:
-//
-//    V8Wrapper(V8Context* context, Global<Value>* value) {
-//        _context = context;
-//        _value = value;
-//        _value->SetWrapperClassId(WRAPPED_CLASS);
-//        // _value->SetWeak(this, V8Wrapper::WeakCallback, WeakCallbackType::kInternalFields);
-//    }
-//
-//    static void WeakCallback(const WeakCallbackInfo<V8Wrapper> &data) {
-//        V8Wrapper* d = data.GetParameter();
-//        Isolate* _isolate = data.GetIsolate();
-//        d->_context->FreeWrapper(d->_value);
-//        delete d;
-//    }
-//};
-
-
 V8Response V8Context::Wrap(void *value) {
     V8_CONTEXT_SCOPE
 
@@ -366,7 +368,7 @@ V8Response V8Context::Wrap(void *value) {
     V8Response r = {};
     r.type = V8ResponseType::Handle;
     V8Handle h = new Global<Value>();
-    // h->SetWrapperClassId(WRAPPED_CLASS);
+    h->SetWrapperClassId(WRAPPED_CLASS);
     h->Reset(_isolate, external);
     r.result.handle.handle = h;
     r.result.handle.handleType = V8HandleType::Wrapped;
@@ -443,16 +445,12 @@ V8Response V8Context::CreateFunction(ExternalCall function, XString debugHelper)
     return V8Response_From(context, v);
 }
 
-V8Response V8Context::Evaluate(XString script, XString location) {
+V8Response V8Context::Evaluate(int len, X16String script,int lenLocation, X16String location) {
     V8_HANDLE_SCOPE
 
     TryCatch tryCatch(_isolate);
-    //
-
-    Local<v8::String> v8ScriptSrc = V8_STRING(script);
-    Local<v8::String> v8ScriptLocation = V8_STRING(location);
-
-    // Context::Scope context_scope(context);
+    Local<v8::String> v8ScriptSrc = V8_STRING16(script, len);
+    Local<v8::String> v8ScriptLocation = V8_STRING16(location, lenLocation);
 
     ScriptOrigin origin(v8ScriptLocation, v8::Integer::New(_isolate, 0) );
 
@@ -469,11 +467,6 @@ V8Response V8Context::Evaluate(XString script, XString location) {
 
 
 V8Response V8Context::Release(V8Handle handle, bool post) {
-//    if (post) {
-//        V8ReleaseHandle::Post(this, handle);
-//        return V8Response_FromBoolean(true);
-//    }
-    // LogAndroid("CLR", "Release Handle");
     V8_CONTEXT_SCOPE
     try {
         FreeWrapper(handle, false);
@@ -492,6 +485,9 @@ V8Response V8Context::InvokeMethod(V8Handle target, XString name, int len, void*
 
     V8_CONTEXT_SCOPE
     Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return V8Response_FromError("Target is empty");
+    }
     if (!targetValue->IsObject()) {
         return V8Response_FromError("Target is not an Object");
     }
@@ -525,7 +521,7 @@ V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, int le
     Local<v8::Object> thisValueValue =
         (thisValue == nullptr || thisValue->IsEmpty())
         ? _global.Get(_isolate)
-        : thisValue->Get(_isolate)->ToObject(context).ToLocalChecked();
+        : TO_CHECKED(thisValue->Get(_isolate)->ToObject(context));
 
     if (thisValueValue->IsUndefined()) {
         thisValueValue = _global.Get(_isolate);
@@ -601,8 +597,8 @@ V8Response V8Context::Get(V8Handle target, V8Handle index) {
     if (!v->IsObject())
         return V8Response_FromError("This is not an object");
     Local<v8::Name> key = Local<v8::Name>::Cast(index->Get(_isolate));
-    Local<v8::Object> jsObj = v->ToObject(context).ToLocalChecked();
-    Local<Value> item = jsObj->Get(context, key).ToLocalChecked();
+    Local<v8::Object> jsObj = TO_CHECKED(v->ToObject(context));
+    Local<Value> item = TO_CHECKED(jsObj->Get(context, key));
     return V8Response_From(context, item);
 }
 
@@ -614,7 +610,7 @@ V8Response V8Context::Set(V8Handle target, V8Handle index, V8Handle value) {
     if (!t->IsObject())
         return V8Response_FromError("This is not an object");
     Local<v8::Name> key = Local<v8::Name>::Cast(index->Get(_isolate));
-    Local<v8::Object> obj = t->ToObject(context).ToLocalChecked();
+    Local<v8::Object> obj = TO_CHECKED(t->ToObject(context));
     obj->Set(context, key, v).ToChecked();
     return V8Response_From(context, v);
 }
@@ -627,9 +623,9 @@ V8Response V8Context::HasProperty(V8Handle target, XString name) {
     if (!value->IsObject()) {
         return V8Response_FromError("Target is not an object ");
     }
-    Local<v8::Object> obj = value->ToObject(context).ToLocalChecked();
+    Local<v8::Object> obj = TO_CHECKED(value->ToObject(context));
     Local<v8::String> key = V8_STRING(name);
-    return V8Response_FromBoolean(obj->HasOwnProperty(context, key).ToChecked());
+    return V8Response_FromBoolean(TO_CHECKED(obj->HasOwnProperty(context, key)));
 }
 
 V8Response V8Context::GetProperty(V8Handle target, XString name) {
@@ -639,8 +635,8 @@ V8Response V8Context::GetProperty(V8Handle target, XString name) {
     if (!v->IsObject())
         return V8Response_FromError("This is not an object");
     Local<v8::String> jsName = V8_STRING(name);
-    Local<v8::Object> jsObj = v->ToObject(context).ToLocalChecked();
-    Local<Value> item = jsObj->Get(context, jsName).ToLocalChecked();
+    Local<v8::Object> jsObj = TO_CHECKED(v->ToObject(context));
+    Local<Value> item = TO_CHECKED(jsObj->Get(context, jsName));
     return V8Response_From(context, item);
 }
 
@@ -652,8 +648,8 @@ V8Response V8Context::SetProperty(V8Handle target, XString name, V8Handle value)
     if (!t->IsObject())
         return V8Response_FromError("This is not an object");
     Local<v8::String> jsName = V8_STRING(name);
-    Local<v8::Object> obj = t->ToObject(context).ToLocalChecked();
-    obj->Set(context, jsName, v).ToChecked();
+    Local<v8::Object> obj = TO_CHECKED(t->ToObject(context));
+    TO_CHECKED(obj->Set(context, jsName, v));
     return V8Response_From(context, v);
 }
 
@@ -663,8 +659,8 @@ V8Response V8Context::GetPropertyAt(V8Handle target, int index) {
     
     if (!v->IsArray())
         return V8Response_FromError("This is not an array");
-    Local<v8::Object> a = v->ToObject(context).ToLocalChecked();
-    Local<Value> item = a->Get(context, (uint) index).ToLocalChecked();
+    Local<v8::Object> a = TO_CHECKED(v->ToObject(context));
+    Local<Value> item = TO_CHECKED(a->Get(context, (uint) index));
     return V8Response_From(context, item);
 }
 
@@ -675,7 +671,7 @@ V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) 
     
     if (!t->IsArray())
         return V8Response_FromError("This is not an array");
-    Local<v8::Object> obj = t->ToObject(context).ToLocalChecked();
+    Local<v8::Object> obj = TO_CHECKED(t->ToObject(context));
     obj->Set(context, (uint)index, v).ToChecked();
     return V8Response_From(context, v);
 }
@@ -683,54 +679,34 @@ V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) 
 void V8Context::OutputInspectorMessage(std::unique_ptr<v8_inspector::StringBuffer> &msg) {
     V8_CONTEXT_SCOPE
 
-    auto string = msg->string();
-
-    int length = string.length();
-    v8::Local<v8::String> message;
-    v8::MaybeLocal<v8::String> maybeString =
-            (string.is8Bit()
-             ? v8::String::NewFromOneByte(
-                            _isolate,
-                            reinterpret_cast<const uint8_t*>(string.characters8()),
-                            v8::NewStringType::kNormal, length)
-             : v8::String::NewFromTwoByte(
-                            _isolate,
-                            reinterpret_cast<const uint16_t*>(string.characters16()),
-                            v8::NewStringType::kNormal, length));
-    Local<v8::String> v8Msg = maybeString.ToLocalChecked();
-
-    char* charMsg = V8StringToXString(_isolate, v8Msg);
-    _sendDebugMessage(charMsg);
-    free(charMsg);
+//    auto string = msg->string();
+//
+//    int length = string.length();
+//    v8::Local<v8::String> message;
+//    v8::MaybeLocal<v8::String> maybeString =
+//            (string.is8Bit()
+//             ? v8::String::NewFromOneByte(
+//                            _isolate,
+//                            reinterpret_cast<const uint8_t*>(string.characters8()),
+//                            v8::NewStringType::kNormal, length)
+//             : v8::String::NewFromTwoByte(
+//                            _isolate,
+//                            reinterpret_cast<const uint16_t*>(string.characters16()),
+//                            v8::NewStringType::kNormal, length));
+//    Local<v8::String> v8Msg = TO_CHECKED(maybeString);
+//
+//    char* charMsg = V8StringToXString(_isolate, v8Msg);
+//    _sendDebugMessage(charMsg);
+//    free(charMsg);
 }
 
-V8Response V8Context::DispatchDebugMessage(XString msg, bool post) {
+V8Response V8Context::DispatchDebugMessage(int len, X16String msg, bool post) {
 
-//    if (post) {
-//        _platform
-//                ->GetWorkerThreadsTaskRunner(_isolate)
-//                ->PostTask(
-//                        std::make_unique<V8DispatchMessageTask>(this, msg));
-//        return V8Response_FromBoolean(true);
-//    }
-
-    // LogAndroid("SendDebugMessage", "Begin");
     V8_CONTEXT_SCOPE
     // LogAndroid("SendDebugMessage", "Locked");
     if (inspectorClient != nullptr) {
-        // LogAndroid("SendDebugMessage", "Creating String");
-        Local<v8::String> message = V8_STRING(msg);
-        if (message.IsEmpty()) {
-            // LogAndroid("SendDebugMessage", "Could not create String");
-            return V8Response_FromError("Could not create string");
-        }
-        // LogAndroid("SendDebugMessage", "Creating Bufffer");
-        String::Value buffer(_isolate, message);
-        // LogAndroid("SendDebugMessage", "Creating MessageView");
-        v8_inspector::StringView messageView(*buffer, buffer.length());
-        // LogAndroid("SendDebugMessage", "Dispatching Message");
+        v8_inspector::StringView messageView(msg, len);
         inspectorClient->SendDebugMessage(messageView);
-
     }
     if (tryCatch.HasCaught()) {
         RETURN_EXCEPTION(tryCatch)

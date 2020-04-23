@@ -67,38 +67,11 @@ private:
     }
 
     void Send(int callId, const v8_inspector::StringView& string) {
-//        sendDebugMessage_(
-//                string.length(),
-//                (void*) (string.is8Bit() ? string.characters8() : nullptr),
-//                (void*) (!string.is8Bit() ? string.characters16() : nullptr)
-//                );
-
-        int length = static_cast<int>(string.length());
-        Isolate* _isolate = isolate_;
-        HandleScope ss(_isolate);
-        v8::TryCatch tryCatch(isolate_);
-        v8::MaybeLocal<v8::String> maybeString =
-                (string.is8Bit()
-                 ? v8::String::NewFromOneByte(
-                                isolate_,
-                                reinterpret_cast<const uint8_t*>(string.characters8()),
-                                v8::NewStringType::kNormal, length)
-                 : v8::String::NewFromTwoByte(
-                                isolate_,
-                                reinterpret_cast<const uint16_t*>(string.characters16()),
-                                v8::NewStringType::kNormal, length));
-        Local<v8::String> v8Msg;
-        if (!maybeString.ToLocal(&v8Msg)) {
-            // __android_log_print(ANDROID_LOG_INFO, "V8", "Failed to create String");
-            return;
+        if (string.is8Bit()) {
+            sendDebugMessage_(string.length(), string.characters8(), nullptr);
+        } else {
+            sendDebugMessage_(string.length(), nullptr, string.characters16());
         }
-
-        // __android_log_print(ANDROID_LOG_INFO, "V8", "Creating V8 String to Char Array");
-        char* utf = V8StringToXString(_isolate,  v8Msg);
-        // __android_log_print(ANDROID_LOG_INFO, "V8", "Sending Message");
-        sendDebugMessage_(utf);
-        // __android_log_print(ANDROID_LOG_INFO, "V8", "Send Message Success");
-        free(utf);
     }
 
     Isolate* isolate_;
@@ -131,36 +104,36 @@ public:
         context_.Reset(isolate_, context);
     }
 
-    void runMessageLoopOnPause(int context_group_id) override
-    {
-        if (running_nested_loop_) {
-            return;
-        }
-
-
-
-        terminated_ = false;
-        running_nested_loop_ = true;
-        while (!terminated_) {
-            char* dm = readDebugMessage_();
-            Local<v8::String> message =
-                    v8::String::NewFromUtf8(isolate_, dm, NewStringType::kNormal)
-                    .ToLocalChecked();
-            free(dm);
-            v8::String::Value buffer(isolate_, message);
-            v8_inspector::StringView message_view(*buffer, buffer.length());
-            session_->dispatchProtocolMessage(message_view);
-
-            while (v8::platform::PumpMessageLoop(platform_, isolate_)) {}
-        }
-
-        terminated_ = false;
-        running_nested_loop_ = false;
-    }
-
-    void quitMessageLoopOnPause() override {
-        terminated_ = true;
-    }
+//    void runMessageLoopOnPause(int context_group_id) override
+//    {
+//        if (running_nested_loop_) {
+//            return;
+//        }
+//
+//
+//
+//        terminated_ = false;
+//        running_nested_loop_ = true;
+//        while (!terminated_) {
+//            char* dm = readDebugMessage_();
+//            Local<v8::String> message =
+//                    v8::String::NewFromUtf8(isolate_, dm, NewStringType::kNormal)
+//                    .ToLocalChecked();
+//            free(dm);
+//            v8::String::Value buffer(isolate_, message);
+//            v8_inspector::StringView message_view(*buffer, buffer.length());
+//            session_->dispatchProtocolMessage(message_view);
+//
+//            while (v8::platform::PumpMessageLoop(platform_, isolate_)) {}
+//        }
+//
+//        terminated_ = false;
+//        running_nested_loop_ = false;
+//    }
+//
+//    void quitMessageLoopOnPause() override {
+//        terminated_ = true;
+//    }
 
     inline void SendDebugMessage(v8_inspector::StringView &messageView) {
         session_->dispatchProtocolMessage(messageView);

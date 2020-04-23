@@ -127,9 +127,9 @@ extern "C" {
     V8Response V8Context_DefineProperty(ClrPointer ctx,
                                         ClrPointer target,
                                         XString name,
-                                        NullableBool configurable,
-                                        NullableBool enumerable,
-                                        NullableBool writable,
+                                        int configurable,
+                                        int enumerable,
+                                        int writable,
                                         ClrPointer get,
                                         ClrPointer set,
                                         ClrPointer value) {
@@ -137,9 +137,9 @@ extern "C" {
         return context->DefineProperty(
                 TO_HANDLE(target),
                 name,
-                configurable,
-                enumerable,
-                writable,
+                (NullableBool)configurable,
+                (NullableBool)enumerable,
+                (NullableBool)writable,
                 TO_HANDLE(get),
                 TO_HANDLE(set),
                 TO_HANDLE(value));
@@ -200,12 +200,13 @@ extern "C" {
 
     V8Response V8Context_SendDebugMessage(
             ClrPointer ctx,
-            XString message) {
+            int len,
+            X16String message) {
         INIT_CONTEXT
         try {
             if (IsContextDisposed(context))
                 return V8Response_FromError("Context disposed");
-            return context->DispatchDebugMessage(message, true);
+            return context->DispatchDebugMessage(len, message, true);
         } catch (std::exception const &ex) {
             _logger(CopyString(ex.what()));
         } catch (...){
@@ -299,9 +300,14 @@ extern "C" {
         return context->ToString(TO_HANDLE(target));
     }
 
-    V8Response V8Context_Evaluate(ClrPointer ctx, XString script, XString location) {
+    V8Response V8Context_Evaluate(
+            ClrPointer ctx,
+            int scriptLength,
+            X16String script,
+            int locationLength,
+            X16String location) {
         INIT_CONTEXT
-        return context->Evaluate(script, location);
+        return context->Evaluate(scriptLength, script, locationLength, location);
     }
 
     int V8Context_Release(V8Response r) {
