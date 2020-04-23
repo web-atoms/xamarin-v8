@@ -66,6 +66,12 @@ void FatalErrorLogger(Local<Message> message, Local<Value> data) {
     __android_log_print(ANDROID_LOG_ERROR, "V8", "Some Error");
 }
 
+static const int kWorkerMaxStackSize = 500 * 1024;
+
+void OnPromiseRejectCallback(PromiseRejectMessage msg) {
+    LogAndroid("Promise", "Promise Rejected");
+}
+
 V8Context::V8Context(
         bool debug,
         LoggerCallback loggerCallback,
@@ -103,7 +109,11 @@ V8Context::V8Context(
 
     _isolate = Isolate::New(params);
 
+    uint32_t here;
+    _isolate->SetStackLimit(reinterpret_cast<uintptr_t>(&here - kWorkerMaxStackSize / sizeof(uint32_t*)));
     // V8_HANDLE_SCOPE
+
+    _isolate->SetPromiseRejectCallback(OnPromiseRejectCallback);
 
     // v8::Isolate::Scope isolate_scope(_isolate);
     /// Isolate::Scope iscope(_isolate);
