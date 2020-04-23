@@ -73,7 +73,7 @@ namespace Xamarin.Android.V8
 
         public JSValue Null { get; }
 
-        public string Stack => throw new NotImplementedException();
+        public string Stack => this.Global["Error"].CreateNewInstance()["stack"].ToString();
 
         public IJSValue this[string name] { get => this.Global[name]; set => this.Global[name] = value; }
 

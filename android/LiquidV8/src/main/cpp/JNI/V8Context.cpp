@@ -14,7 +14,7 @@
 #define RETURN_EXCEPTION(e) \
     Local<v8::String> exToString;  \
     exToString = e.Exception()->ToString(context).ToLocalChecked(); \
-    Local<v8::String> exStack = e.StackTrace(context).ToLocalChecked(); \
+    Local<v8::String> exStack = e.StackTrace(context).ToLocalChecked()->ToString(context).ToLocalChecked(); \
     return V8Response_FromErrorWithStack(                               \
             V8StringToXString(_isolate, exToString),                    \
             V8StringToXString(_isolate, exStack));                   \
