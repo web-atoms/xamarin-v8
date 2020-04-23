@@ -1,6 +1,6 @@
 {
   "name": "xamarin-v8",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "V8 Bindings for Xamarin for Android (iOS coming soon, only for local development)",
   "files": [
     "/dist"
