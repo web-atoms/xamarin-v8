@@ -87,6 +87,14 @@ V8Response V8Response_FromError(const char* text) {
     return r;
 }
 
+V8Response V8Response_FromErrorWithStack(const char* text, const char* stack) {
+    V8Response r = {};
+    r.type = V8ResponseType ::Error;
+    r.result.error.message = CopyString(text);
+    r.result.error.stack = stack == nullptr ? nullptr : CopyString(stack);
+    return r;
+}
+
 //V8Response V8Response_FromWrappedObject(Local<Context> context, Local<External> handle) {
 //    V8Response v = {};
 //    v.type = V8ResponseType::Handle;

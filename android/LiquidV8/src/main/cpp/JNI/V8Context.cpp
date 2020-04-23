@@ -13,8 +13,12 @@
 
 #define RETURN_EXCEPTION(e) \
     Local<v8::String> exToString;  \
-    exToString = e.Exception()->ToDetailString(context).ToLocalChecked(); \
-    return V8Response_FromError(V8StringToXString(_isolate, exToString));
+    exToString = e.Exception()->ToString(context).ToLocalChecked(); \
+    Local<v8::String> exStack = e.StackTrace(context).ToLocalChecked(); \
+    return V8Response_FromErrorWithStack(                               \
+            V8StringToXString(_isolate, exToString),                    \
+            V8StringToXString(_isolate, exStack));                   \
+
 
 static bool _V8Initialized = false;
 

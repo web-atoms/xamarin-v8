@@ -75,6 +75,8 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle);
 
 V8Response V8Response_FromError(const char* text);
 
+V8Response V8Response_FromErrorWithStack(const char* text, const char* stack);
+
 // V8Response V8Response_FromError(Local<Context> context, Local<Value> error);
 
 V8Response V8Response_ToString(XString text);
