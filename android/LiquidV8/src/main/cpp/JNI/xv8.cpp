@@ -232,6 +232,14 @@ extern "C" {
         return context->Get(TO_HANDLE(target), TO_HANDLE(index));
     }
 
+    V8Response V8Context_Equals(
+            ClrPointer ctx,
+            ClrPointer left,
+            ClrPointer right) {
+        INIT_CONTEXT
+        return context->Equals(TO_HANDLE(left), TO_HANDLE(right));
+    }
+
     V8Response V8Context_Set(
             ClrPointer ctx,
             ClrPointer target,

@@ -94,6 +94,7 @@ V8Context::V8Context(
     _isolate->AddMessageListener(FatalErrorLogger);
 
     _isolate->SetAbortOnUncaughtExceptionCallback(CanAbort);
+
     // _isolate->SetMicrotasksPolicy(MicrotasksPolicy::kScoped);
 
     _isolate->SetCaptureStackTraceForUncaughtExceptions(true, 10, v8::StackTrace::kOverview);
@@ -158,6 +159,17 @@ public:
         context->FreeWrapper((Global<Value>*)value, force);
     }
 };
+
+V8Response V8Context::Equals(V8Handle left, V8Handle right) {
+    V8_CONTEXT_SCOPE
+    Local<Value> l = left->Get(_isolate);
+    Local<Value> r = right->Get(_isolate);
+    bool v;
+    if(!l->Equals(context, r).To(&v)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_FromBoolean(v);
+}
 
 V8Response V8Context::GC() {
 

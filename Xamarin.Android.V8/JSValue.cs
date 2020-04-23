@@ -181,6 +181,32 @@ namespace Xamarin.Android.V8
             return (T)gc.Target;
         }
 
+        public override int GetHashCode()
+        {
+            return (int)this.handle.handleType;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is JSValue jv)
+            {
+                if (handle.handleType != jv.handle.handleType)
+                    return false;
+                switch (handle.handleType)
+                {
+                    case V8HandleType.Null:
+                    case V8HandleType.Undefined:
+                        return true;
+                    case V8HandleType.Boolean:
+                        return handle.value.boolValue == jv.handle.value.boolValue;
+                    case V8HandleType.Number:
+                        return handle.value.doubleValue == jv.handle.value.doubleValue;
+                }
+                return JSContext.V8Context_Equals(context, handle.handle, jv.handle.handle).GetBooleanValue();
+            }
+            return base.Equals(obj);
+        }
+
         public override string ToString()
         {
             if (this.IsUndefined) return "Undefined";

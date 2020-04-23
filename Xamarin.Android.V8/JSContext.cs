@@ -668,6 +668,9 @@ namespace Xamarin.Android.V8
             IntPtr handle);
 
         [DllImport(LibName)]
+        internal extern static V8Response V8Context_Equals(V8Handle context, IntPtr left, IntPtr right);
+
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_Wrap(
             V8Handle context,
             IntPtr handle);
