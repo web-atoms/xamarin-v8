@@ -83,6 +83,7 @@ public:
             V8Handle get,
             V8Handle set,
             V8Handle value            );
+    V8Response DeleteProperty(V8Handle target, XString name);
     V8Response Evaluate(XString script, XString location);
     V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, void** args);
     V8Response InvokeMethod(V8Handle target, XString name, int len, void** args);

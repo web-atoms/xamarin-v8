@@ -224,6 +224,14 @@ extern "C" {
         return context->HasProperty(TO_HANDLE(target), text);
     }
 
+    V8Response V8Context_DeleteProperty(
+            ClrPointer ctx,
+            ClrPointer target,
+            XString name) {
+        INIT_CONTEXT
+        return context->DeleteProperty(TO_HANDLE(target), name);
+    }
+
     V8Response V8Context_Get(
             ClrPointer ctx,
             ClrPointer target,

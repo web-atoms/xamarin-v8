@@ -56,7 +56,7 @@ namespace Xamarin.Android.V8
             }
             set
             {
-                var v = value ?? (new JSValue(jsContext, JSContext.V8Context_CreateNull(context).GetContainer()));
+                var v = value ?? jsContext.Null;
                 JSContext.V8Context_SetProperty(context, handle.handle, name, v.ToJSValue().handle.handle).GetContainer();
             }
         }
@@ -69,7 +69,7 @@ namespace Xamarin.Android.V8
             }
             set
             {
-                var v = value ?? (new JSValue(jsContext, JSContext.V8Context_CreateNull(context).GetContainer()));
+                var v = value ?? jsContext.Null;
                 JSContext.V8Context_Set(context, handle.handle, name.ToHandle(jsContext), v.ToJSValue().handle.handle).GetContainer();
             }
         }
@@ -84,7 +84,7 @@ namespace Xamarin.Android.V8
             }
             set
             {
-                var v = value ?? (new JSValue(jsContext, JSContext.V8Context_CreateNull(context).GetContainer()));
+                var v = value ?? jsContext.Null;
                 JSContext.V8Context_SetPropertyAt(context, handle.handle, index, v.ToJSValue().handle.handle).GetContainer();
             }
         }
@@ -200,7 +200,21 @@ namespace Xamarin.Android.V8
                     case V8HandleType.Boolean:
                         return handle.value.boolValue == jv.handle.value.boolValue;
                     case V8HandleType.Number:
-                        return handle.value.doubleValue == jv.handle.value.doubleValue;
+                        return handle.value.doubleValue == jv.handle.value.doubleValue;                    
+                }
+                if (this.IsObject || this.IsArray)
+                {
+                    if (handle.handle == jv.handle.handle)
+                    {
+                        return true;
+                    }
+                    if (handle.value.refValue != IntPtr.Zero)
+                    {
+                        if (handle.value.refValue == jv.handle.value.refValue)
+                        {
+                            return true;
+                        }
+                    }
                 }
                 return JSContext.V8Context_Equals(context, handle.handle, jv.handle.handle).GetBooleanValue();
             }

@@ -160,6 +160,18 @@ public:
     }
 };
 
+V8Response V8Context::DeleteProperty(V8Handle target, XString name) {
+    V8_CONTEXT_SCOPE
+    Local<Value> t = target->Get(_isolate);
+    Local<v8::Object> tobj = Local<v8::Object>::Cast(t);
+    Local<v8::String> n = V8_STRING(name);
+    bool r;
+    if(!tobj->Delete(context, n).To(&r)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_FromBoolean(r);
+}
+
 V8Response V8Context::Equals(V8Handle left, V8Handle right) {
     V8_CONTEXT_SCOPE
     Local<Value> l = left->Get(_isolate);
