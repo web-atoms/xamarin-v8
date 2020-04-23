@@ -58,8 +58,7 @@ namespace Xamarin.Android.V8
             }
             set
             {
-                var v = value ?? jsContext.Null;
-                JSContext.V8Context_SetProperty(context, handle.handle, name, v.ToJSValue().handle.handle).GetContainer();
+                JSContext.V8Context_SetProperty(context, handle.handle, name, value.ToHandle(jsContext)).GetContainer();
             }
         }
 
@@ -71,8 +70,7 @@ namespace Xamarin.Android.V8
             }
             set
             {
-                var v = value ?? jsContext.Null;
-                JSContext.V8Context_Set(context, handle.handle, name.ToHandle(jsContext), v.ToJSValue().handle.handle).GetContainer();
+                JSContext.V8Context_Set(context, handle.handle, name.ToHandle(jsContext), value.ToHandle(jsContext)).GetContainer();
             }
         }
 
@@ -86,8 +84,7 @@ namespace Xamarin.Android.V8
             }
             set
             {
-                var v = value ?? jsContext.Null;
-                JSContext.V8Context_SetPropertyAt(context, handle.handle, index, v.ToJSValue().handle.handle).GetContainer();
+                JSContext.V8Context_SetPropertyAt(context, handle.handle, index, value.ToHandle(jsContext)).GetContainer();
             }
         }
 
@@ -179,7 +176,12 @@ namespace Xamarin.Android.V8
         {
             // we need to get wrapped instance..
             var w = this[jsContext.WrappedSymbol] as JSValue;
-            var gc = GCHandle.FromIntPtr(w.handle.value.refValue);
+            IntPtr v = w.handle.value.refValue;
+            //if (v == IntPtr.Zero)
+            //{
+            //    return default;
+            //}
+            var gc = GCHandle.FromIntPtr(v);
             return (T)gc.Target;
         }
 

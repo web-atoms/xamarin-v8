@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using WebAtoms;
 using V8Handle = System.IntPtr;
 
@@ -12,6 +13,7 @@ namespace Xamarin.Android.V8
             return ((JSValue)v);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static V8Handle ToHandle(this IJSValue v, JSContext context)
         {
             if (v == null)
@@ -24,6 +26,7 @@ namespace Xamarin.Android.V8
 
         private static V8Handle[] EmptyHandles = new V8Handle[0];
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static V8Handle[] ToHandles(this IJSValue[] v, JSContext context)
         {
             if (v == null || v.Length == 0)

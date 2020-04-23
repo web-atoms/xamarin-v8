@@ -69,6 +69,7 @@ public:
     V8Response CreateSymbol(XString name);
     V8Response CreateNull();
     V8Response CreateUndefined();
+    V8Response CreateArray();
     V8Response CreateBoolean(bool value);
     V8Response CreateNumber(double value);
     V8Response CreateString(XString value);

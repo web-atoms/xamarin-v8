@@ -33,13 +33,17 @@ namespace Xamarin.Android.V8
             return new DateTime(t, DateTimeKind.Utc);
         }
 
-        internal static string ToUTF8StringFromPtr(this IntPtr utf8Ptr)
+        internal static string ToUTF8StringFromPtr(this IntPtr utf8Ptr, bool delete = false)
         {
             if (utf8Ptr == IntPtr.Zero)
             {
                 return null;
             }
             string s = Marshal.PtrToStringUTF8(utf8Ptr);
+            if (delete)
+            {
+                Marshal.FreeHGlobal(utf8Ptr);
+            }
             return s;
         }
 
@@ -99,7 +103,7 @@ namespace Xamarin.Android.V8
                 JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
-            return r.result.stringValue.ToUTF8StringFromPtr();
+            return r.result.stringValue.ToUTF8StringFromPtr(true);
         }
     }
 }

@@ -109,8 +109,8 @@ V8Context::V8Context(
 
     _isolate = Isolate::New(params);
 
-    uint32_t here;
-    _isolate->SetStackLimit(reinterpret_cast<uintptr_t>(&here - kWorkerMaxStackSize / sizeof(uint32_t*)));
+    // uint32_t here;
+    // _isolate->SetStackLimit(reinterpret_cast<uintptr_t>(&here - kWorkerMaxStackSize / sizeof(uint32_t*)));
     // V8_HANDLE_SCOPE
 
     _isolate->SetPromiseRejectCallback(OnPromiseRejectCallback);
@@ -263,6 +263,12 @@ void V8Context::Dispose() {
 V8Response V8Context::CreateObject() {
     V8_CONTEXT_SCOPE
     Local<Value> r = Object::New(_isolate);
+    return V8Response_From(context, r);
+}
+
+V8Response V8Context::CreateArray() {
+    V8_CONTEXT_SCOPE
+    Local<Value> r = v8::Array::New(_isolate);
     return V8Response_From(context, r);
 }
 
@@ -616,7 +622,7 @@ V8Response V8Context::Set(V8Handle target, V8Handle index, V8Handle value) {
     V8_HANDLE_SCOPE
     Local<Value> t = target->Get(_isolate);
     Local<Value> v = value->Get(_isolate);
-    // 
+    //
     if (!t->IsObject())
         return V8Response_FromError("This is not an object");
     Local<v8::Name> key = Local<v8::Name>::Cast(index->Get(_isolate));
@@ -658,7 +664,7 @@ V8Response V8Context::SetProperty(V8Handle target, XString name, V8Handle value)
     if (!t->IsObject())
         return V8Response_FromError("This is not an object");
     Local<v8::String> jsName = V8_STRING(name);
-    Local<v8::Object> obj = TO_CHECKED(t->ToObject(context));
+    Local<v8::Object> obj = Local<v8::Object>::Cast(t);
     TO_CHECKED(obj->Set(context, jsName, v));
     return V8Response_From(context, v);
 }

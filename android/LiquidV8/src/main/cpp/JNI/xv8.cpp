@@ -109,7 +109,13 @@ extern "C" {
         return context->CreateObject();
     }
 
-    V8Response V8Context_CreateNull(ClrPointer ctx) {
+    V8Response V8Context_CreateArray(ClrPointer ctx) {
+        INIT_CONTEXT
+        return context->CreateArray();
+    }
+
+
+V8Response V8Context_CreateNull(ClrPointer ctx) {
         INIT_CONTEXT
         return context->CreateNull();
     }
