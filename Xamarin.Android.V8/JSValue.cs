@@ -153,7 +153,7 @@ namespace Xamarin.Android.V8
                 for (int i = 0; i < len; i++)
                 {
                     var key = keys[i];
-                    yield return new JSProperty(key.ToString(), keys[i]);
+                    yield return new JSProperty(key.ToString(), this[key]);
                 }
             }
         }
