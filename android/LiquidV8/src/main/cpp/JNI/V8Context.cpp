@@ -425,6 +425,8 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
             V8Handle h = static_cast<V8Handle>(r.result.handle.handle);
             Local<Value> rx = h->Get(isolate);
             args.GetReturnValue().Set(rx);
+        } else {
+            args.GetReturnValue().SetUndefined();
         }
     }
 }
@@ -550,8 +552,7 @@ V8Response V8Context::GetArrayLength(V8Handle target) {
     if (!value->IsArray()) {
         return V8Response_FromError("Target is not an array");
     }
-    Local<v8::Object> jsObj = value->ToObject(context).ToLocalChecked();
-    Local<v8::Array> array = Local<v8::Array>::Cast(jsObj);
+    Local<v8::Array> array = Local<v8::Array>::Cast(value);
     return V8Response_FromInteger(array->Length());
 }
 
@@ -567,8 +568,7 @@ V8Response V8Context::NewInstance(V8Handle target, int len, void** args) {
     if (!targetValue->IsFunction()) {
         return V8Response_FromError("Target is not a function");
     }
-    Local<v8::Object> fxObj = targetValue->ToObject(context).ToLocalChecked();
-    Local<v8::Function> fx = Local<v8::Function>::Cast(fxObj);
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
 
     std::vector<Local<v8::Value>> argList;
     for (int i = 0; i < len; ++i) {
@@ -589,7 +589,7 @@ V8Response V8Context::Has(V8Handle target, V8Handle index) {
     if (!value->IsObject()) {
         return V8Response_FromError("Target is not an object ");
     }
-    Local<v8::Object> obj = value->ToObject(context).ToLocalChecked();
+    Local<v8::Object> obj = Local<v8::Object>::Cast(value);
     Local<v8::Name> key = Local<v8::Name>::Cast(index->Get(_isolate));
     return V8Response_FromBoolean(obj->HasOwnProperty(context, key).ToChecked());
 }
