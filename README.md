@@ -1,9 +1,9 @@
 # Xamarin V8 Bindings
-V8 Bindings for Xamarin for Android (iOS coming soon, only for local development)
+V8 Bindings for Xamarin for Android
 
 # NuGet
 ```xml
-<PackageReference Include="Xamarin.Android.V8" Version="1.0.5" />
+<PackageReference Include="Xamarin.Android.V8" Version="1.4.79" />
 ```
 # Inspector Protocol Port
 Visual Studio > Tools > Android > Android Adb Command Prompt
