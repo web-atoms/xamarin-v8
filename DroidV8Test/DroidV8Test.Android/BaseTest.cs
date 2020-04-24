@@ -34,7 +34,7 @@ namespace DroidV8Test.Droid
         public string Log { get; set; }
     }
 
-    public class BaseTest
+    public class BaseTest: IDisposable
     {
 
         public static async Task RunAll(bool print = true)
@@ -93,18 +93,22 @@ namespace DroidV8Test.Droid
             var testName = attribute.Name ?? method.Name;
             try
             {
-                var t = Activator.CreateInstance(type);
-                if (method.ReturnType == typeof(void)) {
-                    method.Invoke(t, Empty);
-                }
-                else
+                using (var t = Activator.CreateInstance(type) as IDisposable)
                 {
-                    await (Task)method.Invoke(t, Empty);
+                    if (method.ReturnType == typeof(void))
+                    {
+                        method.Invoke(t, Empty);
+                    }
+                    else
+                    {
+                        await (Task)method.Invoke(t, Empty);
+                    }
+                    return new TestResult
+                    {
+                        Success = true,
+                        TestName = testName
+                    };
                 }
-                return new TestResult {
-                    Success = true,
-                    TestName = testName
-                };
             } catch (Exception ex)
             {
                 return new TestResult {
@@ -113,6 +117,11 @@ namespace DroidV8Test.Droid
                     Log = ex.ToString()
                 };
             }
+        }
+
+        public void Dispose()
+        {
+            context.Dispose();
         }
 
         protected readonly JSContext context;

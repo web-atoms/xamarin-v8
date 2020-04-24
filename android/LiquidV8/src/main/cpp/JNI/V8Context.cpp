@@ -243,19 +243,31 @@ void V8Context::FreeWrapper(V8Handle value, bool force) {
 }
 
 void V8Context::Dispose() {
+    HandleScope s(_isolate);
+    {
 
-    if (inspectorClient != nullptr) {
-        delete inspectorClient;
+        if (inspectorClient != nullptr) {
+            delete inspectorClient;
+        }
+
+        V8WrappedVisitor v;
+        v.context = this;
+        v.force = true;
+        _isolate->VisitHandlesWithClassIds(&v);
+        v.context = nullptr;
+        ///Local<Context> cc = _context.Get(_isolate);
+        _context.Reset();
+
+        _wrapSymbol.Reset();
+        _global.Reset();
+        _undefined.Reset();
+        _null.Reset();
+        wrapField.Reset();
+        // cc->Exit();
     }
-
-    V8WrappedVisitor v;
-    v.context = this;
-    v.force = true;
-    _isolate->VisitHandlesWithClassIds(&v);
-    v.context = nullptr;
-
+    // _isolate->Exit();
     _isolate->Dispose();
-    // delete _Isolate;
+    // delete _isolate;
     delete _arrayBufferAllocator;
 
 }
