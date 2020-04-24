@@ -123,7 +123,7 @@
     <AndroidResource Include="Resources\values\strings.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\akash\ns-products\web-atoms\WebAtoms.Xamarin.Forms\WebAtoms.Core\WebAtoms.Core.csproj">
+    <ProjectReference Include="..\..\WebAtoms.Core\WebAtoms.Core.csproj">
       <Project>{66d9b13e-3deb-4bc2-91cd-168cebbf4e00}</Project>
       <Name>WebAtoms.Core</Name>
     </ProjectReference>
