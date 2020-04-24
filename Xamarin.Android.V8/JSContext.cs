@@ -454,7 +454,7 @@ namespace Xamarin.Android.V8
             
             if (value is Task<IJSValue> task)
             {
-                return this.ToPromise(task);
+                return this.CreatePromiseWithResult(task);
             }
 
 
@@ -502,6 +502,21 @@ namespace Xamarin.Android.V8
         {
             return this.Global.DeleteProperty(name);
         }
+
+        public void RunOnUIThread(Func<Task> task)
+        {
+            MainThread.BeginInvokeOnMainThread(async () => {
+                try
+                {
+                    await task();
+                }
+                catch (Exception ex)
+                {
+                    Logger?.Invoke(ex.ToString());
+                }
+            });
+        }
+
         ~JSContext()
         {
             if (context == IntPtr.Zero)
