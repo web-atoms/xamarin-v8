@@ -9,6 +9,7 @@ using Android.OS;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
+using Xamarin.Android.V8;
 
 namespace DroidV8Test.Droid.Tests
 {
@@ -51,5 +52,43 @@ namespace DroidV8Test.Droid.Tests
             Assert.Equal("Akash Kava", a.ToString());
         }
 
+
+        [Test]
+        public void SymbolTest()
+        {
+            var s = context.CreateSymbol("a");
+            var a = (JSValue)context.CreateObject();
+            a[s] = context.CreateString("Akash");
+            context["a"] = a;
+            context["s"] = s;
+            var r = context.Evaluate("a[s]");
+            Assert.Equal("Akash", r.ToString());
+        }
+
+        [Test]
+        public void DefineDeleteTest()
+        {
+            var a = context.CreateObject();
+            context["a"] = a;
+            a.DefineProperty("id", new WebAtoms.JSPropertyDescriptor {
+                Enumerable = true,
+                Configurable = true,
+                Value = context.CreateNumber(5)
+            });
+
+            var n = context.Evaluate("a.id");
+            Assert.Equal(5, n.IntValue);
+
+            if(!a.DeleteProperty("id"))
+            {
+                Assert.Throw("Not possible");
+            }
+
+            if(a.HasProperty("id"))
+            {
+                Assert.Throw("Not possible");
+            }
+
+        }
     }
 }

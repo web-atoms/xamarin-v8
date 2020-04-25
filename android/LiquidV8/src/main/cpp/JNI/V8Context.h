@@ -66,28 +66,28 @@ public:
     void FreeWrapper(V8Handle value, bool force);
 
     V8Response CreateObject();
-    V8Response CreateSymbol(XString name);
+    V8Response CreateSymbol(Utf16Value name);
     V8Response CreateNull();
     V8Response CreateUndefined();
     V8Response CreateArray();
     V8Response CreateBoolean(bool value);
     V8Response CreateNumber(double value);
-    V8Response CreateString(XString value);
+    V8Response CreateString(Utf16Value value);
     V8Response CreateDate(int64_t value);
-    V8Response CreateFunction(ExternalCall function, XString debugHelper);
+    V8Response CreateFunction(ExternalCall function, Utf16Value debugHelper);
     V8Response DefineProperty(
             V8Handle target,
-            XString name,
+            Utf16Value name,
             NullableBool configurable,
             NullableBool enumerable,
             NullableBool writable,
             V8Handle get,
             V8Handle set,
             V8Handle value            );
-    V8Response DeleteProperty(V8Handle target, XString name);
-    V8Response Evaluate(int len, X16String script,int lenLocation, X16String location);
+    V8Response DeleteProperty(V8Handle target, Utf16Value name);
+    V8Response Evaluate(Utf16Value script,Utf16Value location);
     V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, void** args);
-    V8Response InvokeMethod(V8Handle target, XString name, int len, void** args);
+    V8Response InvokeMethod(V8Handle target, Utf16Value name, int len, void** args);
     V8Response Equals(V8Handle left, V8Handle right);
     V8Response GetGlobal();
     V8Response GetArrayLength(V8Handle target);
@@ -95,12 +95,12 @@ public:
     V8Response Has(V8Handle target, V8Handle index);
     V8Response Get(V8Handle target, V8Handle index);
     V8Response Set(V8Handle target, V8Handle index, V8Handle value);
-    V8Response HasProperty(V8Handle target, XString name);
-    V8Response GetProperty(V8Handle target, XString name);
-    V8Response SetProperty(V8Handle target, XString name, V8Handle value);
+    V8Response HasProperty(V8Handle target, Utf16Value name);
+    V8Response GetProperty(V8Handle target, Utf16Value name);
+    V8Response SetProperty(V8Handle target, Utf16Value name, V8Handle value);
     V8Response GetPropertyAt(V8Handle target, int index);
     V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
-    V8Response DispatchDebugMessage(int len, X16String message, bool post);
+    V8Response DispatchDebugMessage(Utf16Value message, bool post);
     V8Response Wrap(void* value);
     V8Response ToString(V8Handle target);
     V8Response GC();

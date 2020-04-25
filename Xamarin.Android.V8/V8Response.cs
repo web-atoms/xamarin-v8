@@ -4,6 +4,17 @@ using System.Runtime.InteropServices;
 
 namespace Xamarin.Android.V8
 {
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct Utf16Value
+    {
+        [MarshalAs(UnmanagedType.LPWStr)]
+        internal string Value;
+
+        internal int Length;
+
+        public static implicit operator Utf16Value(string value) => new Utf16Value { Value = value, Length = value?.Length ?? 0};
+    }
+
     [StructLayout(LayoutKind.Explicit)]
     internal struct V8ResponseResult
     {

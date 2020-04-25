@@ -234,9 +234,10 @@ namespace Xamarin.Android.V8
             if (this.IsValueNull) return "Null";
             if (this.IsString)
             {
+                // this  is the case when String is a StringObject, we need to call .toString on it
                 return stringValue ?? JSContext.V8Context_ToString(context, handle.handle).GetString();
             }
-            if (this.IsObject || this.IsString)
+            if (this.IsObject)
             {
                 return JSContext.V8Context_ToString(context, handle.handle).GetString();
                 //return "";

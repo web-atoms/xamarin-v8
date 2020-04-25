@@ -74,12 +74,12 @@ extern "C" {
         delete context;
     }
 
-    V8Response V8Context_CreateString(ClrPointer ctx, XString value) {
+    V8Response V8Context_CreateString(ClrPointer ctx, Utf16Value value) {
         INIT_CONTEXT
         return context->CreateString(value);
     }
 
-    V8Response V8Context_CreateSymbol(ClrPointer ctx, XString value) {
+    V8Response V8Context_CreateSymbol(ClrPointer ctx, Utf16Value value) {
         INIT_CONTEXT
         return context->CreateSymbol(value);
     }
@@ -125,14 +125,14 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->CreateUndefined();
     }
 
-    V8Response V8Context_CreateFunction(ClrPointer ctx, ExternalCall fn, XString debugDisplay) {
+    V8Response V8Context_CreateFunction(ClrPointer ctx, ExternalCall fn, Utf16Value debugDisplay) {
         INIT_CONTEXT
         return context->CreateFunction(fn, debugDisplay);
     }
 
     V8Response V8Context_DefineProperty(ClrPointer ctx,
                                         ClrPointer target,
-                                        XString name,
+                                        Utf16Value name,
                                         int configurable,
                                         int enumerable,
                                         int writable,
@@ -187,7 +187,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     V8Response V8Context_InvokeMethod(
             ClrPointer ctx,
             ClrPointer target,
-            XString name,
+            Utf16Value name,
             int len,
             ClrPointer* args) {
         INIT_CONTEXT
@@ -206,13 +206,12 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
 
     V8Response V8Context_SendDebugMessage(
             ClrPointer ctx,
-            int len,
-            X16String message) {
+            Utf16Value message) {
         INIT_CONTEXT
         try {
             if (IsContextDisposed(context))
                 return V8Response_FromError("Context disposed");
-            return context->DispatchDebugMessage(len, message, true);
+            return context->DispatchDebugMessage(message, true);
         } catch (std::exception const &ex) {
             _logger(CopyString(ex.what()));
         } catch (...){
@@ -225,7 +224,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     V8Response V8Context_HasProperty(
             ClrPointer ctx,
             ClrPointer  target,
-            XString text
+            Utf16Value text
             ) {
         INIT_CONTEXT
         return context->HasProperty(TO_HANDLE(target), text);
@@ -234,7 +233,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     V8Response V8Context_DeleteProperty(
             ClrPointer ctx,
             ClrPointer target,
-            XString name) {
+            Utf16Value name) {
         INIT_CONTEXT
         return context->DeleteProperty(TO_HANDLE(target), name);
     }
@@ -267,7 +266,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     V8Response V8Context_GetProperty(
             ClrPointer ctx,
             ClrPointer target,
-            XString text) {
+            Utf16Value text) {
         INIT_CONTEXT
         return context->GetProperty(TO_HANDLE(target), text);
     }
@@ -283,7 +282,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     V8Response V8Context_SetProperty(
             ClrPointer ctx,
             ClrPointer target,
-            XString text,
+            Utf16Value text,
             ClrPointer value) {
         INIT_CONTEXT
         return context->SetProperty(TO_HANDLE(target), text, TO_HANDLE(value));
@@ -308,12 +307,10 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
 
     V8Response V8Context_Evaluate(
             ClrPointer ctx,
-            int scriptLength,
-            X16String script,
-            int locationLength,
-            X16String location) {
+            Utf16Value script,
+            Utf16Value location) {
         INIT_CONTEXT
-        return context->Evaluate(scriptLength, script, locationLength, location);
+        return context->Evaluate(script, location);
     }
 
     int V8Context_Release(V8Response r) {

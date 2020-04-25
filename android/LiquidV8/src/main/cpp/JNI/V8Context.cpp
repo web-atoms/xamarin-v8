@@ -194,11 +194,11 @@ public:
     }
 };
 
-V8Response V8Context::DeleteProperty(V8Handle target, XString name) {
+V8Response V8Context::DeleteProperty(V8Handle target, Utf16Value name) {
     V8_CONTEXT_SCOPE
     Local<Value> t = target->Get(_isolate);
     Local<v8::Object> tobj = Local<v8::Object>::Cast(t);
-    Local<v8::String> n = V8_STRING(name);
+    Local<v8::String> n = V8_UTF16STRING(name);
     bool r;
     if(!tobj->Delete(context, n).To(&r)) {
         RETURN_EXCEPTION(tryCatch)
@@ -308,15 +308,15 @@ V8Response V8Context::CreateNull() {
     return V8Response_From(context, r);
 }
 
-V8Response V8Context::CreateString(XString value) {
+V8Response V8Context::CreateString(Utf16Value value) {
     V8_HANDLE_SCOPE
-    Local<Value> r = V8_STRING(value);
+    Local<Value> r = V8_UTF16STRING(value);
     return V8Response_From(context, r);
 }
 
-V8Response V8Context::CreateSymbol(XString name) {
+V8Response V8Context::CreateSymbol(Utf16Value name) {
     V8_HANDLE_SCOPE
-    Local<Value> symbol = Symbol::New(_isolate, V8_STRING(name));
+    Local<Value> symbol = Symbol::New(_isolate, V8_UTF16STRING(name));
     return V8Response_From(context, symbol);
 }
 
@@ -328,7 +328,7 @@ V8Response V8Context::CreateDate(int64_t value) {
 
 V8Response V8Context::DefineProperty(
         V8Handle target,
-        XString name,
+        Utf16Value name,
         NullableBool configurable,
         NullableBool enumerable,
         NullableBool writable,
@@ -343,7 +343,7 @@ V8Response V8Context::DefineProperty(
         return V8Response_FromError("Target is not an object");
     }
     Local<v8::Object> jsObj = t.As<v8::Object>();
-    Local<v8::String> key = V8_STRING(name);
+    Local<v8::String> key = V8_UTF16STRING(name);
 
     // PropertyDescriptor pd;
 
@@ -461,24 +461,24 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     }
 }
 
-V8Response V8Context::CreateFunction(ExternalCall function, XString debugHelper) {
+V8Response V8Context::CreateFunction(ExternalCall function, Utf16Value debugHelper) {
     V8_CONTEXT_SCOPE
     Local<Value> e = V8External::Wrap(context, (void*)function);
     // Local<External> e = External::New(_isolate, (void*)function);
 
     Local<v8::Function> f = v8::Function::New(context, X8Call, e).ToLocalChecked();
-    Local<v8::String> n = V8_STRING(debugHelper);
+    Local<v8::String> n = V8_UTF16STRING(debugHelper);
     f->SetName(n);
     Local<Value> v = f;
     return V8Response_From(context, v);
 }
 
-V8Response V8Context::Evaluate(int len, X16String script,int lenLocation, X16String location) {
+V8Response V8Context::Evaluate(Utf16Value script,Utf16Value location) {
     V8_HANDLE_SCOPE
 
     TryCatch tryCatch(_isolate);
-    Local<v8::String> v8ScriptSrc = V8_STRING16(script, len);
-    Local<v8::String> v8ScriptLocation = V8_STRING16(location, lenLocation);
+    Local<v8::String> v8ScriptSrc = V8_UTF16STRING(script);
+    Local<v8::String> v8ScriptLocation = V8_UTF16STRING(location);
 
     ScriptOrigin origin(v8ScriptLocation, v8::Integer::New(_isolate, 0) );
 
@@ -509,7 +509,7 @@ V8Response V8Context::Release(V8Handle handle, bool post) {
     }
 }
 
-V8Response V8Context::InvokeMethod(V8Handle target, XString name, int len, void** args) {
+V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, int len, void** args) {
 
     V8_CONTEXT_SCOPE
     Local<Value> targetValue = target->Get(_isolate);
@@ -519,7 +519,7 @@ V8Response V8Context::InvokeMethod(V8Handle target, XString name, int len, void*
     if (!targetValue->IsObject()) {
         return V8Response_FromError("Target is not an Object");
     }
-    Local<v8::String> jsName = V8_STRING(name);
+    Local<v8::String> jsName = V8_UTF16STRING(name);
 
     Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
     Local<v8::Value> fxValue;
@@ -644,7 +644,7 @@ V8Response V8Context::Set(V8Handle target, V8Handle index, V8Handle value) {
 }
 
 
-V8Response V8Context::HasProperty(V8Handle target, XString name) {
+V8Response V8Context::HasProperty(V8Handle target, Utf16Value name) {
     V8_HANDLE_SCOPE
     // 
     Local<Value> value = target->Get(_isolate);
@@ -652,30 +652,30 @@ V8Response V8Context::HasProperty(V8Handle target, XString name) {
         return V8Response_FromError("Target is not an object ");
     }
     Local<v8::Object> obj = TO_CHECKED(value->ToObject(context));
-    Local<v8::String> key = V8_STRING(name);
+    Local<v8::String> key = V8_UTF16STRING(name);
     return V8Response_FromBoolean(TO_CHECKED(obj->HasOwnProperty(context, key)));
 }
 
-V8Response V8Context::GetProperty(V8Handle target, XString name) {
+V8Response V8Context::GetProperty(V8Handle target, Utf16Value name) {
     V8_HANDLE_SCOPE
     Local<Value> v = target->Get(_isolate);
     // 
     if (!v->IsObject())
         return V8Response_FromError("This is not an object");
-    Local<v8::String> jsName = V8_STRING(name);
+    Local<v8::String> jsName = V8_UTF16STRING(name);
     Local<v8::Object> jsObj = TO_CHECKED(v->ToObject(context));
     Local<Value> item = TO_CHECKED(jsObj->Get(context, jsName));
     return V8Response_From(context, item);
 }
 
-V8Response V8Context::SetProperty(V8Handle target, XString name, V8Handle value) {
+V8Response V8Context::SetProperty(V8Handle target, Utf16Value name, V8Handle value) {
     V8_HANDLE_SCOPE
     Local<Value> t = target->Get(_isolate);
     Local<Value> v = value->Get(_isolate);
     // 
     if (!t->IsObject())
         return V8Response_FromError("This is not an object");
-    Local<v8::String> jsName = V8_STRING(name);
+    Local<v8::String> jsName = V8_UTF16STRING(name);
     Local<v8::Object> obj = Local<v8::Object>::Cast(t);
     TO_CHECKED(obj->Set(context, jsName, v));
     return V8Response_From(context, v);
@@ -728,12 +728,12 @@ void V8Context::OutputInspectorMessage(std::unique_ptr<v8_inspector::StringBuffe
 //    free(charMsg);
 }
 
-V8Response V8Context::DispatchDebugMessage(int len, X16String msg, bool post) {
+V8Response V8Context::DispatchDebugMessage(Utf16Value msg, bool post) {
 
     V8_CONTEXT_SCOPE
     // LogAndroid("SendDebugMessage", "Locked");
     if (inspectorClient != nullptr) {
-        v8_inspector::StringView messageView(msg, len);
+        v8_inspector::StringView messageView(msg->Value, msg->Length);
         inspectorClient->SendDebugMessage(messageView);
     }
     if (tryCatch.HasCaught()) {

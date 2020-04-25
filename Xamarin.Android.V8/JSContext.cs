@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -24,7 +25,7 @@ namespace Xamarin.Android.V8
 
     public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
 
-    internal delegate IntPtr ReadDebugMessage();
+    internal delegate Utf16Value ReadDebugMessage();
 
     internal delegate void ReadDebugMessageFromV8(
         int len,
@@ -48,6 +49,39 @@ namespace Xamarin.Android.V8
         True = 2
     }
 
+    internal class ReadMessageLock
+    {
+
+        private AutoResetEvent wait;
+        private string value;
+        public ReadMessageLock()
+        {
+
+        }
+
+        public string Read()
+        {
+            lock(this)
+            {
+                wait = new AutoResetEvent(false);
+            }
+            wait.WaitOne();
+            return value;
+        }
+
+        public bool SendIfWaiting(string message)
+        {
+            lock (this)
+            {
+                if(wait == null)
+                    return false;
+                value = message;
+                wait.Reset();
+                wait = null;
+            }
+            return true;
+        }
+    }
     public class JSContext: IJSContext, IDisposable
     {
 
@@ -111,6 +145,8 @@ namespace Xamarin.Android.V8
 
         }
 
+        private ReadMessageLock readLock = new ReadMessageLock();
+
         private JSContext(V8InspectorProtocol protocol = null)
         {
             inspectorProtocol = protocol;
@@ -130,12 +166,7 @@ namespace Xamarin.Android.V8
                 Logger?.Invoke(ls);
             };
 
-            readDebugMessage = () => {
-
-                string msg = AsyncHelpers.RunSync<string>(ReadDebugMessageAsync);
-                return Marshal.StringToAllocatedMemoryUTF8(msg);
-                
-            };
+            readDebugMessage = () => readLock.Read();
 
             receiveDebugFromV8 = (n, c8, c16) => {
                 try {
@@ -285,21 +316,16 @@ namespace Xamarin.Android.V8
             {
                 await inspectorProtocol.ConnectAsync((msg) =>
                 {
-                    lock (this)
-                    {
-                        if (readMessageTask != null)
-                        {
-                            readMessageTask.TrySetResult(msg);
-                            return;
-                        }
-                    }
+
+                    if (readLock.SendIfWaiting(msg))
+                        return;
 
                     MainThread.BeginInvokeOnMainThread(() =>
                     {
                         try
                         {
                             // System.Diagnostics.Debug.WriteLine(msg);
-                            V8Context_SendDebugMessage(context, msg.Length, msg).GetBooleanValue();
+                            V8Context_SendDebugMessage(context, msg).GetBooleanValue();
                         }
                         catch (Exception ex)
                         {
@@ -409,9 +435,7 @@ namespace Xamarin.Android.V8
             location = location ?? "vm";
             var c = V8Context_Evaluate(
                 context, 
-                script.Length, 
                 script, 
-                location.Length,
                 location).GetContainer();
             return new JSValue(this, c);
         }
@@ -568,11 +592,11 @@ namespace Xamarin.Android.V8
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateString(V8Handle context, 
-            [MarshalAs(UnmanagedType.LPUTF8Str)] string value);
+            [MarshalAs(UnmanagedType.LPStruct)] Utf16Value value);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateSymbol(V8Handle context,
-            [MarshalAs(UnmanagedType.LPUTF8Str)] string name);
+            [MarshalAs(UnmanagedType.LPStruct)] Utf16Value name);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_GetGlobal(V8Handle context); 
@@ -586,8 +610,8 @@ namespace Xamarin.Android.V8
         [DllImport(LibName)]
         internal extern static V8Response V8Context_InvokeMethod(V8Handle context,
             V8Handle target,
-            [MarshalAs(UnmanagedType.LPUTF8Str)]
-            string name,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name,
             int len,
             [MarshalAs(UnmanagedType.LPArray)]
             V8Handle[] args);
@@ -604,8 +628,8 @@ namespace Xamarin.Android.V8
         [DllImport(LibName)]
         internal extern static V8Response V8Context_DefineProperty(V8Handle context,
             V8Handle target,
-            [MarshalAs(UnmanagedType.LPUTF8Str)]
-            string name,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name,
             [MarshalAs(UnmanagedType.SysInt)]
             NullableBool configurable,
             [MarshalAs(UnmanagedType.SysInt)]
@@ -628,8 +652,8 @@ namespace Xamarin.Android.V8
         internal extern static V8Response V8Context_HasProperty(
             V8Handle context,
             IntPtr handle,
-            [MarshalAs(UnmanagedType.LPUTF8Str)]
-            string name);
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_Has(
@@ -641,8 +665,8 @@ namespace Xamarin.Android.V8
         internal extern static V8Response V8Context_DeleteProperty(
             V8Handle context,
             IntPtr handle,
-            [MarshalAs(UnmanagedType.LPUTF8Str)]
-            string name);
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_Get(
@@ -661,15 +685,15 @@ namespace Xamarin.Android.V8
         internal extern static V8Response V8Context_GetProperty(
             V8Handle context, 
             IntPtr handle, 
-            [MarshalAs(UnmanagedType.LPUTF8Str)]
-            string name);
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_SetProperty(
             V8Handle context,
             IntPtr handle,
-            [MarshalAs(UnmanagedType.LPUTF8Str)]
-            string name,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name,
             IntPtr value);
 
         [DllImport(LibName)]
@@ -692,9 +716,8 @@ namespace Xamarin.Android.V8
         [DllImport(LibName)]
         internal extern static V8Response V8Context_SendDebugMessage(
             V8Handle context,
-            int len,
-            [MarshalAs(UnmanagedType.LPWStr)]
-            string message
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value message
             );
 
         [DllImport(LibName)]
@@ -720,17 +743,15 @@ namespace Xamarin.Android.V8
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateFunction(
-            V8Handle context, IntPtr function, [MarshalAs(UnmanagedType.LPUTF8Str)]string name);
+            V8Handle context, IntPtr function, [MarshalAs(UnmanagedType.LPStruct)]Utf16Value name);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_Evaluate(
             V8Handle context,
-            int lenScript,
-            [MarshalAs(UnmanagedType.LPWStr)]
-            string script,
-            int lenLocation,
-            [MarshalAs(UnmanagedType.LPWStr)]
-            string location);
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value script,
+            [MarshalAs(UnmanagedType.LPStruct)] 
+            Utf16Value location);
 
         public void Dispose()
         {
