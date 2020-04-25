@@ -14,12 +14,19 @@ using Android.Widget;
 namespace Xamarin.Android.V8
 {
     [StructLayout(LayoutKind.Sequential)]
-    public struct CLREnv
+    internal struct CLREnv
     {
-
+        public IntPtr allocateMemory;
         public IntPtr freeMemory;
+
+        // this is for wrapped objects
+        public IntPtr freeHandle;
         public IntPtr externalCall;
-        public IntPtr debug;
+        public IntPtr logger;
+        public IntPtr WaitForDebugMessageFromProtocol;
+        public IntPtr SendDebugMessageToProtocol;
+        public IntPtr fatalErrorCallback;
 
     }
+
 }

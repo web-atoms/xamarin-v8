@@ -33,30 +33,15 @@ namespace Xamarin.Android.V8
             return new DateTime(t, DateTimeKind.Utc);
         }
 
-        internal static string ToUTF8StringFromPtr(this IntPtr utf8Ptr, bool delete = false)
-        {
-            if (utf8Ptr == IntPtr.Zero)
-            {
-                return null;
-            }
-            string s = Marshal.PtrToStringUTF8(utf8Ptr);
-            if (delete)
-            {
-                Marshal.FreeHGlobal(utf8Ptr);
-            }
-            return s;
-        }
-
         internal static void ThrowError(V8Response r)
         {
             if (r.type == V8ResponseType.Error)
             {
-                string msg = r.result.error.message.ToUTF8StringFromPtr();
-                if (r.result.error.stack != IntPtr.Zero)
+                string msg = r.stringValue;
+                if (r.result.stringValue != IntPtr.Zero)
                 {
-                    msg += "\r\n" + r.result.error.stack.ToUTF8StringFromPtr();
+                    Marshal.FreeHGlobal(r.result.stringValue);
                 }
-                JSContext.V8Context_Release(r);
                 throw new Exception(msg);
             }
         }
@@ -66,7 +51,7 @@ namespace Xamarin.Android.V8
             ThrowError(r);
             if (r.type != V8ResponseType.Handle)
             {
-                JSContext.V8Context_Release(r);
+                // JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
             return r.result.handle;
@@ -77,7 +62,7 @@ namespace Xamarin.Android.V8
             ThrowError(r);
             if (r.type != V8ResponseType.Boolean)
             {
-                JSContext.V8Context_Release(r);
+                // JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
             return r.result.booleanValue;
@@ -88,7 +73,7 @@ namespace Xamarin.Android.V8
             ThrowError(r);
             if (r.type != V8ResponseType.Integer)
             {
-                JSContext.V8Context_Release(r);
+                // JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
             return r.result.intValue;
@@ -100,10 +85,14 @@ namespace Xamarin.Android.V8
             ThrowError(r);
             if (r.type != V8ResponseType.String)
             {
-                JSContext.V8Context_Release(r);
+                // JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
             var value = r.stringValue;
+            if (r.result.stringValue != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(r.result.stringValue);
+            }
             // JSContext.V8Context_Release(r);
             return value;
         }

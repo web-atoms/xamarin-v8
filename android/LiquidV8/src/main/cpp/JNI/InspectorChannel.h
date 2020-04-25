@@ -13,34 +13,6 @@
 
 const int kInspectorClientIndex = v8::Context::kDebugIdIndex + 1;
 
-class V8OutputInspectorMessageTask: public v8::Task {
-private:
-    V8Context* context;
-    std::unique_ptr<v8_inspector::StringBuffer> message;
-public:
-
-    V8OutputInspectorMessageTask(
-            V8Context* c,
-            std::unique_ptr<v8_inspector::StringBuffer> &msg) {
-        context = c;
-        message.swap(msg);
-    }
-
-    static void Post(Isolate* isolate, std::unique_ptr<v8_inspector::StringBuffer> &buffer) {
-        V8Context* context = V8Context::From(isolate);
-        std::unique_ptr<Task> t1 =
-                std::make_unique<V8OutputInspectorMessageTask>(context, buffer);
-        context
-           ->GetPlatform()
-           ->GetForegroundTaskRunner(isolate)
-           ->PostTask(std::move(t1));
-    }
-
-    void Run() override {
-        context->OutputInspectorMessage(message);
-    }
-};
-
 class InspectorFrontend final : public v8_inspector::V8Inspector::Channel {
 public:
     explicit InspectorFrontend(V8Context* c, SendDebugMessage sendDebugMessage) {
@@ -141,27 +113,6 @@ private:
         // DCHECK_EQ(kContextGroupId, group_id);
         return context_.Get(isolate_);
     }
-
-//    static void SendInspectorMessage(
-//            const v8::FunctionCallbackInfo<v8::Value>& args) {
-//        Isolate* isolate = args.GetIsolate();
-//        v8::HandleScope handle_scope(isolate);
-//        Local<Context> context = isolate->GetCurrentContext();
-//        Context::Scope scope(context);
-//        args.GetReturnValue().Set(v8::Undefined(isolate));
-//        Local<v8::String> message = args[0]->ToString(context).ToLocalChecked();
-//        v8_inspector::V8InspectorSession* session =
-//                XV8InspectorClient::GetSession(context);
-//        int length = message->Length();
-//        std::unique_ptr<uint16_t[]> buffer(new uint16_t[length]);
-//        message->Write(isolate, buffer.get(), 0, length);
-//        v8_inspector::StringView message_view(buffer.get(), length);
-//        {
-//            v8::SealHandleScope seal_handle_scope(isolate);
-//            session->dispatchProtocolMessage(message_view);
-//        }
-//        args.GetReturnValue().Set(v8::True(isolate));
-//    }
 
     static const int kContextGroupId = 1;
 

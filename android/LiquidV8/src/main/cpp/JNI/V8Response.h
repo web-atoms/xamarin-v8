@@ -51,7 +51,7 @@ disposed by the caller by calling V8Context_Release method.
 */
     struct V8Response {
         uint8_t type;
-        X16String stringValue;
+        const uint16_t* stringValue;
         union {
             struct {
                 uint8_t handleType;
@@ -59,12 +59,13 @@ disposed by the caller by calling V8Context_Release method.
                 ClrPointer handle;
             } handle;
             struct {
-                XString message;
-                XString stack;
+                const uint16_t* message;
+                const uint16_t* stack;
             } error;
             int64_t longValue;
             int32_t intValue;
             uint8_t booleanValue;
+            const uint16_t* stringValue;
         } result;
     };
 
@@ -73,13 +74,13 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle);
 
 // V8Response V8Response_FromWrappedObject(Local<Context> context, Local<v8::External> handle);
 
-V8Response V8Response_FromError(const char* text);
+V8Response V8Response_FromError(const uint16_t * text);
 
 V8Response V8Response_FromErrorWithStack(const char* text, const char* stack);
 
 // V8Response V8Response_FromError(Local<Context> context, Local<Value> error);
 
-V8Response V8Response_ToString(Isolate* isolate, Local<v8::String> &text);
+// V8Response V8Response_ToString(Isolate* isolate, Local<v8::String> &text);
 
 V8Response V8Response_FromBoolean(bool value);
 

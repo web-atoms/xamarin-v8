@@ -36,11 +36,12 @@ namespace Xamarin.Android.V8
 
     internal delegate void JSContextLog(IntPtr text);
 
-    internal delegate void JSDeallocator(IntPtr ptr);
+    internal delegate void JSFreeMemory(IntPtr ptr);
+
+    internal delegate IntPtr JSAllocateMemory(int len);
 
     internal delegate void FatalErrorCallback(IntPtr location, IntPtr message);
 
-    internal delegate void QueueTask(IntPtr task, double delay);
 
     internal enum NullableBool: byte
     {
@@ -89,9 +90,11 @@ namespace Xamarin.Android.V8
 
         const string LibName = "liquidjs";
 
-        static JSDeallocator deAllocator;
+        static JSFreeMemory freeHandle;
+        static JSFreeMemory freeMemory;
         static FatalErrorCallback fatalErrorCallback;
         static ExternalCall externalCaller;
+        static JSAllocateMemory allocateMemory;
 
         ReadDebugMessageFromV8 receiveDebugFromV8;
         ReadDebugMessage readDebugMessage;
@@ -184,10 +187,21 @@ namespace Xamarin.Android.V8
 
             lock (creationLock)
             {
-                if (deAllocator == null)
+                if (freeHandle == null)
                 {
 
-                    deAllocator = (p) =>
+                    allocateMemory = (n) =>
+                    {
+                        IntPtr m = Marshal.AllocHGlobal(n);
+                        return m;
+                    };
+
+                    freeMemory = (n) =>
+                    {
+                        Marshal.FreeHGlobal(n);
+                    };
+
+                    freeHandle = (p) =>
                     {
                         try
                         {
@@ -235,13 +249,19 @@ namespace Xamarin.Android.V8
 
                 this.context = V8Context_Create(
                     protocol != null,
-                    logger: Marshal.GetFunctionPointerForDelegate(logger),
-                    externalCall: Marshal.GetFunctionPointerForDelegate(externalCaller),
-                    freeMemory: Marshal.GetFunctionPointerForDelegate(deAllocator),
-                    debugReceiver: Marshal.GetFunctionPointerForDelegate(readDebugMessage),
-                    receiveDebugFromV8: Marshal.GetFunctionPointerForDelegate(receiveDebugFromV8),
-                    queueTask: IntPtr.Zero,
-                    fatalErrorCallback: Marshal.GetFunctionPointerForDelegate(fatalErrorCallback));
+                    new CLREnv
+                    {
+                        allocateMemory = Marshal.GetFunctionPointerForDelegate(allocateMemory),
+                        freeMemory = Marshal.GetFunctionPointerForDelegate(freeMemory),
+
+                        freeHandle = Marshal.GetFunctionPointerForDelegate(freeHandle),
+                        externalCall = Marshal.GetFunctionPointerForDelegate(externalCaller),
+
+                        logger = Marshal.GetFunctionPointerForDelegate(logger),
+                        WaitForDebugMessageFromProtocol = Marshal.GetFunctionPointerForDelegate(readDebugMessage),
+                        SendDebugMessageToProtocol = Marshal.GetFunctionPointerForDelegate(receiveDebugFromV8),
+                        fatalErrorCallback = Marshal.GetFunctionPointerForDelegate(fatalErrorCallback)
+                    });
             }
             
             this.Undefined = new JSValue(this, V8Context_CreateUndefined(context).GetContainer());
@@ -557,13 +577,9 @@ namespace Xamarin.Android.V8
         [DllImport(LibName)]
         internal extern static V8Handle V8Context_Create(
             bool debug, 
-            IntPtr logger, 
-            IntPtr externalCall,
-            IntPtr freeMemory,
-            IntPtr debugReceiver,
-            IntPtr receiveDebugFromV8,
-            IntPtr queueTask,
-            IntPtr fatalErrorCallback);
+            [MarshalAs(UnmanagedType.LPStruct)]
+            CLREnv env
+            );
 
         [DllImport(LibName)]
         internal extern static void V8Context_Dispose(V8Handle context);

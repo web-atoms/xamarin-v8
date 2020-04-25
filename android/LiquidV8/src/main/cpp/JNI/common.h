@@ -84,8 +84,6 @@ typedef void* ClrPointer;
 
 char* CopyString(const char* msg) ;
 
-XString V8StringToXString(Isolate* isolate, Local<v8::String> &text);
-
 extern "C" { ;
 
 struct __Utf16Value {
@@ -99,11 +97,14 @@ typedef void (*FreeMemory)(void *location);
 
 typedef void (*LoggerCallback)(XString text);
 
+typedef void* (*AllocateMemory) (int length);
+
 typedef __Utf16Value (*ReadDebugMessage)();
 
 typedef void (*SendDebugMessage)(int len, X8String text, X16String text16);
 
 typedef void (*QueueTask)(void* task, double delay);
+
 
 enum NullableBool: int8_t {
     NotSet = 0,

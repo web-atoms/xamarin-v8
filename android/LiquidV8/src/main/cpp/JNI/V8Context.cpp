@@ -9,52 +9,22 @@
 #include "InspectorChannel.h"
 #include "ExternalX16String.h"
 
-//#define RETURN_EXCEPTION(e) \
-//    Local<v8::String> exToString;  \
-//    exToString = TO_CHECKED(e.Exception()->ToString(context)); \
-//    Local<v8::String> exStack = TO_CHECKED(                     \
-//            TO_CHECKED(e.StackTrace(context))->ToString(context)); \
-//    return V8Response_FromErrorWithStack(                               \
-//            V8StringToXString(_isolate, exToString),                    \
-//            V8StringToXString(_isolate, exStack));                   \
-
-
 #define RETURN_EXCEPTION(e) \
-    return FromException(context, _isolate, e, __FILE__, __LINE__);                    \
-
-V8Response FromException(Local<Context> context, Isolate* _isolate, TryCatch &tc, const char* file, const int line) {
-    HandleScope s(_isolate);
-    Local<Value> ex = tc.Exception();
-    if (ex.IsEmpty()) {
-        return V8Response_FromError("No error specified");
-    }
-    Local<v8::Object> exObj = Local<v8::Object>::Cast(ex);
-    Local<Value> st;
-    Local<v8::String> key = V8_STRING("stack");
-    if (exObj->Get(context,  key).ToLocal(&st)) {
-        Local<v8::String> stack = Checked(file, line, st->ToString(context));
-        auto utfStack = V8StringToXString(_isolate, stack);
-        return V8Response_FromError(utfStack);
-    }
-    Local<v8::String> msg = Checked(file, line, exObj->ToString(context));
-    auto utf = V8StringToXString(_isolate, msg);
-    return V8Response_FromError(utf);
-}
+    return FromException(context, e, __FILE__, __LINE__);                    \
 
 static bool _V8Initialized = false;
 
-static ExternalCall externalCall;
-static FreeMemory  freeMemory;
+static ExternalCall clrExternalCall;
+static FreeMemory  clrFreeMemory;
+static AllocateMemory clrAllocateMemory;
+
+static FreeMemory clrFreeHandle;
+
 // static TV8Platform* _platform;
 static std::unique_ptr<v8::Platform> sPlatform;
 static FatalErrorCallback fatalErrorCallback;
 void LogAndroid(const char* location, const char* message) {
     __android_log_print(ANDROID_LOG_ERROR, "V8", "%s %s", location, message);
-    // fatalErrorCallback(CopyString(location), CopyString(message));
-}
-
-void LogAndroid(const char* location, const char* message, int64_t n) {
-    __android_log_print(ANDROID_LOG_ERROR, "V8", "%d %s %s",n, location, message);
     // fatalErrorCallback(CopyString(location), CopyString(message));
 }
 
@@ -66,42 +36,32 @@ void FatalErrorLogger(Local<Message> message, Local<Value> data) {
     __android_log_print(ANDROID_LOG_ERROR, "V8", "Some Error");
 }
 
-static const int kWorkerMaxStackSize = 500 * 1024;
-
 void OnPromiseRejectCallback(PromiseRejectMessage msg) {
     LogAndroid("Promise", "Promise Rejected");
 }
 
+static __ClrEnv clrEnv;
+
 V8Context::V8Context(
         bool debug,
-        LoggerCallback loggerCallback,
-        ExternalCall  _externalCall,
-        FreeMemory _freeMemory,
-        FatalErrorCallback errorCallback,
-        ReadDebugMessage readDebugMessage,
-        ::SendDebugMessage sendDebugMessage,
-        QueueTask queueTask) {
+        ClrEnv env) {
     if (!_V8Initialized) // (the API changed: https://groups.google.com/forum/#!topic/v8-users/wjMwflJkfso)
     {
-        fatalErrorCallback = errorCallback;
+        fatalErrorCallback = env->fatalErrorCallback;
+        clrAllocateMemory = env->allocateMemory;
         V8::InitializeICU();
 
-        //?v8::V8::InitializeExternalStartupData(PLATFORM_TARGET "\\");
-        // (Startup data is not included by default anymore)
-
-        // _platform = platform::NewDefaultPlatform();
-        // _platform = new TV8Platform(queueTask);
-        // _platform = std::make_unique<TV8Platform>(p1);
         sPlatform = v8::platform::NewDefaultPlatform();
 
         V8::InitializePlatform(sPlatform.get());
 
         V8::Initialize();
-        externalCall = _externalCall;
-        freeMemory = _freeMemory;
+        clrExternalCall = env->externalCall;
+        clrFreeMemory = env->freeMemory;
+        clrFreeHandle = env->freeHandle;
         _V8Initialized = true;
     }
-    _logger = loggerCallback;
+    _logger = env->loggerCallback;
     _platform = sPlatform.get();
     Isolate::CreateParams params;
     _arrayBufferAllocator = ArrayBuffer::Allocator::NewDefaultAllocator();
@@ -164,17 +124,39 @@ V8Context::V8Context(
     _null.Reset(_isolate, v8::Null(_isolate));
 
     if (debug) {
-        _sendDebugMessage = sendDebugMessage;
         inspectorClient = new XV8InspectorClient(
                 this,
                 true,
                 sPlatform.get(),
-                readDebugMessage,
-                sendDebugMessage);
+                env->readDebugMessage,
+                env->sendDebugMessage);
     }
 
 
 }
+
+V8Response V8Context::FromException(Local<Context> &context, TryCatch &tc, const char* file, const int line) {
+    HandleScope s(_isolate);
+    Local<Value> ex = tc.Exception();
+    if (ex.IsEmpty()) {
+        return FromError("No error specified");
+    }
+    Local<v8::Object> exObj = Local<v8::Object>::Cast(ex);
+    Local<Value> st;
+    Local<v8::String> key = V8_STRING("stack");
+    V8Response r;
+    if (exObj->Get(context,  key).ToLocal(&st)) {
+        Local<v8::String> stack = Checked(file, line, st->ToString(context));
+        r = CreateStringFrom(stack);
+        r.type = V8ResponseType::Error;
+        return r;
+    }
+    Local<v8::String> msg = Checked(file, line, exObj->ToString(context));
+    r = CreateStringFrom(msg);
+    r.type = V8ResponseType::Error;
+    return r;
+}
+
 
 class V8WrappedVisitor: public PersistentHandleVisitor {
 public:
@@ -314,6 +296,25 @@ V8Response V8Context::CreateString(Utf16Value value) {
     return V8Response_From(context, r);
 }
 
+V8Response V8Context::CreateStringFrom(Local<v8::String> &value) {
+    V8Response r = {};
+    r.type = V8ResponseType::StringValue;
+    int n = value->Length();
+    if (n < 1024) {
+        // copy to internal buffer...
+        ReturnValue[n] = 0;
+        value->Write(_isolate, ReturnValue);
+        r.stringValue = ReturnValue;
+        // not allocating string here ...
+        return r;
+    }
+    uint16_t* buffer = (uint16_t*)clrAllocateMemory((n+1)*2);
+    value->Write(_isolate, buffer);
+    r.stringValue = buffer;
+    r.result.stringValue = buffer;
+    return r;
+}
+
 V8Response V8Context::CreateSymbol(Utf16Value name) {
     V8_HANDLE_SCOPE
     Local<Value> symbol = Symbol::New(_isolate, V8_UTF16STRING(name));
@@ -324,6 +325,25 @@ V8Response V8Context::CreateDate(int64_t value) {
     V8_HANDLE_SCOPE
     Local<Value> r = v8::Date::New(GetContext(), (double)value).ToLocalChecked();
     return V8Response_From(context, r);
+}
+
+V8Response V8Context::FromError(const char *msg) {
+    V8Response r = {};
+    int n = strlen(msg);
+    uint16_t* buffer;
+    if (n < 1024) {
+        buffer = ReturnValue;
+    } else {
+        buffer = (uint16_t*)clrAllocateMemory((n+1)*2);
+        r.result.stringValue = buffer;
+    }
+    for (int i = 0; i < n; ++i) {
+        buffer[i] = static_cast<uint16_t>(msg[i]);
+    }
+    buffer[n] = 0;
+    r.stringValue = buffer;
+    r.type = V8ResponseType::Error;
+    return r;
 }
 
 V8Response V8Context::DefineProperty(
@@ -340,7 +360,7 @@ V8Response V8Context::DefineProperty(
 
     Local<Value> t = target->Get(_isolate);
     if (!t->IsObject()) {
-        return V8Response_FromError("Target is not an object");
+        return FromError("Target is not an object");
     }
     Local<v8::Object> jsObj = t.As<v8::Object>();
     Local<v8::String> key = V8_UTF16STRING(name);
@@ -443,11 +463,13 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     V8Response handleArgs = V8Response_From(context, av);
     Local<Value> dv = data;
     V8Response fx = V8Response_From(context, dv);
-    V8Response r = externalCall(fx, target, handleArgs);
+    V8Response r = clrExternalCall(fx, target, handleArgs);
 
     if (r.type == V8ResponseType::Error) {
-        Local<v8::String> error = V8_STRING(r.result.error.message);
-        free(r.result.error.message);
+        // error will be sent as UTF8
+        Local<v8::String> error = V8_STRING((char*)r.result.error.message);
+        // free(r.result.error.message);
+        clrFreeMemory((void*)r.result.error.message);
         Local<Value> ex = Exception::Error(error);
         isolate->ThrowException(ex);
     } else {
@@ -505,7 +527,7 @@ V8Response V8Context::Release(V8Handle handle, bool post) {
         r.result.booleanValue = true;
         return r;
     } catch (std::exception const &ex) {
-        return V8Response_FromError(ex.what());
+        return FromError(ex.what());
     }
 }
 
@@ -514,17 +536,17 @@ V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, int len, vo
     V8_CONTEXT_SCOPE
     Local<Value> targetValue = target->Get(_isolate);
     if (targetValue.IsEmpty()) {
-        return V8Response_FromError("Target is empty");
+        return FromError("Target is empty");
     }
     if (!targetValue->IsObject()) {
-        return V8Response_FromError("Target is not an Object");
+        return FromError("Target is not an Object");
     }
     Local<v8::String> jsName = V8_UTF16STRING(name);
 
     Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
     Local<v8::Value> fxValue;
     if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
-        return V8Response_FromError("Method does not exist");
+        return FromError("Method does not exist");
     }
     Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
 
@@ -544,7 +566,7 @@ V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, int le
     V8_CONTEXT_SCOPE
     Local<Value> targetValue = target->Get(_isolate);
     if (!targetValue->IsFunction()) {
-        return V8Response_FromError("Target is not a function");
+        return FromError("Target is not a function");
     }
     Local<v8::Object> thisValueValue =
         (thisValue == nullptr || thisValue->IsEmpty())
@@ -574,7 +596,7 @@ V8Response V8Context::GetArrayLength(V8Handle target) {
     // 
     Local<Value> value = target->Get(_isolate);
     if (!value->IsArray()) {
-        return V8Response_FromError("Target is not an array");
+        return FromError("Target is not an array");
     }
     Local<v8::Array> array = Local<v8::Array>::Cast(value);
     return V8Response_FromInteger(array->Length());
@@ -590,7 +612,7 @@ V8Response V8Context::NewInstance(V8Handle target, int len, void** args) {
     V8_CONTEXT_SCOPE
     Local<Value> targetValue = target->Get(_isolate);
     if (!targetValue->IsFunction()) {
-        return V8Response_FromError("Target is not a function");
+        return FromError("Target is not a function");
     }
     Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
 
@@ -611,7 +633,7 @@ V8Response V8Context::Has(V8Handle target, V8Handle index) {
     // 
     Local<Value> value = target->Get(_isolate);
     if (!value->IsObject()) {
-        return V8Response_FromError("Target is not an object ");
+        return FromError("Target is not an object ");
     }
     Local<v8::Object> obj = Local<v8::Object>::Cast(value);
     Local<v8::Name> key = Local<v8::Name>::Cast(index->Get(_isolate));
@@ -623,7 +645,7 @@ V8Response V8Context::Get(V8Handle target, V8Handle index) {
     Local<Value> v = target->Get(_isolate);
     // 
     if (!v->IsObject())
-        return V8Response_FromError("This is not an object");
+        return FromError("This is not an object");
     Local<v8::Name> key = Local<v8::Name>::Cast(index->Get(_isolate));
     Local<v8::Object> jsObj = TO_CHECKED(v->ToObject(context));
     Local<Value> item = TO_CHECKED(jsObj->Get(context, key));
@@ -636,7 +658,7 @@ V8Response V8Context::Set(V8Handle target, V8Handle index, V8Handle value) {
     Local<Value> v = value->Get(_isolate);
     //
     if (!t->IsObject())
-        return V8Response_FromError("This is not an object");
+        return FromError("This is not an object");
     Local<v8::Name> key = Local<v8::Name>::Cast(index->Get(_isolate));
     Local<v8::Object> obj = TO_CHECKED(t->ToObject(context));
     obj->Set(context, key, v).ToChecked();
@@ -649,7 +671,7 @@ V8Response V8Context::HasProperty(V8Handle target, Utf16Value name) {
     // 
     Local<Value> value = target->Get(_isolate);
     if (!value->IsObject()) {
-        return V8Response_FromError("Target is not an object ");
+        return FromError("Target is not an object ");
     }
     Local<v8::Object> obj = TO_CHECKED(value->ToObject(context));
     Local<v8::String> key = V8_UTF16STRING(name);
@@ -661,7 +683,7 @@ V8Response V8Context::GetProperty(V8Handle target, Utf16Value name) {
     Local<Value> v = target->Get(_isolate);
     // 
     if (!v->IsObject())
-        return V8Response_FromError("This is not an object");
+        return FromError("This is not an object");
     Local<v8::String> jsName = V8_UTF16STRING(name);
     Local<v8::Object> jsObj = TO_CHECKED(v->ToObject(context));
     Local<Value> item = TO_CHECKED(jsObj->Get(context, jsName));
@@ -674,7 +696,7 @@ V8Response V8Context::SetProperty(V8Handle target, Utf16Value name, V8Handle val
     Local<Value> v = value->Get(_isolate);
     // 
     if (!t->IsObject())
-        return V8Response_FromError("This is not an object");
+        return FromError("This is not an object");
     Local<v8::String> jsName = V8_UTF16STRING(name);
     Local<v8::Object> obj = Local<v8::Object>::Cast(t);
     TO_CHECKED(obj->Set(context, jsName, v));
@@ -686,7 +708,7 @@ V8Response V8Context::GetPropertyAt(V8Handle target, int index) {
     Local<Value> v = target->Get(_isolate);
     
     if (!v->IsArray())
-        return V8Response_FromError("This is not an array");
+        return FromError("This is not an array");
     Local<v8::Object> a = TO_CHECKED(v->ToObject(context));
     Local<Value> item = TO_CHECKED(a->Get(context, (uint) index));
     return V8Response_From(context, item);
@@ -698,34 +720,10 @@ V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) 
     Local<Value> v = value->Get(_isolate);
     
     if (!t->IsArray())
-        return V8Response_FromError("This is not an array");
+        return FromError("This is not an array");
     Local<v8::Object> obj = TO_CHECKED(t->ToObject(context));
     obj->Set(context, (uint)index, v).ToChecked();
     return V8Response_From(context, v);
-}
-
-void V8Context::OutputInspectorMessage(std::unique_ptr<v8_inspector::StringBuffer> &msg) {
-    V8_CONTEXT_SCOPE
-
-//    auto string = msg->string();
-//
-//    int length = string.length();
-//    v8::Local<v8::String> message;
-//    v8::MaybeLocal<v8::String> maybeString =
-//            (string.is8Bit()
-//             ? v8::String::NewFromOneByte(
-//                            _isolate,
-//                            reinterpret_cast<const uint8_t*>(string.characters8()),
-//                            v8::NewStringType::kNormal, length)
-//             : v8::String::NewFromTwoByte(
-//                            _isolate,
-//                            reinterpret_cast<const uint16_t*>(string.characters16()),
-//                            v8::NewStringType::kNormal, length));
-//    Local<v8::String> v8Msg = TO_CHECKED(maybeString);
-//
-//    char* charMsg = V8StringToXString(_isolate, v8Msg);
-//    _sendDebugMessage(charMsg);
-//    free(charMsg);
 }
 
 V8Response V8Context::DispatchDebugMessage(Utf16Value msg, bool post) {
@@ -751,10 +749,10 @@ V8Response V8Context::ToString(V8Handle target) {
         if(!value->ToString(context).ToLocal(&vstr)) {
             RETURN_EXCEPTION(tryCatch)
         }
-        return V8Response_ToString(_isolate, vstr);
+        return CreateStringFrom(vstr);
     }
     Local<v8::String> str = Local<v8::String>::Cast(value);
-    return V8Response_ToString(_isolate, str);
+    return CreateStringFrom(str);
 }
 
 void V8External::Log(const char *msg) {
@@ -764,6 +762,6 @@ void V8External::Log(const char *msg) {
 void V8External::Release(void *data) {
     LogAndroid("V8External", "Wrapper Released");
     if (data != nullptr) {
-        freeMemory(data);
+        clrFreeHandle(data);
     }
 }

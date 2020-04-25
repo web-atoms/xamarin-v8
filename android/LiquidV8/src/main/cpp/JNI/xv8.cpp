@@ -10,16 +10,6 @@ using namespace v8;
 
 static bool _V8Initialized = false;
 
-char* CopyString (const char* msg){
-    if (msg == nullptr)
-        return nullptr;
-uint len = strlen(msg);
-char* t = (char*) malloc(len + 1);
-strcpy(t, msg);
-t[len] = 0;
-return t;
-}
-
 static CTSL::HashMap<uintptr_t,int> map;
 
 bool IsContextDisposed(V8Context* c) {
@@ -39,27 +29,20 @@ bool IsContextDisposed(V8Context* c) {
 
 LoggerCallback _logger;
 
+void LogAndroid1(const char* location, const char* message) {
+    __android_log_print(ANDROID_LOG_ERROR, "V8", "%s %s", location, message);
+    // fatalErrorCallback(CopyString(location), CopyString(message));
+}
+
 extern "C" {
 
     V8Context* V8Context_Create(
             bool debug,
-            LoggerCallback loggerCallback,
-            ExternalCall externalCall,
-            FreeMemory  freeMemory,
-            ReadDebugMessage readDebugMessage,
-            SendDebugMessage sendDebugMessage,
-            QueueTask queueTask,
-            FatalErrorCallback errorCallback) {
+            ClrEnv env) {
         V8Context*c = new V8Context(
                 debug,
-                loggerCallback,
-                externalCall,
-                freeMemory,
-                errorCallback,
-                readDebugMessage,
-                sendDebugMessage,
-                queueTask);
-        _logger = loggerCallback;
+                env);
+        _logger = env->loggerCallback;
         auto i = reinterpret_cast<std::uintptr_t>(c);
         map.insert(i, 1);
         return c;
@@ -67,11 +50,15 @@ extern "C" {
 
 
     void V8Context_Dispose(ClrPointer ctx) {
-        INIT_CONTEXT
-        auto i = reinterpret_cast<std::uintptr_t>(context);
-        map.erase(i);
-        context->Dispose();
-        delete context;
+        try {
+            INIT_CONTEXT
+            auto i = reinterpret_cast<std::uintptr_t>(context);
+            map.erase(i);
+            context->Dispose();
+            delete context;
+        } catch (...) {
+            LogAndroid1("V8", "Dispose Error");
+        }
     }
 
     V8Response V8Context_CreateString(ClrPointer ctx, Utf16Value value) {
@@ -208,16 +195,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
             ClrPointer ctx,
             Utf16Value message) {
         INIT_CONTEXT
-        try {
-            if (IsContextDisposed(context))
-                return V8Response_FromError("Context disposed");
-            return context->DispatchDebugMessage(message, true);
-        } catch (std::exception const &ex) {
-            _logger(CopyString(ex.what()));
-        } catch (...){
-            _logger(CopyString("Something went wrong"));
-        }
-        return V8Response_FromError("Something went wrong");
+        return context->DispatchDebugMessage(message, true);
     }
 
 
@@ -314,31 +292,28 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     }
 
     int V8Context_Release(V8Response r) {
-        if (r.type == V8ResponseType::Error) {
-            if (r.result.error.message != nullptr) {
-                free(r.result.error.message);
-            }
-            if (r.result.error.stack != nullptr) {
-                free(r.result.error.stack);
-            }
-        } else {
-            if (r.type == V8ResponseType::StringValue) {
-                free((void*)r.stringValue);
-            }
-        }
+//        if (r.type == V8ResponseType::Error) {
+//            if (r.result.error.message != nullptr) {
+//                free(r.result.error.message);
+//            }
+//            if (r.result.error.stack != nullptr) {
+//                free(r.result.error.stack);
+//            }
+//        } else {
+//            if (r.type == V8ResponseType::StringValue) {
+//                free((void*)r.stringValue);
+//            }
+//        }
         return 0;
     }
 
     V8Response V8Context_ReleaseHandle(ClrPointer ctx, ClrPointer h) {
         INIT_CONTEXT
-        try {
-            if (IsContextDisposed(context)) {
-                return V8Response_FromBoolean(true);
-            }
-            return context->Release(TO_HANDLE(h), true);
-        }  catch (std::exception const &ex) {
-            return V8Response_FromError(ex.what());
+        if (IsContextDisposed(context)) {
+            V8Response r = {};
+            return r;
         }
+        return context->Release(TO_HANDLE(h), true);
     }
 
 
@@ -349,13 +324,4 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
 
 }
 
-XString V8StringToXString(Isolate* isolate, Local<v8::String> &text) {
-    if (text.IsEmpty())
-        return nullptr;
-    int len = text->Utf8Length(isolate);
-    char *atext = (char*)malloc((uint)len + 1);
-    text->WriteUtf8(isolate, atext, len);
-    atext[len] = 0;
-    return atext;
-}
 

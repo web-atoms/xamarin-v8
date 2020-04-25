@@ -8,15 +8,14 @@
 V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
 {
     V8Response v = {};
+    if (handle.IsEmpty()) {
+        return v;
+    }
+
     v.type = V8ResponseType::Handle;
 
     Isolate* isolate = context->GetIsolate();
     HandleScope hs(isolate);
-
-    if (handle.IsEmpty()) {
-        return V8Response_FromError("Unexpected empty value");
-    }
-
 
     // for handle, we need to set the type..
     if (handle->IsUndefined()) {
@@ -85,67 +84,11 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
     return v;
 }
 
-V8Response V8Response_FromError(const char* text) {
+V8Response V8Response_FromError(uint16_t* error) {
     V8Response r = {};
     r.type = V8ResponseType ::Error;
-    r.result.error.message = CopyString(text);
+    r.result.error.message = error;
     return r;
-}
-
-V8Response V8Response_FromErrorWithStack(const char* text, const char* stack) {
-    V8Response r = {};
-    r.type = V8ResponseType ::Error;
-    r.result.error.message = CopyString(text);
-    r.result.error.stack = stack == nullptr ? nullptr : CopyString(stack);
-    return r;
-}
-
-//V8Response V8Response_FromWrappedObject(Local<Context> context, Local<External> handle) {
-//    V8Response v = {};
-//    v.type = V8ResponseType::Handle;
-//    V8Handle h = new Global<Value>();
-//    h->Reset(context->GetIsolate(), handle);
-//    v.result.handle.handleType = V8HandleType::Wrapped;
-//    v.result.handle.handle = h;
-//    v.result.handle.value.refValue = handle->Value();
-//    return v;
-//}
-
-
-
-//V8Response V8Response_FromError(Local<Context> context, Local<Value> error) {
-//    V8Response v = V8Response();
-//    v.type = V8ResponseType::Error;
-//    Isolate* isolate = context->GetIsolate();
-//    MaybeLocal<v8::Object> obj = error->ToObject(context);
-//    Local<v8::Object> local = obj.ToLocalChecked();
-//    Local<v8::Name> name = v8::String::NewFromUtf8(isolate, "stack", NewStringType::kNormal)
-//            .ToLocalChecked();
-//    if (local->HasOwnProperty(context, name).ToChecked()) {
-//        Local<v8::Value> stack = local->Get(context, name).ToLocalChecked();
-//        Local<v8::String> stackString = stack->ToString(context).ToLocalChecked();
-//        v.result.error.stack = V8StringToXString(isolate, stackString);
-//    }
-//    else {
-//        v.result.error.stack = nullptr;
-//    }
-//    Local<v8::String> msg = local->ToString(context).ToLocalChecked();
-//    v.result.error.message = V8StringToXString(isolate, msg);
-//    return v;
-//}
-
-V8Response V8Response_ToString(Isolate* isolate, Local<v8::String> &text) {
-    V8Response v = V8Response();
-    v.type = V8ResponseType::StringValue;
-    // Local<v8::String> s = value->ToString(context).ToLocalChecked();
-    int n = text->Length();
-
-    int size = (n + 1)*2;
-    uint16_t* data = (uint16_t*)malloc(size);
-    data[n] = 0;
-    text->Write(isolate, data);
-    v.stringValue = data;
-    return v;
 }
 
 V8Response V8Response_FromBoolean(bool value) {

@@ -15,6 +15,25 @@ class V8Response;
 
 typedef V8Response(*ExternalCall)(V8Response fx, V8Response target, V8Response args);
 
+extern "C" {
+    struct __ClrEnv {
+        AllocateMemory allocateMemory;
+        FreeMemory freeMemory;
+
+        // release wrapped handle...
+        FreeMemory freeHandle;
+
+        ExternalCall externalCall;
+        LoggerCallback loggerCallback;
+        // wait for debug message
+        ReadDebugMessage readDebugMessage;
+        SendDebugMessage sendDebugMessage;
+        FatalErrorCallback fatalErrorCallback;
+    };
+
+    typedef __ClrEnv *ClrEnv;
+}
+
 class V8Context {
 protected:
     Platform* _platform;
@@ -25,13 +44,24 @@ protected:
     Global<v8::Value> _undefined;
     Global<v8::Value> _null;
     XV8InspectorClient* inspectorClient;
-    SendDebugMessage _sendDebugMessage;
+
+    std::vector<__Utf16Value> dirtyStrings;
+
+    // try to reuse buffer... if value below 1024 for most cases it will be
+    uint16_t ReturnValue[1024];
+
     // delete array allocator
     ArrayBuffer::Allocator* _arrayBufferAllocator;
 
     LoggerCallback _logger;
 
 public:
+
+    V8Response CreateStringFrom(Local<v8::String> &value);
+
+    V8Response FromException(Local<Context> &context, TryCatch &tc, const char* file, const int line);
+
+    V8Response FromError(const char* msg);
 
     inline Platform* GetPlatform() {
         return _platform;
@@ -53,13 +83,8 @@ public:
 
     V8Context(
             bool debug,
-            LoggerCallback loggerCallback,
-            ExternalCall externalCall,
-            FreeMemory freeMemory,
-            FatalErrorCallback errorCallback,
-            ReadDebugMessage readDebugMessage,
-            SendDebugMessage sendDebugMessage,
-            QueueTask queueTask);
+            ClrEnv env
+            );
     void Dispose();
 
     V8Response Release(V8Handle handle, bool post);
@@ -104,16 +129,6 @@ public:
     V8Response Wrap(void* value);
     V8Response ToString(V8Handle target);
     V8Response GC();
-
-    void OutputInspectorMessage(std::unique_ptr<v8_inspector::StringBuffer> &message);
-
-//    std::shared_ptr<TaskRunner> foregroundTaskRunner;
-//    std::shared_ptr<TaskRunner> backgroundTaskRunner;
-//    std::shared_ptr<TaskRunner> workerTaskRunner;
-
-//    void PostBackgroundTask(std::unique_ptr<Task> task);
-//    void PostForegroundTask(std::unique_ptr<Task> task);
-//    void PostWorkerTask(std::unique_ptr<Task> task);
 
 private:
 

@@ -28,8 +28,9 @@ namespace Xamarin.Android.V8
         [FieldOffset(0)]
         public Int64 longValue;
 
-        //[FieldOffset(0)]
-        //public IntPtr stringValue;
+        // Actual Pointer value to be used to delete string
+        [FieldOffset(0)]
+        public IntPtr stringValue;
 
         [FieldOffset(0)]
         public bool booleanValue;
