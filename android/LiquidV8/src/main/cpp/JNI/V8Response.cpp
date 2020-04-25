@@ -25,7 +25,12 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
     else if (handle->IsNull()) {
         v.result.handle.handleType = V8HandleType::Null;
     }
-    else if (handle->IsString() || handle->IsStringObject()) {
+    else if (handle->IsString()) {
+        v.result.handle.handleType = V8HandleType::String;
+        Local<v8::String> vstr = Local<v8::String>::Cast(handle);
+        v8::String::Value value(isolate, vstr);
+        v.stringValue = *value;
+    } else if (handle->IsStringObject()) {
         v.result.handle.handleType = V8HandleType::String;
     }
     else if (handle->IsBoolean() || handle->IsBooleanObject()) {
@@ -129,11 +134,11 @@ V8Response V8Response_FromErrorWithStack(const char* text, const char* stack) {
 //    return v;
 //}
 
-V8Response V8Response_ToString(XString text) {
+V8Response V8Response_ToString(X16String text) {
     V8Response v = V8Response();
     v.type = V8ResponseType::StringValue;
     // Local<v8::String> s = value->ToString(context).ToLocalChecked();
-    v.result.stringValue = text;
+    v.stringValue = text;
     return v;
 }
 

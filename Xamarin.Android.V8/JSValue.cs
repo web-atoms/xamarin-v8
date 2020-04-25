@@ -12,11 +12,13 @@ namespace Xamarin.Android.V8
         readonly JSContext jsContext;
         readonly V8Handle context;
         internal V8HandleContainer handle;
-        internal JSValue(JSContext context, V8HandleContainer handle)
+        private string stringValue;
+        internal JSValue(JSContext context, V8Response r)
         {
             this.jsContext = context;
             this.context = context.context;
-            this.handle = handle;
+            this.handle = r.result.handle;
+            stringValue = r.stringValue;
         }
 
         public IJSValue CreateNewInstance(params IJSValue[] args) {
@@ -225,10 +227,15 @@ namespace Xamarin.Android.V8
             return base.Equals(obj);
         }
 
+
         public override string ToString()
         {
             if (this.IsUndefined) return "Undefined";
             if (this.IsValueNull) return "Null";
+            if (this.IsString)
+            {
+                return stringValue ?? JSContext.V8Context_ToString(context, handle.handle).GetString();
+            }
             if (this.IsObject || this.IsString)
             {
                 return JSContext.V8Context_ToString(context, handle.handle).GetString();

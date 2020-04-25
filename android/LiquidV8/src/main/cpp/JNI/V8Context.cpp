@@ -265,7 +265,7 @@ void V8Context::Dispose() {
         wrapField.Reset();
         // cc->Exit();
     }
-    // _isolate->Exit();
+    _isolate->Exit();
     _isolate->Dispose();
     // delete _isolate;
     delete _arrayBufferAllocator;
@@ -751,10 +751,12 @@ V8Response V8Context::ToString(V8Handle target) {
         if(!value->ToString(context).ToLocal(&vstr)) {
             RETURN_EXCEPTION(tryCatch)
         }
-        return V8Response_ToString(V8StringToXString(_isolate, vstr));
+        v8::String::Value v(_isolate, vstr);
+        return V8Response_ToString(*v);
     }
     Local<v8::String> str = Local<v8::String>::Cast(value);
-    return V8Response_ToString(V8StringToXString(_isolate, str));
+    v8::String::Value strv(_isolate, str);
+    return V8Response_ToString(*strv);
 }
 
 void V8External::Log(const char *msg) {

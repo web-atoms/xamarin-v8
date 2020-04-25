@@ -70,12 +70,12 @@ namespace DroidV8Test.Droid
                 Assert.Equal(a.IntValue, 9);
             }
 
-            //this.RunOnUiThread(async () =>
-            //{
+            this.RunOnUiThread(async () =>
+            {
 
-            //    await BaseTest.RunAll();
+                await BaseTest.RunAll();
 
-            //});
+            });
 
         }
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)

@@ -61,7 +61,7 @@ namespace Xamarin.Android.V8
             }
         }
 
-        internal static V8HandleContainer GetContainer(this V8Response r)
+        internal static V8Response GetContainer(this V8Response r)
         {
             ThrowError(r);
             if (r.type != V8ResponseType.Handle)
@@ -69,7 +69,7 @@ namespace Xamarin.Android.V8
                 JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
-            return r.result.handle;
+            return r;
         }
 
         internal static bool GetBooleanValue(this V8Response r)
@@ -103,7 +103,7 @@ namespace Xamarin.Android.V8
                 JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
-            return r.result.stringValue.ToUTF8StringFromPtr(true);
+            return r.stringValue;
         }
     }
 }

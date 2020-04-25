@@ -17,8 +17,8 @@ namespace Xamarin.Android.V8
         [FieldOffset(0)]
         public Int64 longValue;
 
-        [FieldOffset(0)]
-        public IntPtr stringValue;
+        //[FieldOffset(0)]
+        //public IntPtr stringValue;
 
         [FieldOffset(0)]
         public bool booleanValue;
@@ -36,6 +36,9 @@ namespace Xamarin.Android.V8
     {
         [MarshalAs(UnmanagedType.SysInt)]
         public V8ResponseType type;
+
+        [MarshalAs(UnmanagedType.LPWStr)]
+        public string stringValue;
 
         public V8ResponseResult result;
 

@@ -51,6 +51,7 @@ disposed by the caller by calling V8Context_Release method.
 */
     struct V8Response {
         uint8_t type;
+        X16String stringValue;
         union {
             struct {
                 uint8_t handleType;
@@ -61,7 +62,6 @@ disposed by the caller by calling V8Context_Release method.
                 XString message;
                 XString stack;
             } error;
-            XString stringValue;
             int64_t longValue;
             int32_t intValue;
             uint8_t booleanValue;
@@ -79,7 +79,7 @@ V8Response V8Response_FromErrorWithStack(const char* text, const char* stack);
 
 // V8Response V8Response_FromError(Local<Context> context, Local<Value> error);
 
-V8Response V8Response_ToString(XString text);
+V8Response V8Response_ToString(X16String text);
 
 V8Response V8Response_FromBoolean(bool value);
 

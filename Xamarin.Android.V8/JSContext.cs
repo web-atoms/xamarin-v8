@@ -165,17 +165,19 @@ namespace Xamarin.Android.V8
                             {
                                 g.Free();
                             }
-                        } catch (Exception ex)
+                        }
+                        catch (Exception ex)
                         {
                             System.Diagnostics.Debug.WriteLine(ex);
                         }
                     };
 
-                    externalCaller = (fx, t, a) => {
+                    externalCaller = (fx, t, a) =>
+                    {
                         try
                         {
                             var fxc = fx.GetContainer();
-                            var gc = GCHandle.FromIntPtr(fxc.value.refValue);
+                            var gc = GCHandle.FromIntPtr(fxc.result.handle.value.refValue);
                             var ffx = (CLRExternalCall)gc.Target;
                             return ffx(t, a);
                         }
@@ -198,17 +200,18 @@ namespace Xamarin.Android.V8
                     };
 
                 }
-            }
 
-            this.context = V8Context_Create(
-                protocol != null,
-                logger: Marshal.GetFunctionPointerForDelegate(logger),
-                externalCall: Marshal.GetFunctionPointerForDelegate(externalCaller),
-                freeMemory: Marshal.GetFunctionPointerForDelegate(deAllocator),
-                debugReceiver: Marshal.GetFunctionPointerForDelegate(readDebugMessage),
-                receiveDebugFromV8: Marshal.GetFunctionPointerForDelegate(receiveDebugFromV8),
-                queueTask: IntPtr.Zero,
-                fatalErrorCallback: Marshal.GetFunctionPointerForDelegate(fatalErrorCallback));
+
+                this.context = V8Context_Create(
+                    protocol != null,
+                    logger: Marshal.GetFunctionPointerForDelegate(logger),
+                    externalCall: Marshal.GetFunctionPointerForDelegate(externalCaller),
+                    freeMemory: Marshal.GetFunctionPointerForDelegate(deAllocator),
+                    debugReceiver: Marshal.GetFunctionPointerForDelegate(readDebugMessage),
+                    receiveDebugFromV8: Marshal.GetFunctionPointerForDelegate(receiveDebugFromV8),
+                    queueTask: IntPtr.Zero,
+                    fatalErrorCallback: Marshal.GetFunctionPointerForDelegate(fatalErrorCallback));
+            }
             
             this.Undefined = new JSValue(this, V8Context_CreateUndefined(context).GetContainer());
 
@@ -247,7 +250,10 @@ namespace Xamarin.Android.V8
 
             }, "setTimeout");
 
-            MainThread.InvokeOnMainThreadAsync(() => this.SetupDebugging());
+            if (protocol != null)
+            {
+                MainThread.InvokeOnMainThreadAsync(() => this.SetupDebugging());
+            }
 
         }
 
@@ -521,7 +527,7 @@ namespace Xamarin.Android.V8
         {
             if (context == IntPtr.Zero)
                 return;
-            V8Context_Dispose(context);
+            Dispose();
         }
 
         [DllImport(LibName)]

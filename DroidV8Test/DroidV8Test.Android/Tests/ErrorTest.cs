@@ -24,7 +24,7 @@ namespace DroidV8Test.Droid.Tests
                 Assert.Throw("Expecting an exception");
             } catch (Exception  ex)
             {
-                Assert.True(ex.Message.StartsWith("SyntaxError: Unterminated template literal"));
+                Assert.True(ex.Message.StartsWith("SyntaxError: Unexpected end of input"));
             }
         }
 
