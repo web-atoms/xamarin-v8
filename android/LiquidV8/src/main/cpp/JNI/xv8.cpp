@@ -322,9 +322,9 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
                 free(r.result.error.stack);
             }
         } else {
-            // if (r.type == V8ResponseType::StringValue) {
-                // free(r.result.stringValue);
-            // }
+            if (r.type == V8ResponseType::StringValue) {
+                free((void*)r.stringValue);
+            }
         }
         return 0;
     }

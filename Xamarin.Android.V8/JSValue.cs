@@ -13,12 +13,11 @@ namespace Xamarin.Android.V8
         readonly V8Handle context;
         internal V8HandleContainer handle;
         private string stringValue;
-        internal JSValue(JSContext context, V8Response r)
+        internal JSValue(JSContext context, V8HandleContainer r)
         {
             this.jsContext = context;
             this.context = context.context;
-            this.handle = r.result.handle;
-            stringValue = r.stringValue;
+            this.handle = r;
         }
 
         public IJSValue CreateNewInstance(params IJSValue[] args) {

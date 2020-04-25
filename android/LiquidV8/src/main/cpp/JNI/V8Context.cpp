@@ -751,12 +751,10 @@ V8Response V8Context::ToString(V8Handle target) {
         if(!value->ToString(context).ToLocal(&vstr)) {
             RETURN_EXCEPTION(tryCatch)
         }
-        v8::String::Value v(_isolate, vstr);
-        return V8Response_ToString(*v);
+        return V8Response_ToString(_isolate, vstr);
     }
     Local<v8::String> str = Local<v8::String>::Cast(value);
-    v8::String::Value strv(_isolate, str);
-    return V8Response_ToString(*strv);
+    return V8Response_ToString(_isolate, str);
 }
 
 void V8External::Log(const char *msg) {

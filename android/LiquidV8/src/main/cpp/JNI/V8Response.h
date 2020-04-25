@@ -79,7 +79,7 @@ V8Response V8Response_FromErrorWithStack(const char* text, const char* stack);
 
 // V8Response V8Response_FromError(Local<Context> context, Local<Value> error);
 
-V8Response V8Response_ToString(X16String text);
+V8Response V8Response_ToString(Isolate* isolate, Local<v8::String> &text);
 
 V8Response V8Response_FromBoolean(bool value);
 

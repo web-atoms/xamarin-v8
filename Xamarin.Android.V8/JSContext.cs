@@ -208,7 +208,7 @@ namespace Xamarin.Android.V8
                         try
                         {
                             var fxc = fx.GetContainer();
-                            var gc = GCHandle.FromIntPtr(fxc.result.handle.value.refValue);
+                            var gc = GCHandle.FromIntPtr(fxc.value.refValue);
                             var ffx = (CLRExternalCall)gc.Target;
                             return ffx(t, a);
                         }
