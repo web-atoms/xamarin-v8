@@ -43,7 +43,7 @@ protected:
     Global<v8::Object> _global;
     Global<v8::Value> _undefined;
     Global<v8::Value> _null;
-    XV8InspectorClient* inspectorClient;
+    XV8InspectorClient* inspectorClient = nullptr;
 
     std::vector<__Utf16Value> dirtyStrings;
 

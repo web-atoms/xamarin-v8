@@ -61,6 +61,7 @@ V8Context::V8Context(
         clrFreeHandle = env->freeHandle;
         _V8Initialized = true;
     }
+    // ReturnValue = (uint16_t*) malloc(2048);
     _logger = env->loggerCallback;
     _platform = sPlatform.get();
     Isolate::CreateParams params;
@@ -251,6 +252,7 @@ void V8Context::Dispose() {
     _isolate->Dispose();
     // delete _isolate;
     delete _arrayBufferAllocator;
+    // free(ReturnValue);
 
 }
 

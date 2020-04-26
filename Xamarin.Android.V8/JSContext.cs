@@ -162,13 +162,6 @@ namespace Xamarin.Android.V8
             };
 
 
-            fatalErrorCallback = (l, m) => {
-                string ls = l == IntPtr.Zero  ? null : Marshal.PtrToStringAuto(l);
-                string ms = m == IntPtr.Zero ? null : Marshal.PtrToStringAuto(m);
-                Logger?.Invoke(ms);
-                Logger?.Invoke(ls);
-            };
-
             readDebugMessage = () => readLock.Read();
 
             receiveDebugFromV8 = (n, c8, c16) => {
@@ -189,6 +182,17 @@ namespace Xamarin.Android.V8
             {
                 if (freeHandle == null)
                 {
+
+                    fatalErrorCallback = (l, m) => {
+                        string ls = l == IntPtr.Zero ? null : Marshal.PtrToStringAuto(l);
+                        string ms = m == IntPtr.Zero ? null : Marshal.PtrToStringAuto(m);
+                        // Logger?.Invoke(ms);
+                        // Logger?.Invoke(ls);
+
+                        System.Diagnostics.Debug.WriteLine(ms);
+                        System.Diagnostics.Debug.WriteLine(ls);
+                    };
+
 
                     allocateMemory = (n) =>
                     {

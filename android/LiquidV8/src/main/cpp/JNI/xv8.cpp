@@ -310,8 +310,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     V8Response V8Context_ReleaseHandle(ClrPointer ctx, ClrPointer h) {
         INIT_CONTEXT
         if (IsContextDisposed(context)) {
-            V8Response r = {};
-            return r;
+            return V8Response_FromBoolean(true);
         }
         return context->Release(TO_HANDLE(h), true);
     }
