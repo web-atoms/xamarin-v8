@@ -229,21 +229,16 @@ namespace Xamarin.Android.V8
 
         public override string ToString()
         {
-            if (this.IsUndefined) return "Undefined";
-            if (this.IsValueNull) return "Null";
-            if (this.IsString)
+            switch (handle.handleType)
             {
-                // this  is the case when String is a StringObject, we need to call .toString on it
-                return stringValue ?? JSContext.V8Context_ToString(context, handle.handle).GetString();
+                case V8HandleType.Undefined: return "Undefined";
+                case V8HandleType.Null: return "Null";
+                case V8HandleType.Boolean: return this.handle.value.boolValue.ToString();
+                case V8HandleType.Integer: return this.handle.value.intValue.ToString();
+                case V8HandleType.BigInt: return this.handle.value.longValue.ToString();
+                case V8HandleType.Number: return this.handle.value.doubleValue.ToString();
             }
-            if (this.IsObject)
-            {
-                return JSContext.V8Context_ToString(context, handle.handle).GetString();
-                //return "";
-            }
-            if (this.IsBoolean) return this.BooleanValue.ToString();
-            if (this.IsNumber) return this.DoubleValue.ToString();
-            return base.ToString();
+            return JSContext.V8Context_ToString(context, handle.handle).GetString();
         }
 
         ~JSValue()
