@@ -380,7 +380,9 @@ V8Response V8Context::DefineProperty(
         }
 
         if (!jsObj->DefineProperty(context, key, pd).ToChecked()) {
-            RETURN_EXCEPTION(tryCatch)
+            if (tryCatch.HasCaught()) {
+                RETURN_EXCEPTION(tryCatch)
+            }
         }
 
     } else {
@@ -402,7 +404,9 @@ V8Response V8Context::DefineProperty(
         }
 
         if (!jsObj->DefineProperty(context, key, pd).ToChecked()) {
-            RETURN_EXCEPTION(tryCatch)
+            if (tryCatch.HasCaught()) {
+                RETURN_EXCEPTION(tryCatch)
+            }
         }
     }
 
