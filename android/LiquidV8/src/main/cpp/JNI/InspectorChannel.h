@@ -57,15 +57,15 @@ public:
             V8Context* vc,
             bool connect,
             v8::Platform* platform,
-            ReadDebugMessage readDebugMessage,
-            SendDebugMessage sendDebugMessage)
+            ClrEnv env)
     :v8_inspector::V8InspectorClient()
     {
         if (!connect) return;
-        readDebugMessage_ = readDebugMessage;
+        readDebugMessage_ = env->readDebugMessage;
+        breakPauseOn_ = env->breakPauseOn;
         platform_ = platform;
         isolate_ = vc->GetIsolate();
-        channel_.reset(new InspectorFrontend(vc, sendDebugMessage));
+        channel_.reset(new InspectorFrontend(vc, env->sendDebugMessage));
         inspector_ = v8_inspector::V8Inspector::create(isolate_, this);
         session_ =
                 inspector_->connect(1, channel_.get(), v8_inspector::StringView());
@@ -85,6 +85,7 @@ public:
 
 
         terminated_ = false;
+        breakPauseOn_(true);
         running_nested_loop_ = true;
         while (!terminated_) {
             auto dm = readDebugMessage_();
@@ -99,6 +100,7 @@ public:
 
     void quitMessageLoopOnPause() override {
         terminated_ = true;
+        breakPauseOn_(false);
     }
 
     inline void SendDebugMessage(v8_inspector::StringView &messageView) {
@@ -125,6 +127,7 @@ private:
     bool running_nested_loop_;
     bool terminated_;
     ReadDebugMessage readDebugMessage_;
+    BreakPauseOn  breakPauseOn_;
 };
 
 #endif //ANDROID_INSPECTORCHANNEL_H

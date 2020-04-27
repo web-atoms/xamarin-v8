@@ -27,6 +27,8 @@ namespace Xamarin.Android.V8
         public IntPtr SendDebugMessageToProtocol;
         public IntPtr fatalErrorCallback;
 
+        public IntPtr breakPauseOn;
+
     }
 
 }

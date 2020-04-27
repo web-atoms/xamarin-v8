@@ -129,8 +129,7 @@ V8Context::V8Context(
                 this,
                 true,
                 sPlatform.get(),
-                env->readDebugMessage,
-                env->sendDebugMessage);
+                env);
     }
 
 

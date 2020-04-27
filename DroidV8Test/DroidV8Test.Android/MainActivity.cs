@@ -57,7 +57,7 @@ namespace DroidV8Test.Droid
 
             // jc.Evaluate(@"new Promise(function(r,e) {})");
 
-            using (var j = new JSContext())
+            using (var j = new JSContext(true))
             {
                 j["a"] = j.CreateString("Akash");
                 j["k"] = j.CreateString("Kava");
@@ -68,6 +68,7 @@ namespace DroidV8Test.Droid
                 var a = j.Evaluate("4 + n5");
                 Assert.True(a.IsNumber);
                 Assert.Equal(a.IntValue, 9);
+
             }
 
             this.RunOnUiThread(async () =>

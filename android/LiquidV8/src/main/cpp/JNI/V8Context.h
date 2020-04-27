@@ -16,6 +16,9 @@ class V8Response;
 typedef V8Response(*ExternalCall)(V8Response fx, V8Response target, V8Response args);
 
 extern "C" {
+
+    typedef void (*BreakPauseOn)(bool value);
+
     struct __ClrEnv {
         AllocateMemory allocateMemory;
         FreeMemory freeMemory;
@@ -29,6 +32,8 @@ extern "C" {
         ReadDebugMessage readDebugMessage;
         SendDebugMessage sendDebugMessage;
         FatalErrorCallback fatalErrorCallback;
+
+        BreakPauseOn breakPauseOn;
     };
 
     typedef __ClrEnv *ClrEnv;

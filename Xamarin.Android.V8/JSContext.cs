@@ -42,6 +42,8 @@ namespace Xamarin.Android.V8
 
     internal delegate void FatalErrorCallback(IntPtr location, IntPtr message);
 
+    internal delegate void BreakPauseOn(bool boolSwitch);
+
 
     internal enum NullableBool: byte
     {
@@ -65,9 +67,13 @@ namespace Xamarin.Android.V8
             AutoResetEvent w;
             lock(this)
             {
-                w = wait = new AutoResetEvent(false);
+                w = wait;
             }
+            if (w == null)
+                return "{}";
+            
             w.WaitOne();
+            w.Reset();
             return value;
         }
 
@@ -78,10 +84,22 @@ namespace Xamarin.Android.V8
                 if(wait == null)
                     return false;
                 value = message;
-                wait.Reset();
-                wait = null;
+                wait.Set();
             }
             return true;
+        }
+        public void Turn(bool b)
+        {
+            lock(this)
+            {
+                if (b)
+                {
+                    wait = new AutoResetEvent(false);
+                } else
+                {
+                    wait = null;
+                }
+            }
         }
     }
     public class JSContext: IJSContext, IDisposable
@@ -100,6 +118,7 @@ namespace Xamarin.Android.V8
         ReadDebugMessageFromV8 receiveDebugFromV8;
         ReadDebugMessage readDebugMessage;
         JSContextLog logger;
+        BreakPauseOn breakPauseOn;
 
 
         public Action<string> Logger { get; set; }
@@ -164,6 +183,8 @@ namespace Xamarin.Android.V8
 
 
             readDebugMessage = () => readLock.Read();
+
+            breakPauseOn = (b) => readLock.Turn(b);
 
             receiveDebugFromV8 = (n, c8, c16) => {
                 try {
@@ -265,7 +286,9 @@ namespace Xamarin.Android.V8
                         logger = Marshal.GetFunctionPointerForDelegate(logger),
                         WaitForDebugMessageFromProtocol = Marshal.GetFunctionPointerForDelegate(readDebugMessage),
                         SendDebugMessageToProtocol = Marshal.GetFunctionPointerForDelegate(receiveDebugFromV8),
-                        fatalErrorCallback = Marshal.GetFunctionPointerForDelegate(fatalErrorCallback)
+                        fatalErrorCallback = Marshal.GetFunctionPointerForDelegate(fatalErrorCallback),
+
+                        breakPauseOn = Marshal.GetFunctionPointerForDelegate(breakPauseOn)
                     });
             }
             
