@@ -12,7 +12,6 @@ namespace Xamarin.Android.V8
         readonly JSContext jsContext;
         readonly V8Handle context;
         internal V8HandleContainer handle;
-        private string stringValue;
         internal JSValue(JSContext context, V8HandleContainer r)
         {
             this.jsContext = context;
@@ -135,10 +134,10 @@ namespace Xamarin.Android.V8
         /// <summary>
         /// Since number of elements can change, we need to retrive value from v8
         /// </summary>
-        public int Length =>
-            this.IsArray ?
-            JSContext.V8Context_GetArrayLength(context, handle.handle).GetIntegerValue()
-            : 0;
+        public int Length {
+            get => this.IsArray ? JSContext.V8Context_GetArrayLength(context, handle.handle).GetIntegerValue() : 0;
+            set => this["length"] = jsContext.CreateNumber(value);
+        }
 
         public long LongValue => this.handle.value.longValue;
 

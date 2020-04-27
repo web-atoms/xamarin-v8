@@ -62,11 +62,12 @@ namespace Xamarin.Android.V8
 
         public string Read()
         {
+            AutoResetEvent w;
             lock(this)
             {
-                wait = new AutoResetEvent(false);
+                w = wait = new AutoResetEvent(false);
             }
-            wait.WaitOne();
+            w.WaitOne();
             return value;
         }
 
