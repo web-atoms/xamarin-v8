@@ -66,6 +66,19 @@ As V8 Engine has its own representation of native types, you need to create them
    context["console"].InvokeMethod("log", jsNumber);
 ```
 
+# Evaluate Template
+
+```c#
+
+   // clr object
+   var s = "Akash";
+
+   context.EvaluateTemplate($"console.log({s})");
+
+```
+
+This method serializes every clr object input as IJSValue by doing `Wrap` serialization. You can however serialize and then send object as parameter to templated string. It will store all object in global and evaluate JavaScript, you do not have to worry about the escape as each input is serialized and they are substituted as parameter to placeholders.
+
 # Serialize C# Object
 
 When you use method `context.Convert` method to automatically create native JS values from native types, it will only wrap C# custom object, you cannot call any method or access property from JavaScript on wrapped object. This is done to improve performance. So when you pass C# objects in and out, engine will not create methods and properties on them.
