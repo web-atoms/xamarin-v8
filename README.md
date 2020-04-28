@@ -1,3 +1,5 @@
+[![NuGet](https://img.shields.io/nuget/v/Xamarin.Android.V8.svg?label=NuGet)](https://www.nuget.org/packages/Xamarin.Android.V8)
+
 # Xamarin V8 Bindings
 V8 Bindings for Xamarin for Android
 
