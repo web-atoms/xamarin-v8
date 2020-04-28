@@ -139,6 +139,8 @@ namespace Xamarin.Android.V8
 
         public IJSValue this[string name] { get => this.Global[name]; set => this.Global[name] = value; }
 
+        public IJSValue this[IJSValue name] { get => this.Global[name]; set => this.Global[name] = value; }
+
         internal IJSValue WrappedSymbol { get; }
 
         private V8InspectorProtocol inspectorProtocol;
@@ -668,6 +670,9 @@ namespace Xamarin.Android.V8
             int len,
             [MarshalAs(UnmanagedType.LPArray)]
             V8Handle[] args);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_IsInstanceOf(V8Handle context, V8Handle target, V8Handle jsClass);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_DefineProperty(V8Handle context,

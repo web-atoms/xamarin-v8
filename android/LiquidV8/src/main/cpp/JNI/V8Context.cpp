@@ -596,6 +596,16 @@ V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, int le
     return V8Response_From(context, result);
 }
 
+V8Response V8Context::IsInstanceOf(V8Handle target, V8Handle jsClass) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    Local<v8::Object> targetObj = TO_CHECKED(targetValue->ToObject(context));
+    Local<Value> classValue = jsClass->Get(_isolate);
+    Local<v8::Object> classObj = TO_CHECKED(targetObj->ToObject(context));
+    bool v = TO_CHECKED(targetObj->InstanceOf(context, classObj));
+    return V8Response_FromBoolean(v);
+}
+
 V8Response V8Context::GetArrayLength(V8Handle target) {
     V8_HANDLE_SCOPE
     // 

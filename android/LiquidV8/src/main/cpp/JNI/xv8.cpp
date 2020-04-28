@@ -182,6 +182,11 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
                 TO_HANDLE(target), name, len, args);
     }
 
+    V8Response V8Context_IsInstanceOf(ClrPointer ctx, ClrPointer target, ClrPointer jsClass) {
+        INIT_CONTEXT
+        return context->IsInstanceOf(TO_HANDLE(target), TO_HANDLE(jsClass));
+    }
+
     V8Response V8Context_Has(
             ClrPointer ctx,
             ClrPointer  target,

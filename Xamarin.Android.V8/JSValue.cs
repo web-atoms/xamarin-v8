@@ -281,6 +281,11 @@ namespace Xamarin.Android.V8
             return new JSValue(jsContext, r);
         }
 
+        public bool InstanceOf(IJSValue jsClass)
+        {
+            return JSContext.V8Context_IsInstanceOf(context, handle.handle, jsClass.ToHandle(jsContext)).GetBooleanValue();
+        }
+
         public IList<IJSValue> ToArray()
         {
             return new AtomEnumerable(this);

@@ -118,6 +118,7 @@ public:
     V8Response Evaluate(Utf16Value script,Utf16Value location);
     V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, void** args);
     V8Response InvokeMethod(V8Handle target, Utf16Value name, int len, void** args);
+    V8Response IsInstanceOf(V8Handle target, V8Handle jsClass);
     V8Response Equals(V8Handle left, V8Handle right);
     V8Response GetGlobal();
     V8Response GetArrayLength(V8Handle target);
