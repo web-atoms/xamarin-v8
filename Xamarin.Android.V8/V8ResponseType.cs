@@ -6,9 +6,12 @@ namespace Xamarin.Android.V8
     internal enum V8ResponseType : byte
     {
         Error = 0,
-        Handle = 1,
-        String = 2,
-        Boolean = 3,
-        Integer = 4
+        ConstError = 1,
+        Handle = 2,
+        String = 3,
+        ConstString = 4,
+        Boolean = 5,
+        Integer = 6,
+        Array = 7
     }
 }

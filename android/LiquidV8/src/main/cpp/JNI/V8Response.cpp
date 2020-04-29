@@ -84,13 +84,6 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
     return v;
 }
 
-V8Response V8Response_FromError(uint16_t* error) {
-    V8Response r = {};
-    r.type = V8ResponseType ::Error;
-    r.result.error.message = error;
-    return r;
-}
-
 V8Response V8Response_FromBoolean(bool value) {
     V8Response v = {};
     v.type = V8ResponseType::BooleanValue;

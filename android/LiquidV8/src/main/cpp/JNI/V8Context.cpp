@@ -148,12 +148,20 @@ V8Response V8Context::FromException(Local<Context> &context, TryCatch &tc, const
     if (exObj->Get(context,  key).ToLocal(&st)) {
         Local<v8::String> stack = Checked(file, line, st->ToString(context));
         r = CreateStringFrom(stack);
-        r.type = V8ResponseType::Error;
+        if (r.type == V8ResponseType::ConstStringValue) {
+            r.type = V8ResponseType::ConstError;
+        } else {
+            r.type = V8ResponseType::Error;
+        }
         return r;
     }
     Local<v8::String> msg = Checked(file, line, exObj->ToString(context));
     r = CreateStringFrom(msg);
-    r.type = V8ResponseType::Error;
+    if (r.type == V8ResponseType::ConstStringValue) {
+        r.type = V8ResponseType::ConstError;
+    } else {
+        r.type = V8ResponseType::Error;
+    }
     return r;
 }
 
@@ -301,18 +309,21 @@ V8Response V8Context::CreateStringFrom(Local<v8::String> &value) {
     V8Response r = {};
     r.type = V8ResponseType::StringValue;
     int n = value->Length();
+    r.result.array.length = n;
     if (n < 1024) {
+
+        // should not be deallocated by receiver...
+        r.type = V8ResponseType ::ConstStringValue;
         // copy to internal buffer...
         ReturnValue[n] = 0;
         value->Write(_isolate, ReturnValue);
-        r.stringValue = ReturnValue;
+        r.result.array.stringValue = ReturnValue;
         // not allocating string here ...
         return r;
     }
     uint16_t* buffer = (uint16_t*)clrAllocateMemory((n+1)*2);
     value->Write(_isolate, buffer);
-    r.stringValue = buffer;
-    r.result.stringValue = buffer;
+    r.result.array.stringValue = buffer;
     return r;
 }
 
@@ -330,20 +341,22 @@ V8Response V8Context::CreateDate(int64_t value) {
 
 V8Response V8Context::FromError(const char *msg) {
     V8Response r = {};
+    r.type = V8ResponseType::Error;
     int n = strlen(msg);
     uint16_t* buffer;
     if (n < 1024) {
         buffer = ReturnValue;
+        r.type = V8ResponseType::ConstError;
     } else {
         buffer = (uint16_t*)clrAllocateMemory((n+1)*2);
-        r.result.stringValue = buffer;
+        r.result.array.stringValue = buffer;
     }
     for (int i = 0; i < n; ++i) {
         buffer[i] = static_cast<uint16_t>(msg[i]);
     }
     buffer[n] = 0;
-    r.stringValue = buffer;
-    r.type = V8ResponseType::Error;
+    r.result.array.length = n;
+    r.result.array.stringValue = buffer;
     return r;
 }
 
@@ -458,23 +471,31 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     Local<Value> data = args.Data();
 
     uint32_t n = (uint)args.Length();
-    Local<v8::Array> a = v8::Array::New(isolate, n);
+    std::vector<V8Handle> paramList(n);
+    // Local<v8::Array> a = v8::Array::New(isolate, n);
     for (uint32_t i = 0; i < n; i++) {
-        a->Set(context, i, args[i]).ToChecked();
+        // a->Set(context, i, args[i]).ToChecked();
+        V8Handle g = new Global<Value>();
+        g->SetWrapperClassId(WRAPPED_CLASS);
+        g->Reset(_isolate, args[i]);
+        paramList.push_back(g);
     }
     Local<Value> _this = args.This();
     V8Response target = V8Response_From(context, _this);
-    Local<Value> av = a;
-    V8Response handleArgs = V8Response_From(context, av);
+    // Local<Value> av = a;
+    V8Response handleArgs = {};
+    handleArgs.type = V8ResponseType::ArrayValue;
+    handleArgs.result.array.arrayValue = paramList.data();
+    handleArgs.result.array.length = n;
     Local<Value> dv = data;
     V8Response fx = V8Response_From(context, dv);
     V8Response r = clrExternalCall(fx, target, handleArgs);
 
     if (r.type == V8ResponseType::Error) {
         // error will be sent as UTF8
-        Local<v8::String> error = V8_STRING((char*)r.result.error.message);
+        Local<v8::String> error = V8_STRING((char*)r.result.array.stringValue);
         // free(r.result.error.message);
-        clrFreeMemory((void*)r.result.error.message);
+        clrFreeMemory((void*)r.result.array.stringValue);
         Local<Value> ex = Exception::Error(error);
         isolate->ThrowException(ex);
     } else {

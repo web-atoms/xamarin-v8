@@ -9,10 +9,13 @@
 
 enum V8ResponseType : uint8_t {
     Error = 0,
-    Handle = 1,
-    StringValue = 2,
-    BooleanValue = 3,
-    IntegerValue = 4
+    ConstError = 1,
+    Handle = 2,
+    StringValue = 3,
+    ConstStringValue = 4,
+    BooleanValue = 5,
+    IntegerValue = 6,
+    ArrayValue = 7
 };
 
 enum V8HandleType : uint8_t {
@@ -51,21 +54,20 @@ disposed by the caller by calling V8Context_Release method.
 */
     struct V8Response {
         uint8_t type;
-        const uint16_t* stringValue;
         union {
             struct {
                 uint8_t handleType;
                 V8Value value;
                 ClrPointer handle;
             } handle;
-            struct {
-                const uint16_t* message;
-                const uint16_t* stack;
-            } error;
             int64_t longValue;
             int32_t intValue;
             uint8_t booleanValue;
-            const uint16_t* stringValue;
+            struct {
+                int length;
+                const uint16_t *stringValue;
+                const V8Handle *arrayValue;
+            } array;
         } result;
     };
 
