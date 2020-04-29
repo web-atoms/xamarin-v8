@@ -437,8 +437,8 @@ namespace Xamarin.Android.V8
                 {
                     var tjs = new JSValue(this, t.GetContainer());
 
-                    var targs = new JSValue(this, a.GetContainer());
-                    var r = fx(this, targs.ToArray()) as JSValue;
+                    var targs = a.result.array.ToJSValueArray(this);
+                    var r = fx(this, targs) as JSValue;
                     return new V8Response
                     {
                         type = V8ResponseType.Handle,

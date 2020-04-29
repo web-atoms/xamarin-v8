@@ -28,10 +28,6 @@ namespace Xamarin.Android.V8
         [FieldOffset(0)]
         public Int64 longValue;
 
-        // Actual Pointer value to be used to delete string
-        [FieldOffset(0)]
-        public IntPtr stringValue;
-
         [FieldOffset(0)]
         public bool booleanValue;
 
@@ -39,8 +35,41 @@ namespace Xamarin.Android.V8
         public int intValue;
 
         [FieldOffset(0)]
-        public long AllValue;
+        public ArrayValue array;
 
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct ArrayValue
+    {
+        public int Length;
+
+        public IntPtr stringValue;
+
+        public IntPtr arrayValue;
+
+        internal unsafe JSValue[] ToJSValueArray(JSContext context)
+        {
+            uint* p = (uint*)arrayValue;
+            JSValue[] result = new JSValue[Length];
+            for (int i = 0; i < Length; i++)
+            {
+                IntPtr p1 = (IntPtr)p[i];
+                var ri = Marshal.PtrToStructure<V8Response>(p1);
+                p += IntPtr.Size;
+                result[i] = new JSValue(context, ri.GetContainer());
+            }
+            return result;
+        }
+
+        internal unsafe string String
+        {
+            get
+            {
+                char* c = (char*)stringValue;
+                return new String(c, 0, Length);
+            }
+        }
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -49,11 +78,7 @@ namespace Xamarin.Android.V8
         [MarshalAs(UnmanagedType.SysInt)]
         public V8ResponseType type;
 
-        [MarshalAs(UnmanagedType.LPWStr)]
-        public string stringValue;
-
         public V8ResponseResult result;
-
 
     }
 }

@@ -471,25 +471,27 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     Local<Value> data = args.Data();
 
     uint32_t n = (uint)args.Length();
-    std::vector<V8Handle> paramList(n);
-    // Local<v8::Array> a = v8::Array::New(isolate, n);
+    auto params = new V8Response[n];
+    std::vector<uintptr_t> paramList(n);
+    uintptr_t p1 = reinterpret_cast<uintptr_t>(params);
     for (uint32_t i = 0; i < n; i++) {
-        // a->Set(context, i, args[i]).ToChecked();
-        V8Handle g = new Global<Value>();
-        g->SetWrapperClassId(WRAPPED_CLASS);
-        g->Reset(_isolate, args[i]);
-        paramList.push_back(g);
+        Local<Value> v = args[i];
+        params[i] =V8Response_From(context, v);
+        paramList.push_back(p1);
+        p1 += sizeof(V8Response);
     }
     Local<Value> _this = args.This();
     V8Response target = V8Response_From(context, _this);
     // Local<Value> av = a;
     V8Response handleArgs = {};
     handleArgs.type = V8ResponseType::ArrayValue;
-    handleArgs.result.array.arrayValue = paramList.data();
+    handleArgs.result.array.arrayValue = (void*)paramList.data();
     handleArgs.result.array.length = n;
     Local<Value> dv = data;
     V8Response fx = V8Response_From(context, dv);
     V8Response r = clrExternalCall(fx, target, handleArgs);
+
+    free(params);
 
     if (r.type == V8ResponseType::Error) {
         // error will be sent as UTF8

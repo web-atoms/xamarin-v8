@@ -66,7 +66,7 @@ disposed by the caller by calling V8Context_Release method.
             struct {
                 int length;
                 const uint16_t *stringValue;
-                const V8Handle *arrayValue;
+                const void *arrayValue;
             } array;
         } result;
     };

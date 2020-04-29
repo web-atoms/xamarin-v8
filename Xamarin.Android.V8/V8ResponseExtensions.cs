@@ -33,16 +33,17 @@ namespace Xamarin.Android.V8
             return new DateTime(t, DateTimeKind.Utc);
         }
 
-        internal static void ThrowError(V8Response r)
+        internal unsafe static void ThrowError(V8Response r)
         {
-            if (r.type == V8ResponseType.Error)
+            if (r.type == V8ResponseType.Error || r.type == V8ResponseType.ConstError)
             {
-                string msg = r.stringValue;
-                if (r.result.stringValue != IntPtr.Zero)
+                var msg = r.result.array.stringValue;
+                var str = new String((char*)msg, 0, r.result.array.Length);
+                if (r.type == V8ResponseType.Error)
                 {
-                    Marshal.FreeHGlobal(r.result.stringValue);
+                    Marshal.FreeHGlobal(msg);
                 }
-                throw new Exception(msg);
+                throw new Exception(str);
             }
         }
 
@@ -80,21 +81,21 @@ namespace Xamarin.Android.V8
         }
 
 
-        internal static string GetString(this V8Response r)
+        internal unsafe static string GetString(this V8Response r)
         {
             ThrowError(r);
-            if (r.type != V8ResponseType.String)
+            if (!(r.type == V8ResponseType.String || r.type == V8ResponseType.ConstString))
             {
                 // JSContext.V8Context_Release(r);
                 throw new NotSupportedException();
             }
-            var value = r.stringValue;
-            if (r.result.stringValue != IntPtr.Zero)
+            var value = r.result.array.stringValue;
+            var result = r.result.array.String;
+            if (r.type == V8ResponseType.String)
             {
-                Marshal.FreeHGlobal(r.result.stringValue);
+                Marshal.FreeHGlobal(value);
             }
-            // JSContext.V8Context_Release(r);
-            return value;
+            return result;
         }
     }
 }

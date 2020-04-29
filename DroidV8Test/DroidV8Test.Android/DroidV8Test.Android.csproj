@@ -67,9 +67,6 @@
     <PackageReference Include="deniszykov.WebSocketListener">
       <Version>4.2.4</Version>
     </PackageReference>
-    <PackageReference Include="WebAtoms.Core">
-      <Version>1.4.80</Version>
-    </PackageReference>
     <PackageReference Include="Xamarin.Forms" Version="4.3.0.908675" />
     <PackageReference Include="Xamarin.Essentials" Version="1.3.1" />
   </ItemGroup>
@@ -111,9 +108,13 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Xamarin.Android.V8\Xamarin.Android.V8.Run.csproj">
+    <ProjectReference Include="..\..\..\WebAtoms.Core\WebAtoms.Core.csproj">
+      <Project>{b93a9580-f2fa-4b77-b540-6a82be9ae4fb}</Project>
+      <Name>WebAtoms.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.Android.V8\Xamarin.Android.V8.csproj">
       <Project>{9230d81f-9c6d-4962-a316-eac608f494ea}</Project>
-      <Name>Xamarin.Android.V8.Run</Name>
+      <Name>Xamarin.Android.V8</Name>
     </ProjectReference>
     <ProjectReference Include="..\DroidV8Test\DroidV8Test.csproj">
       <Project>{496DC29C-3ECE-4B4A-9EF0-436F61CF13ED}</Project>
