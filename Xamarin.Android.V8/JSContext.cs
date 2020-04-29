@@ -430,7 +430,7 @@ namespace Xamarin.Android.V8
             return new JSValue(this, V8Context_CreateDate(context, value.ToJSTime()).GetContainer());
         }
 
-        public IJSValue CreateFunction(int args, Func<IJSContext, IJSValue[], IJSValue> fx, string debugDescription)
+        public IJSValue CreateFunction(int args, Func<IJSContext, IList<IJSValue>, IJSValue> fx, string debugDescription)
         {
             CLRExternalCall efx = (t, a) => {
                 try
@@ -438,13 +438,7 @@ namespace Xamarin.Android.V8
                     var tjs = new JSValue(this, t.GetContainer());
 
                     var targs = new JSValue(this, a.GetContainer());
-                    var len = targs.Length;
-                    var al = new IJSValue[len];
-                    for (int i = 0; i < len; i++)
-                    {
-                        al[i] = targs[i];
-                    }
-                    var r = fx(this, al) as JSValue;
+                    var r = fx(this, targs.ToArray()) as JSValue;
                     return new V8Response
                     {
                         type = V8ResponseType.Handle,
