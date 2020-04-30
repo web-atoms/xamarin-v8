@@ -471,12 +471,12 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     Local<Value> data = args.Data();
 
     uint32_t n = (uint)args.Length();
-    auto params = new V8Response[n];
-    std::vector<uintptr_t> paramList(n);
-    uintptr_t p1 = reinterpret_cast<uintptr_t>(params);
+    auto params = (V8Response*)malloc(sizeof(V8Response)*n*2);
+    std::vector<V8Response*> paramList;
+    V8Response* p1 = params;
     for (uint32_t i = 0; i < n; i++) {
         Local<Value> v = args[i];
-        params[i] =V8Response_From(context, v);
+        *p1 =V8Response_From(context, v);
         paramList.push_back(p1);
         p1 += sizeof(V8Response);
     }

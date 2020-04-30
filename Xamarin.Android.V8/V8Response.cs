@@ -50,13 +50,13 @@ namespace Xamarin.Android.V8
 
         internal unsafe JSValue[] ToJSValueArray(JSContext context)
         {
-            uint* p = (uint*)arrayValue;
+            IntPtr* p = (IntPtr*)arrayValue;
             JSValue[] result = new JSValue[Length];
             for (int i = 0; i < Length; i++)
             {
-                IntPtr p1 = (IntPtr)p[i];
-                var ri = Marshal.PtrToStructure<V8Response>(p1);
-                p += IntPtr.Size;
+                IntPtr px = p[i];
+                var ri = Marshal.PtrToStructure<V8Response>(px);
+                // p += IntPtr.Size;
                 result[i] = new JSValue(context, ri.GetContainer());
             }
             return result;
