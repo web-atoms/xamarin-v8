@@ -53,10 +53,10 @@ and it will contain the value. In case of string, the response must be
 disposed by the caller by calling V8Context_Release method.
 */
     struct V8Response {
-        uint8_t type;
+        int type;
         union {
             struct {
-                uint8_t handleType;
+                int handleType;
                 V8Value value;
                 ClrPointer handle;
             } handle;
