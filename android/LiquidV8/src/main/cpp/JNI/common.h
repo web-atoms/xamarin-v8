@@ -31,24 +31,27 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
     }
     return value;
 }
-
-//#define V8_HANDLE_SCOPE \
-//    v8::Isolate::Scope isolate_scope(_isolate);\
-//    HandleScope scope(_isolate); \
-//    Local<Context> context = GetContext(); \
-//    Context::Scope context_scope(context); \
+/*
+#define V8_HANDLE_SCOPE \
+    v8::Isolate::Scope isolate_scope(_isolate);\
+    HandleScope scope(_isolate); \
+    Local<Context> context = GetContext(); \
+    Context::Scope context_scope(context); \
+*/
 
 #define V8_HANDLE_SCOPE \
     HandleScope scope(_isolate); \
     Local<Context> context = GetContext();
 
-//#define V8_CONTEXT_SCOPE \
-//    v8::Isolate::Scope isolate_scope(_isolate);\
-//    HandleScope scope(_isolate); \
-//    Local<Context> context = GetContext(); \
-//    Context::Scope context_scope(context); \
-//    TryCatch tryCatch(_isolate); \
 
+/*
+#define V8_CONTEXT_SCOPE \
+    v8::Isolate::Scope isolate_scope(_isolate);\
+    HandleScope scope(_isolate); \
+    Local<Context> context = GetContext(); \
+    Context::Scope context_scope(context); \
+    TryCatch tryCatch(_isolate); \
+*/
 
 #define V8_CONTEXT_SCOPE \
     HandleScope scope(_isolate); \

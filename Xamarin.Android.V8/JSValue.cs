@@ -11,54 +11,55 @@ namespace Xamarin.Android.V8
     {
         readonly JSContext jsContext;
         readonly V8Handle context;
-        internal V8HandleContainer handle;
-        internal JSValue(JSContext context, V8HandleContainer r)
+        internal V8Response handle;
+        internal JSValue(JSContext context, V8Response r)
         {
             this.jsContext = context;
             this.context = context.context;
+            r.ThrowError();
             this.handle = r;
         }
 
         public IJSValue CreateNewInstance(params IJSValue[] args) {
-            var r = JSContext.V8Context_NewInstance(context, handle.handle, args.Length, args.ToHandles(jsContext)).GetContainer();
+            var r = JSContext.V8Context_NewInstance(context, handle.address, args.Length, args.ToHandles(jsContext));
             return new JSValue(jsContext, r);
         }
 
         public IJSContext Context => jsContext;
 
-        public bool IsValueNull => this.handle.handleType == V8HandleType.Null;
+        public bool IsValueNull => this.handle.Type == V8HandleType.Null;
 
-        public bool IsUndefined => this.handle.handleType == V8HandleType.Undefined;
+        public bool IsUndefined => this.handle.Type == V8HandleType.Undefined;
 
-        public bool IsString => this.handle.handleType == V8HandleType.String;
+        public bool IsString => this.handle.Type == V8HandleType.String;
 
-        public bool IsObject => (handle.handleType & V8HandleType.Object) > 0;
+        public bool IsObject => (handle.Type & V8HandleType.Object) > 0;
 
-        public bool IsFunction => handle.handleType == V8HandleType.Function;
+        public bool IsFunction => handle.Type == V8HandleType.Function;
 
-        public bool IsDate => handle.handleType == V8HandleType.Date;
+        public bool IsDate => handle.Type == V8HandleType.Date;
 
-        public bool IsNumber => (handle.handleType & V8HandleType.Number) > 0 ;
+        public bool IsNumber => (handle.Type & V8HandleType.Number) > 0 ;
 
-        public bool IsBoolean => handle.handleType == V8HandleType.Boolean;
+        public bool IsBoolean => handle.Type == V8HandleType.Boolean;
 
-        public bool IsArray => handle.handleType == V8HandleType.Array;
+        public bool IsArray => handle.Type == V8HandleType.Array;
 
         public bool IsWrapped => 
-            handle.handleType == V8HandleType.Wrapped
-            || ((handle.handleType & V8HandleType.Object) > 0 && Has(jsContext.WrappedSymbol));
+            handle.Type == V8HandleType.Wrapped
+            || ((handle.Type & V8HandleType.Object) > 0 && Has(jsContext.WrappedSymbol));
 
-        public bool IsSymbol => handle.handleType == V8HandleType.Symbol;
+        public bool IsSymbol => handle.Type == V8HandleType.TypeSymbol;
 
         public IJSValue this[string name]
         {
             get
             {
-                return new JSValue(jsContext, JSContext.V8Context_GetProperty(context, handle.handle, name).GetContainer());
+                return new JSValue(jsContext, JSContext.V8Context_GetProperty(context, handle.address, name));
             }
             set
             {
-                JSContext.V8Context_SetProperty(context, handle.handle, name, value.ToHandle(jsContext)).GetContainer();
+                JSContext.V8Context_SetProperty(context, handle.address, name, value.ToHandle(jsContext));
             }
         }
 
@@ -66,11 +67,11 @@ namespace Xamarin.Android.V8
         {
             get
             {
-                return new JSValue(jsContext, JSContext.V8Context_Get(context, handle.handle, name.ToHandle(jsContext)).GetContainer());
+                return new JSValue(jsContext, JSContext.V8Context_Get(context, handle.address, name.ToHandle(jsContext)));
             }
             set
             {
-                JSContext.V8Context_Set(context, handle.handle, name.ToHandle(jsContext), value.ToHandle(jsContext)).GetContainer();
+                JSContext.V8Context_Set(context, handle.address, name.ToHandle(jsContext), value.ToHandle(jsContext));
             }
         }
 
@@ -80,35 +81,35 @@ namespace Xamarin.Android.V8
         {
             get
             {
-                return new JSValue(jsContext, JSContext.V8Context_GetPropertyAt(context, handle.handle, index).GetContainer());
+                return new JSValue(jsContext, JSContext.V8Context_GetPropertyAt(context, handle.address, index));
             }
             set
             {
-                JSContext.V8Context_SetPropertyAt(context, handle.handle, index, value.ToHandle(jsContext)).GetContainer();
+                JSContext.V8Context_SetPropertyAt(context, handle.address, index, value.ToHandle(jsContext));
             }
         }
 
         public bool BooleanValue => 
-            this.handle.handleType == V8HandleType.Boolean
-            ? this.handle.value.boolValue
+            this.handle.Type == V8HandleType.Boolean
+            ? this.handle.result.booleanValue
             : (
                 this.IntValue > 0 
             );
 
         public int IntValue =>
-            this.handle.handleType == V8HandleType.Integer
-            ? this.handle.value.intValue
-            : (this.handle.handleType == V8HandleType.BigInt
-                ? (int) this.handle.value.longValue
-                : (int) this.handle.value.doubleValue);
+            this.handle.Type == V8HandleType.Integer
+            ? this.handle.result.intValue
+            : (this.handle.Type == V8HandleType.BigInt
+                ? (int) this.handle.result.longValue
+                : (int) this.handle.result.doubleValue);
 
         public double DoubleValue =>
-            this.handle.handleType == V8HandleType.Number
-            ? this.handle.value.doubleValue :
+            this.handle.Type == V8HandleType.Number
+            ? this.handle.result.doubleValue :
             (
-                this.handle.handleType == V8HandleType.BigInt
-                ? (double) this.handle.value.longValue
-                : (double) this.handle.value.intValue
+                this.handle.Type == V8HandleType.BigInt
+                ? (double) this.handle.result.longValue
+                : (double) this.handle.result.intValue
             );
 
         public float FloatValue => (float)this.DoubleValue;
@@ -118,14 +119,14 @@ namespace Xamarin.Android.V8
             get
             {
                 long n = 0;
-                if (this.handle.handleType == V8HandleType.Number)
+                if (this.handle.Type == V8HandleType.Number)
                 {
-                    n = (long)this.handle.value.doubleValue;
+                    n = (long)this.handle.result.doubleValue;
                     return n.FromJSTime();
                 }
-                if (this.handle.handleType == V8HandleType.BigInt)
+                if (this.handle.Type == V8HandleType.BigInt)
                 {
-                    return this.handle.value.longValue.FromJSTime();
+                    return this.handle.result.longValue.FromJSTime();
                 }
                 return DateTime.MinValue;
             }
@@ -135,11 +136,11 @@ namespace Xamarin.Android.V8
         /// Since number of elements can change, we need to retrive value from v8
         /// </summary>
         public int Length {
-            get => this.IsArray ? JSContext.V8Context_GetArrayLength(context, handle.handle).GetIntegerValue() : 0;
+            get => this.IsArray ? JSContext.V8Context_GetArrayLength(context, handle.address).GetIntegerValue() : 0;
             set => this["length"] = jsContext.CreateNumber(value);
         }
 
-        public long LongValue => this.handle.value.longValue;
+        public long LongValue => this.handle.result.longValue;
 
         public string DebugView => this.ToString();
 
@@ -159,24 +160,24 @@ namespace Xamarin.Android.V8
 
         public bool HasProperty(string name)
         {
-            return JSContext.V8Context_HasProperty(context, handle.handle, name).GetBooleanValue();
+            return JSContext.V8Context_HasProperty(context, handle.address, name).GetBooleanValue();
         }
 
         public bool Has(IJSValue value)
         {
-            return JSContext.V8Context_Has(context, handle.handle, value.ToHandle(jsContext)).GetBooleanValue();
+            return JSContext.V8Context_Has(context, handle.address, value.ToHandle(jsContext)).GetBooleanValue();
         }
 
         public bool DeleteProperty(string name)
         {
-            return JSContext.V8Context_DeleteProperty(context, handle.handle, name).GetBooleanValue();
+            return JSContext.V8Context_DeleteProperty(context, handle.address, name).GetBooleanValue();
         }
 
         public T Unwrap<T>()
         {
             // we need to get wrapped instance..
             var w = this[jsContext.WrappedSymbol] as JSValue;
-            IntPtr v = w.handle.value.refValue;
+            IntPtr v = w.handle.result.refValue;
             //if (v == IntPtr.Zero)
             //{
             //    return default;
@@ -187,40 +188,40 @@ namespace Xamarin.Android.V8
 
         public override int GetHashCode()
         {
-            return (int)this.handle.handleType;
+            return (int)this.handle.Type;
         }
 
         public override bool Equals(object obj)
         {
             if (obj is JSValue jv)
             {
-                if (handle.handleType != jv.handle.handleType)
+                if (handle.Type != jv.handle.Type)
                     return false;
-                switch (handle.handleType)
+                switch (handle.Type)
                 {
                     case V8HandleType.Null:
                     case V8HandleType.Undefined:
                         return true;
                     case V8HandleType.Boolean:
-                        return handle.value.boolValue == jv.handle.value.boolValue;
+                        return handle.result.booleanValue == jv.handle.result.booleanValue;
                     case V8HandleType.Number:
-                        return handle.value.doubleValue == jv.handle.value.doubleValue;                    
+                        return handle.result.doubleValue == jv.handle.result.doubleValue;                    
                 }
                 if (this.IsObject || this.IsArray)
                 {
-                    if (handle.handle == jv.handle.handle)
+                    if (handle.address == jv.handle.address)
                     {
                         return true;
                     }
-                    if (handle.value.refValue != IntPtr.Zero)
+                    if (handle.result.refValue != IntPtr.Zero)
                     {
-                        if (handle.value.refValue == jv.handle.value.refValue)
+                        if (handle.result.refValue == jv.handle.result.refValue)
                         {
                             return true;
                         }
                     }
                 }
-                return JSContext.V8Context_Equals(context, handle.handle, jv.handle.handle).GetBooleanValue();
+                return JSContext.V8Context_Equals(context, handle.address, jv.handle.address).GetBooleanValue();
             }
             return base.Equals(obj);
         }
@@ -228,24 +229,26 @@ namespace Xamarin.Android.V8
 
         public override string ToString()
         {
-            switch (handle.handleType)
+            switch (handle.Type)
             {
                 case V8HandleType.Undefined: return "Undefined";
                 case V8HandleType.Null: return "Null";
-                case V8HandleType.Boolean: return this.handle.value.boolValue.ToString();
-                case V8HandleType.Integer: return this.handle.value.intValue.ToString();
-                case V8HandleType.BigInt: return this.handle.value.longValue.ToString();
-                case V8HandleType.Number: return this.handle.value.doubleValue.ToString();
+                case V8HandleType.Boolean: return this.handle.result.booleanValue.ToString();
+                case V8HandleType.Integer: return this.handle.result.intValue.ToString();
+                case V8HandleType.BigInt: return this.handle.result.longValue.ToString();
+                case V8HandleType.Number: return this.handle.result.doubleValue.ToString();
             }
-            return JSContext.V8Context_ToString(context, handle.handle).GetString();
+            var r = JSContext.V8Context_ToString(context, handle.address);
+            r.ThrowError();
+            return r.StringValue;
         }
 
         ~JSValue()
         {
-            if (handle.handle != IntPtr.Zero)
+            if (handle.address != IntPtr.Zero)
             {
-                IntPtr h = handle.handle;
-                handle.handle = IntPtr.Zero;
+                IntPtr h = handle.address;
+                handle.address = IntPtr.Zero;
                 if (MainThread.IsMainThread)
                 {
                     JSContext.V8Context_ReleaseHandle(context, h).GetBooleanValue();
@@ -261,12 +264,12 @@ namespace Xamarin.Android.V8
         }
         internal IntPtr GetHandle()
         {
-            return handle.handle;
+            return handle.address;
         }
 
         public IJSValue InvokeMethod(string name, params IJSValue[] args)
         {
-            var r = JSContext.V8Context_InvokeMethod(context, handle.handle, name, args.Length, args.ToHandles(jsContext)).GetContainer();
+            var r = JSContext.V8Context_InvokeMethod(context, handle.address, name, args.Length, args.ToHandles(jsContext));
             return new JSValue(jsContext, r);
         }
 
@@ -275,15 +278,15 @@ namespace Xamarin.Android.V8
             V8Handle th = IntPtr.Zero;
             if (thisValue != null)
             {
-                th = ((JSValue)thisValue).handle.handle;
+                th = ((JSValue)thisValue).handle.address;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.handle, th, args.Length, args.ToHandles(jsContext)).GetContainer();
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, args.Length, args.ToHandles(jsContext));
             return new JSValue(jsContext, r);
         }
 
         public bool InstanceOf(IJSValue jsClass)
         {
-            return JSContext.V8Context_IsInstanceOf(context, handle.handle, jsClass.ToHandle(jsContext)).GetBooleanValue();
+            return JSContext.V8Context_IsInstanceOf(context, handle.address, jsClass.ToHandle(jsContext)).GetBooleanValue();
         }
 
         public IList<IJSValue> ToArray()
@@ -297,12 +300,12 @@ namespace Xamarin.Android.V8
             NullableBool enumerable = descriptor.Enumerable.ToNullableBool();
             NullableBool writable = descriptor.Writable.ToNullableBool();
 
-            IntPtr value = descriptor.Value == null ? IntPtr.Zero : ((JSValue)descriptor.Value).handle.handle;
-            IntPtr get = descriptor.Get == null ? IntPtr.Zero : ((JSValue)descriptor.Get).handle.handle;
-            IntPtr set = descriptor.Set == null ? IntPtr.Zero : ((JSValue)descriptor.Set).handle.handle;
+            IntPtr value = descriptor.Value == null ? IntPtr.Zero : ((JSValue)descriptor.Value).handle.address;
+            IntPtr get = descriptor.Get == null ? IntPtr.Zero : ((JSValue)descriptor.Get).handle.address;
+            IntPtr set = descriptor.Set == null ? IntPtr.Zero : ((JSValue)descriptor.Set).handle.address;
             if (!JSContext.V8Context_DefineProperty(
                 context,
-                handle.handle,
+                handle.address,
                 name,
                 configurable,
                 enumerable,

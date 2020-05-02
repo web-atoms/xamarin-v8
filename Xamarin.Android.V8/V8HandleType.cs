@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Xamarin.Android.V8
 {
-    internal enum V8HandleType : byte
+    internal enum V8HandleType : int
     {
         None = 0,
         Undefined = 1,
@@ -20,6 +20,16 @@ namespace Xamarin.Android.V8
         Date = 0xF3,
         Wrapped = 0xF4,
         WrappedFunction = 0xF5,
-        Symbol = 0xF6
+        TypeSymbol = 0xF6,
+
+        // these are array pointers...
+        // intValue contains length
+
+        CharArray = 0x12,
+        ConstCharArray = 0x13,
+        Error = 0x14,
+        ConstError = 0x15,
+
+        ResponseArray = 0x16
     }
 }

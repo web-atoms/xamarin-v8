@@ -148,7 +148,7 @@ V8Response V8Context::FromException(Local<Context> &context, TryCatch &tc, const
     if (exObj->Get(context,  key).ToLocal(&st)) {
         Local<v8::String> stack = Checked(file, line, st->ToString(context));
         r = CreateStringFrom(stack);
-        if (r.type == V8ResponseType::ConstStringValue) {
+        if (r.type == V8ResponseType::ConstCharArray) {
             r.type = V8ResponseType::ConstError;
         } else {
             r.type = V8ResponseType::Error;
@@ -157,7 +157,7 @@ V8Response V8Context::FromException(Local<Context> &context, TryCatch &tc, const
     }
     Local<v8::String> msg = Checked(file, line, exObj->ToString(context));
     r = CreateStringFrom(msg);
-    if (r.type == V8ResponseType::ConstStringValue) {
+    if (r.type == V8ResponseType::ConstCharArray) {
         r.type = V8ResponseType::ConstError;
     } else {
         r.type = V8ResponseType::Error;
@@ -289,8 +289,14 @@ V8Response V8Context::CreateBoolean(bool value) {
 
 V8Response V8Context::CreateUndefined() {
     V8_HANDLE_SCOPE
+//    LogAndroid("CreateUndefined", "Get");
     Local<Value> r = _undefined.Get(_isolate);
-    return V8Response_From(context, r);
+    LogAndroid("CreateUndefined", "Result");
+    if (r->IsUndefined()) {
+        LogAndroid("CreateUndefined", "Undefined check done");
+    }
+    V8Response r1 = V8Response_From(context, r);
+    return r1;
 }
 
 V8Response V8Context::CreateNull() {
@@ -307,23 +313,23 @@ V8Response V8Context::CreateString(Utf16Value value) {
 
 V8Response V8Context::CreateStringFrom(Local<v8::String> &value) {
     V8Response r = {};
-    r.type = V8ResponseType::StringValue;
+    r.type = V8ResponseType::CharArray;
     int n = value->Length();
-    r.result.array.length = n;
+    r.length = n;
     if (n < 1024) {
 
         // should not be deallocated by receiver...
-        r.type = V8ResponseType ::ConstStringValue;
+        r.type = V8ResponseType ::ConstCharArray;
         // copy to internal buffer...
         ReturnValue[n] = 0;
         value->Write(_isolate, ReturnValue);
-        r.result.array.stringValue = ReturnValue;
+        r.address = ReturnValue;
         // not allocating string here ...
         return r;
     }
     uint16_t* buffer = (uint16_t*)clrAllocateMemory((n+1)*2);
     value->Write(_isolate, buffer);
-    r.result.array.stringValue = buffer;
+    r.address = buffer;
     return r;
 }
 
@@ -349,14 +355,14 @@ V8Response V8Context::FromError(const char *msg) {
         r.type = V8ResponseType::ConstError;
     } else {
         buffer = (uint16_t*)clrAllocateMemory((n+1)*2);
-        r.result.array.stringValue = buffer;
+        r.address = buffer;
     }
     for (int i = 0; i < n; ++i) {
         buffer[i] = static_cast<uint16_t>(msg[i]);
     }
     buffer[n] = 0;
-    r.result.array.length = n;
-    r.result.array.stringValue = buffer;
+    r.length = n;
+    r.address = buffer;
     return r;
 }
 
@@ -432,13 +438,12 @@ V8Response V8Context::Wrap(void *value) {
     Local<v8::Value> external = V8External::Wrap(context, value);
 
     V8Response r = {};
-    r.type = V8ResponseType::Handle;
+    r.type = V8ResponseType::Wrapped;
     V8Handle h = new Global<Value>();
     h->SetWrapperClassId(WRAPPED_CLASS);
     h->Reset(_isolate, external);
-    r.result.handle.handle = h;
-    r.result.handle.handleType = V8HandleType::Wrapped;
-    r.result.handle.value.refValue = value;
+    r.address = h;
+    r.result.refValue = value;
     return r;
 }
 
@@ -485,9 +490,9 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     V8Response target = V8Response_From(context, _this);
     // Local<Value> av = a;
     V8Response handleArgs = {};
-    handleArgs.type = V8ResponseType::ArrayValue;
-    handleArgs.result.array.arrayValue = (void*)params.data();
-    handleArgs.result.array.length = n;
+    handleArgs.type = V8ResponseType::ResponseArray;
+    handleArgs.address = (void*)params.data();
+    handleArgs.length = n;
     Local<Value> dv = data;
     V8Response fx = V8Response_From(context, dv);
     V8Response r = clrExternalCall(fx, target, handleArgs);
@@ -496,14 +501,14 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
 
     if (r.type == V8ResponseType::Error) {
         // error will be sent as UTF8
-        Local<v8::String> error = V8_STRING((char*)r.result.array.stringValue);
+        Local<v8::String> error = V8_STRING((char*)r.address);
         // free(r.result.error.message);
-        clrFreeMemory((void*)r.result.array.stringValue);
+        clrFreeMemory((void*)r.address);
         Local<Value> ex = Exception::Error(error);
         isolate->ThrowException(ex);
     } else {
-        if (r.result.handle.handle != nullptr) {
-            V8Handle h = static_cast<V8Handle>(r.result.handle.handle);
+        if (r.address != nullptr) {
+            V8Handle h = static_cast<V8Handle>(r.address);
             Local<Value> rx = h->Get(isolate);
             args.GetReturnValue().Set(rx);
         } else {
@@ -552,7 +557,7 @@ V8Response V8Context::Release(V8Handle handle, bool post) {
         // LogAndroid("Release", "Handle Deleted");
         delete handle;
         V8Response r = {};
-        r.type = V8ResponseType ::BooleanValue;
+        r.type = V8ResponseType ::Boolean;
         r.result.booleanValue = true;
         return r;
     } catch (std::exception const &ex) {
@@ -803,4 +808,82 @@ void V8External::Release(void *data) {
     if (data != nullptr) {
         clrFreeHandle(data);
     }
+}
+
+V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
+{
+    V8Response v = {};
+    if (handle.IsEmpty()) {
+        return v;
+    }
+
+    Isolate* isolate = context->GetIsolate();
+
+    HandleScope hs(isolate);
+
+    // for handle, we need to set the type..
+    if (handle->IsUndefined()) {
+        v.type = V8ResponseType::Undefined;
+    }
+    else if (handle->IsNull()) {
+        v.type = V8ResponseType::Null;
+    }
+    else if (handle->IsString()) {
+        v.type = V8ResponseType::String;
+        // Local<v8::String> vstr = Local<v8::String>::Cast(handle);
+        // v8::String::Value value(isolate, vstr);
+        // v.stringValue = *value;
+    } else if (handle->IsStringObject()) {
+        v.type = V8ResponseType::String;
+    }
+    else if (handle->IsBoolean() || handle->IsBooleanObject()) {
+        v.type = V8ResponseType::Boolean;
+        v.result.booleanValue = (uint8_t)handle->BooleanValue(isolate);
+    } else if (handle->IsInt32()) {
+        v.type = V8ResponseType::Integer;
+        v.result.intValue = handle->Int32Value(context).ToChecked();
+    }
+    else if (handle->IsNumber() || handle->IsNumberObject()) {
+        double d;
+        if (handle->NumberValue(context).To(&d)) {
+            v.type = V8ResponseType::Number;
+            v.result.doubleValue = d;
+        }
+        else {
+            v.type = V8ResponseType::NotANumber;
+        }
+    }
+    else if (handle->IsDate()) {
+        v.type = V8ResponseType::Date;
+        v.result.doubleValue = TO_CHECKED(handle->ToObject(context)).As<v8::Date>()->ValueOf();
+    }
+    else if (handle->IsArray()
+             || handle->IsArgumentsObject()
+             || handle->IsBigInt64Array()) {
+        v.type = V8ResponseType::Array;
+    }
+    else if (handle->IsSymbol()) {
+        v.type = V8ResponseType::TypeSymbol;
+    }
+    else if (handle->IsExternal()) {
+        v.type = V8ResponseType::Wrapped;
+        V8External* e = V8External::CheckInExternal(context, handle);
+        if (e != nullptr) {
+            v.result.refValue = e->Data();
+        }
+    }
+    else if (handle->IsObject()) {
+        v.type = V8ResponseType::Wrapped;
+        V8External* e = V8External::CheckInExternal(context, handle);
+        if (e != nullptr) {
+            v.result.refValue = e->Data();
+        }
+        v.type = V8ResponseType::Object;
+    }
+
+    V8Handle h = new Global<Value>();
+    h->SetWrapperClassId(WRAPPED_CLASS);
+    v.address = (void*)h;
+    h->Reset(isolate, handle);
+    return v;
 }

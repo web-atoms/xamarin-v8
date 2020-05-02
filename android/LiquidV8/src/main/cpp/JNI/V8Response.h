@@ -7,18 +7,18 @@
 
 #include "common.h"
 
-enum V8ResponseType : uint8_t {
-    Error = 0,
-    ConstError = 1,
-    Handle = 2,
-    StringValue = 3,
-    ConstStringValue = 4,
-    BooleanValue = 5,
-    IntegerValue = 6,
-    ArrayValue = 7
-};
+//enum V8ResponseType : uint8_t {
+//    Error = 0,
+//    ConstError = 1,
+//    Handle = 2,
+//    StringValue = 3,
+//    ConstStringValue = 4,
+//    BooleanValue = 5,
+//    IntegerValue = 6,
+//    ArrayValue = 7
+//};
 
-enum V8HandleType : uint8_t {
+enum V8ResponseType : uint8_t {
     None = 0,
     Undefined = 1,
     Null = 2,
@@ -34,7 +34,17 @@ enum V8HandleType : uint8_t {
     Date = 0xF3,
     Wrapped = 0xF4,
     WrappedFunction = 0xF5,
-    TypeSymbol = 0xF6
+    TypeSymbol = 0xF6,
+
+    // these are array pointers...
+    // intValue contains length
+
+    CharArray = 0x12,
+    ConstCharArray = 0x13,
+    Error= 0x14,
+    ConstError = 0x15,
+
+    ResponseArray = 0x16
 };
 
 typedef union {
@@ -54,20 +64,14 @@ disposed by the caller by calling V8Context_Release method.
 */
     struct V8Response {
         int type;
+        int length;
+        ClrPointer address;
         union {
-            struct {
-                int handleType;
-                V8Value value;
-                ClrPointer handle;
-            } handle;
+            double doubleValue;
             int64_t longValue;
             int32_t intValue;
             uint8_t booleanValue;
-            struct {
-                int length;
-                const uint16_t *stringValue;
-                const void *arrayValue;
-            } array;
+            ClrPointer refValue;
         } result;
     };
 

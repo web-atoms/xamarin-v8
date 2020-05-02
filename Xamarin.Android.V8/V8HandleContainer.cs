@@ -7,7 +7,7 @@ namespace Xamarin.Android.V8
     [StructLayout(LayoutKind.Sequential)]
     internal struct V8HandleContainer
     {
-        [MarshalAs(UnmanagedType.SysInt)]
+        [MarshalAs(UnmanagedType.I4)]
         public V8HandleType handleType;
 
         public V8Value value;

@@ -18,9 +18,9 @@ namespace Xamarin.Android.V8
         {
             if (v == null)
             {
-                return context.Undefined.handle.handle;
+                return context.Undefined.handle.address;
             }
-            return ((JSValue)v).handle.handle;
+            return ((JSValue)v).handle.address;
         }
 
 
@@ -35,7 +35,7 @@ namespace Xamarin.Android.V8
             for (int i = 0; i < v.Length; i++)
             {
                 var vi = v[i];
-                a[i] = vi == null ? context.Undefined.handle.handle : ((JSValue)vi).handle.handle;
+                a[i] = vi == null ? context.Undefined.handle.address : ((JSValue)vi).handle.address;
             }
             return a;
         }

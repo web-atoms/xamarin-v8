@@ -249,8 +249,8 @@ namespace Xamarin.Android.V8
                     {
                         try
                         {
-                            var fxc = fx.GetContainer();
-                            var gc = GCHandle.FromIntPtr(fxc.value.refValue);
+                            var fxc = fx;
+                            var gc = GCHandle.FromIntPtr(fxc.result.refValue);
                             var ffx = (CLRExternalCall)gc.Target;
                             return ffx(t, a);
                         }
@@ -259,15 +259,8 @@ namespace Xamarin.Android.V8
                             var msg = Marshal.StringToAllocatedMemoryUTF8(ex.ToString());
                             return new V8Response
                             {
-                                type = V8ResponseType.Error,
-                                result = new V8ResponseResult
-                                {
-                                    error = new V8Error
-                                    {
-                                        message = msg,
-                                        stack = IntPtr.Zero
-                                    }
-                                }
+                                Type = V8HandleType.Error,
+                                address = msg
                             };
                         }
                     };
@@ -294,13 +287,13 @@ namespace Xamarin.Android.V8
                     });
             }
             
-            this.Undefined = new JSValue(this, V8Context_CreateUndefined(context).GetContainer());
+            this.Undefined = new JSValue(this, V8Context_CreateUndefined(context));
 
-            this.Global = new JSValue(this, V8Context_GetGlobal(context).GetContainer());
+            this.Global = new JSValue(this, V8Context_GetGlobal(context));
 
-            this.Null = new JSValue(this, V8Context_CreateNull(context).GetContainer());
+            this.Null = new JSValue(this, V8Context_CreateNull(context));
 
-            this.WrappedSymbol = new JSValue(this, V8Context_CreateSymbol(context, "WrappedSymbol").GetContainer());
+            this.WrappedSymbol = new JSValue(this, V8Context_CreateSymbol(context, "WrappedSymbol"));
 
             // Add SetTimeout...
 
@@ -391,43 +384,43 @@ namespace Xamarin.Android.V8
 
         public IJSValue CreateObject()
         {
-            return new JSValue(this, V8Context_CreateObject(context).GetContainer());
+            return new JSValue(this, V8Context_CreateObject(context));
         }
 
         public IJSValue CreateNull()
         {
-            return new JSValue(this, V8Context_CreateNull(context).GetContainer());
+            return new JSValue(this, V8Context_CreateNull(context));
         }
 
         public IList<IJSValue> CreateArray()
         {
-            var a = new JSValue(this, V8Context_CreateArray(context).GetContainer());
+            var a = new JSValue(this, V8Context_CreateArray(context));
             return a.ToArray();
         }
 
         public IJSValue CreateString(string value)
         {
-            return new JSValue(this, V8Context_CreateString(context, value).GetContainer());
+            return new JSValue(this, V8Context_CreateString(context, value));
         }
 
         public IJSValue CreateSymbol(string name)
         {
-            return new JSValue(this, V8Context_CreateSymbol(context, name).GetContainer());
+            return new JSValue(this, V8Context_CreateSymbol(context, name));
         }
 
         public IJSValue CreateNumber(double value)
         {
-            return new JSValue(this, V8Context_CreateNumber(context, value).GetContainer());
+            return new JSValue(this, V8Context_CreateNumber(context, value));
         }
 
         public IJSValue CreateBoolean(bool value)
         {
-            return new JSValue(this, V8Context_CreateBoolean(context, value).GetContainer());
+            return new JSValue(this, V8Context_CreateBoolean(context, value));
         }
 
         public IJSValue CreateDate(DateTime value)
         {
-            return new JSValue(this, V8Context_CreateDate(context, value.ToJSTime()).GetContainer());
+            return new JSValue(this, V8Context_CreateDate(context, value.ToJSTime()));
         }
 
         public IJSValue CreateFunction(int args, Func<IJSContext, IList<IJSValue>, IJSValue> fx, string debugDescription)
@@ -435,42 +428,29 @@ namespace Xamarin.Android.V8
             CLRExternalCall efx = (t, a) => {
                 try
                 {
-                    var tjs = new JSValue(this, t.GetContainer());
+                    var tjs = new JSValue(this, t);
 
-                    var targs = a.result.array.ToJSValueArray(this);
+                    var targs = a.ToJSValueArray(this);
                     var r = fx(this, targs) as JSValue;
                     return new V8Response
                     {
-                        type = V8ResponseType.Handle,
-                        result = new V8ResponseResult
-                        {
-                            handle = new V8HandleContainer
-                            {
-                                handle = r?.GetHandle() ?? IntPtr.Zero
-                            }
-                        }
+                        Type = V8HandleType.Object,
+                        address = r?.GetHandle() ?? IntPtr.Zero
                     };
                 } catch (Exception ex)
                 {
                     IntPtr msg = Marshal.StringToAllocatedMemoryUTF8(ex.ToString());
                     // IntPtr stack = Marshal.StringToAllocatedMemoryUTF8(ex.StackTrace);
                     return new V8Response {
-                        type = V8ResponseType.Error,
-                        result = new V8ResponseResult
-                        {
-                            error = new V8Error
-                            {
-                                message = msg,
-                                stack = IntPtr.Zero
-                            }
-                        }
+                        Type = V8HandleType.Error,
+                        address = msg
                     };
                 }
             };
 
             var gfx = GCHandle.Alloc(efx);
             var ptr = GCHandle.ToIntPtr(gfx);
-            var c = V8Context_CreateFunction(context, ptr, debugDescription).GetContainer();
+            var c = V8Context_CreateFunction(context, ptr, debugDescription);
             return new JSValue(this, c);
         }
 
@@ -480,7 +460,7 @@ namespace Xamarin.Android.V8
             var c = V8Context_Evaluate(
                 context, 
                 script, 
-                location).GetContainer();
+                location);
             return new JSValue(this, c);
         }
 
@@ -534,8 +514,8 @@ namespace Xamarin.Android.V8
 
             var wgc = GCHandle.Alloc(value);
             var wgcPtr = GCHandle.ToIntPtr(wgc);
-            var wrapped = new JSValue(this, V8Context_Wrap(context, wgcPtr ).GetContainer());
-            var w = new JSValue(this, V8Context_CreateObject(context).GetContainer());
+            var wrapped = new JSValue(this, V8Context_Wrap(context, wgcPtr ));
+            var w = new JSValue(this, V8Context_CreateObject(context));
 
             if (!(value is IJSContext))
             {
