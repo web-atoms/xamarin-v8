@@ -255,7 +255,7 @@ void V8Context::Dispose() {
         wrapField.Reset();
         // cc->Exit();
     }
-    _isolate->Exit();
+    // _isolate->Exit();
     _isolate->Dispose();
     // delete _isolate;
     delete _arrayBufferAllocator;
