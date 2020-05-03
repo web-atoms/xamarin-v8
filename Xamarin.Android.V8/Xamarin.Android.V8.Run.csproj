@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="WebAtoms.Core">
-      <Version>1.4.80</Version>
+      <Version>1.4.91</Version>
     </PackageReference>
     <PackageReference Include="deniszykov.WebSocketListener">
       <Version>4.2.4</Version>
@@ -74,13 +74,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SafeV8Handle.cs" />
     <Compile Include="Timeout.cs" />
-    <Compile Include="V8Error.cs" />
     <Compile Include="V8HandleContainer.cs" />
     <Compile Include="V8HandleType.cs" />
     <Compile Include="V8InspectorProtocol.cs" />
     <Compile Include="V8Response.cs" />
     <Compile Include="V8ResponseExtensions.cs" />
-    <Compile Include="V8ResponseType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\drawable\" />
