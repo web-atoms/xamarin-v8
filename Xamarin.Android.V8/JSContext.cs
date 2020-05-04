@@ -267,6 +267,9 @@ namespace Xamarin.Android.V8
 
                 }
 
+                NativeLog("Start");
+
+                NativeLog(NativeAdd(1, 2).ToString());
 
                 this.context = V8Context_Create(
                     protocol != null,
@@ -578,8 +581,16 @@ namespace Xamarin.Android.V8
             Dispose();
         }
 
+        [DllImport(LibName, EntryPoint = "Add")]
+        internal extern static int NativeAdd(int a, int b);
+
+
+        [DllImport(LibName, EntryPoint = "Log")]
+        internal extern static void NativeLog([MarshalAs(UnmanagedType.LPStr)] string text);
+
         [DllImport(LibName)]
         internal extern static V8Handle V8Context_Create(
+            [MarshalAs(UnmanagedType.I1)]
             bool debug, 
             [MarshalAs(UnmanagedType.LPStruct)]
             CLREnv env

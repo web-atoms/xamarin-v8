@@ -36,9 +36,18 @@ void LogAndroid1(const char* location, const char* message) {
 
 extern "C" {
 
+    void Log(const char* text) {
+        LogAndroid1("Test", text);
+    }
+
+    int  Add(int a, int b) {
+        return a + b;
+    }
+
     V8Context* V8Context_Create(
-            bool debug,
+            uint8_t debug,
             ClrEnv env) {
+        LogAndroid1("Create" , "Start");
         V8Context*c = new V8Context(
                 debug,
                 env);
