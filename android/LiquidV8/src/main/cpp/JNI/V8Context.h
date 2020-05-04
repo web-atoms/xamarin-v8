@@ -36,7 +36,7 @@ extern "C" {
         BreakPauseOn breakPauseOn;
     };
 
-    typedef __ClrEnv *ClrEnv;
+    typedef __ClrEnv* ClrEnv;
 }
 
 class V8Context {

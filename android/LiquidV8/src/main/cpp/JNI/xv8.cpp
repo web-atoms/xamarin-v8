@@ -44,14 +44,45 @@ extern "C" {
         return a + b;
     }
 
+    V8Context* V8Context_Create1(
+            int debug,
+            void* allocateMemory,
+            void* freeMemory,
+            void* freeHandle,
+            void* logger,
+            void* waitForDebugMessageFromProtocol,
+            void* sendDebugMessageToProtocol,
+            void* fatalErrorCallback,
+            void* breakPauseOn) {
+        LogAndroid1("Create" , "Start");
+        __ClrEnv env;
+        env.allocateMemory = (AllocateMemory)allocateMemory;
+        env.freeMemory = (FreeMemory)freeMemory;
+        env.freeHandle = (FreeMemory)freeHandle;
+        env.loggerCallback = (LoggerCallback)logger;
+        env.readDebugMessage = (ReadDebugMessage)waitForDebugMessageFromProtocol;
+        env.sendDebugMessage = (SendDebugMessage)sendDebugMessageToProtocol;
+        env.fatalErrorCallback = (FatalErrorCallback)fatalErrorCallback;
+        env.breakPauseOn = (BreakPauseOn) breakPauseOn;
+
+        V8Context*c = new V8Context(
+                debug,
+                &env);
+        _logger = env.loggerCallback;
+        auto i = reinterpret_cast<std::uintptr_t>(c);
+        map.insert(i, 1);
+        return c;
+    }
+
+
     V8Context* V8Context_Create(
             uint8_t debug,
-            ClrEnv env) {
+            __ClrEnv env) {
         LogAndroid1("Create" , "Start");
         V8Context*c = new V8Context(
                 debug,
-                env);
-        _logger = env->loggerCallback;
+                &env);
+        _logger = env.loggerCallback;
         auto i = reinterpret_cast<std::uintptr_t>(c);
         map.insert(i, 1);
         return c;

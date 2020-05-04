@@ -589,12 +589,34 @@ namespace Xamarin.Android.V8
         internal extern static void NativeLog([MarshalAs(UnmanagedType.LPStr)] string text);
 
         [DllImport(LibName)]
-        internal extern static V8Handle V8Context_Create(
-            [MarshalAs(UnmanagedType.I1)]
-            bool debug, 
-            [MarshalAs(UnmanagedType.LPStruct)]
-            CLREnv env
+        internal extern static Int64 V8Context_Create1(
+            [MarshalAs(UnmanagedType.SysInt)]
+            int debug,
+            Int64 allocateMemory,
+            Int64 freeMemory,
+            Int64 freeHandle,
+            Int64 logger,
+            Int64 waitForDebugMessageFromProtocol,
+            Int64 sendDebugMessageToProtocol,
+            Int64 fatalErrorCallback,
+            Int64 breakPauseOn
             );
+
+        internal static V8Handle V8Context_Create(
+            bool debug, 
+            CLREnv env
+            )
+        {
+            return (IntPtr)V8Context_Create1(debug ? 1 : 0, 
+                env.allocateMemory.ToInt64(),
+                env.freeMemory.ToInt64(), 
+                env.freeHandle.ToInt64(),
+                env.logger.ToInt64(), 
+                env.WaitForDebugMessageFromProtocol.ToInt64(),
+                env.SendDebugMessageToProtocol.ToInt64(),
+                env.fatalErrorCallback.ToInt64(), 
+                env.breakPauseOn.ToInt64());
+        }
 
         [DllImport(LibName)]
         internal extern static void V8Context_Dispose(V8Handle context);
