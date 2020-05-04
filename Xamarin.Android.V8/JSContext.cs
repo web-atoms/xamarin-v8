@@ -578,7 +578,7 @@ namespace Xamarin.Android.V8
             Dispose();
         }
 
-        [DllImport(LibName, CallingConvention = CallingConvention.StdCall, EntryPoint = nameof(V8Context_Create))]
+        [DllImport(LibName)]
         internal extern static V8Handle V8Context_Create(
             bool debug, 
             [MarshalAs(UnmanagedType.LPStruct)]
