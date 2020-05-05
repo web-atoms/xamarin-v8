@@ -7,12 +7,17 @@ namespace Xamarin.Android.V8
     [StructLayout(LayoutKind.Sequential)]
     internal struct Utf16Value
     {
-        [MarshalAs(UnmanagedType.LPWStr)]
-        internal string Value;
+        // following is not possible in ARM64, bug in ARM64 ...
+        // [MarshalAs(UnmanagedType.LPWStr)]
+        internal IntPtr Value;
 
         internal int Length;
 
-        public static implicit operator Utf16Value(string value) => new Utf16Value { Value = value, Length = value?.Length ?? 0};
+        public static implicit operator Utf16Value(string value)
+        {
+            GCHandle handle = GCHandle.Alloc(value, GCHandleType.Pinned);
+            return new Utf16Value { Value = handle.AddrOfPinnedObject(), Length = value?.Length ?? 0 };
+        }
     }
 
     [StructLayout(LayoutKind.Explicit)]

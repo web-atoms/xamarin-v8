@@ -61,6 +61,7 @@ public:
     :v8_inspector::V8InspectorClient()
     {
         if (!connect) return;
+        freeHandle = env->freeHandle;
         readDebugMessage_ = env->readDebugMessage;
         breakPauseOn_ = env->breakPauseOn;
         platform_ = platform;
@@ -91,6 +92,7 @@ public:
             auto dm = readDebugMessage_();
             v8_inspector::StringView message_view(dm.Value, dm.Length);
             session_->dispatchProtocolMessage(message_view);
+            freeHandle((void*)dm.Value);
             while (v8::platform::PumpMessageLoop(platform_, isolate_)) {}
         }
 
@@ -128,6 +130,7 @@ private:
     bool terminated_;
     ReadDebugMessage readDebugMessage_;
     BreakPauseOn  breakPauseOn_;
+    FreeMemory freeHandle;
 };
 
 #endif //ANDROID_INSPECTORCHANNEL_H
