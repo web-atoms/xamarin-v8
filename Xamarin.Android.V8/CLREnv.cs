@@ -13,30 +13,48 @@ using Android.Widget;
 
 namespace Xamarin.Android.V8
 {
+    internal static class DelegateHelper
+    {
+
+        public unsafe static string ToUtf16String(this IntPtr text, int length)
+        {
+            char* charArray = (char*)text;
+            return new String(charArray, 0, length);
+        }
+
+        public static IntPtr ToIntPtr<T>(this T item) where T: Delegate
+        {
+            // var handle = GCHandle.Alloc(item);
+            // return GCHandle.ToIntPtr(handle);
+            IntPtr value = Marshal.GetFunctionPointerForDelegate((Delegate)item);
+            return value;
+        }
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct CLREnv
     {
         // [MarshalAs(UnmanagedType.FunctionPtr)]
-        public Delegate allocateMemory;
+        public IntPtr allocateMemory;
         // [MarshalAs(UnmanagedType.FunctionPtr)]
-        public Delegate freeMemory;
+        public IntPtr freeMemory;
 
         // this is for wrapped objects
 //         [MarshalAs(UnmanagedType.FunctionPtr)]
-        public Delegate freeHandle;
+        public IntPtr freeHandle;
    //      [MarshalAs(UnmanagedType.FunctionPtr)]
-        public Delegate externalCall;
+        public IntPtr externalCall;
       //  [MarshalAs(UnmanagedType.FunctionPtr)]
-        public Delegate logger;
+        public IntPtr logger;
        // [MarshalAs(UnmanagedType.FunctionPtr)]
-        public Delegate WaitForDebugMessageFromProtocol;
+        public IntPtr WaitForDebugMessageFromProtocol;
       //  [MarshalAs(UnmanagedType.FunctionPtr)]
-        public Delegate SendDebugMessageToProtocol;
+        public IntPtr SendDebugMessageToProtocol;
       //  [MarshalAs(UnmanagedType.FunctionPtr)]
-        public Delegate fatalErrorCallback;
+        public IntPtr fatalErrorCallback;
 
        // [MarshalAs(UnmanagedType.FunctionPtr)]
-        public Delegate breakPauseOn;
+        public IntPtr breakPauseOn;
 
     }
 

@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace Xamarin.Android.V8
 {
     [StructLayout(LayoutKind.Sequential)]
     internal struct Utf16Value
     {
-        [MarshalAs(UnmanagedType.LPWStr)]
-        internal string Value;
+        internal IntPtr Value;
 
         internal int Length;
 
-        public static implicit operator Utf16Value(string value) => new Utf16Value { Value = value, Length = value?.Length ?? 0};
+        public unsafe static implicit operator Utf16Value(string value)
+        {
+            var text = GCHandle.Alloc(value, GCHandleType.Pinned);
+            // we need to free this...
+            return new Utf16Value { Value = (IntPtr)text.AddrOfPinnedObject(), Length = value?.Length ?? 0 };
+        }
     }
 
     [StructLayout(LayoutKind.Explicit)]

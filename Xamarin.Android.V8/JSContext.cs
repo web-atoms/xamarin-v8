@@ -33,10 +33,8 @@ namespace Xamarin.Android.V8
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate void ReadDebugMessageFromV8(
         int len,
-        [MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
-        string char8,
-        [MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 0)]
-        string char16);
+        IntPtr char8,
+        IntPtr char16);
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate void JSContextLog(IntPtr text);
@@ -202,7 +200,9 @@ namespace Xamarin.Android.V8
                 try {
                     if (n > 0)
                     {
-                        var msg = c8 ?? c16;                        
+                        var msg = c8 == IntPtr.Zero
+                            ? Marshal.PtrToStringUTF8(c8, n)
+                            : c16.ToUtf16String(n);
                         // Log(msg);
                         this.inspectorProtocol.SendMessage(msg);
                     }
@@ -282,18 +282,18 @@ namespace Xamarin.Android.V8
                 NativeLog(NativeAdd(1, 2).ToString());
                 var env = new CLREnv
                 {
-                    allocateMemory = allocateMemory,
-                    freeMemory = freeMemory,
+                    allocateMemory = allocateMemory.ToIntPtr(),
+                    freeMemory = freeMemory.ToIntPtr(),
 
-                    freeHandle = freeHandle,
-                    externalCall = externalCaller,
+                    freeHandle = freeHandle.ToIntPtr(),
+                    externalCall = externalCaller.ToIntPtr(),
 
-                    logger = logger,
-                    WaitForDebugMessageFromProtocol = readDebugMessage,
-                    SendDebugMessageToProtocol = receiveDebugFromV8,
-                    fatalErrorCallback = fatalErrorCallback,
+                    logger = logger.ToIntPtr(),
+                    WaitForDebugMessageFromProtocol = readDebugMessage.ToIntPtr(),
+                    SendDebugMessageToProtocol = receiveDebugFromV8.ToIntPtr(),
+                    fatalErrorCallback = fatalErrorCallback.ToIntPtr(),
 
-                    breakPauseOn = breakPauseOn
+                    breakPauseOn = breakPauseOn.ToIntPtr()
                 };
 
                 this.context = V8Context_Create(
