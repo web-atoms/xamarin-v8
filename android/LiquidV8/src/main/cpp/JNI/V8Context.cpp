@@ -847,7 +847,7 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
     }
     else if (handle->IsBoolean() || handle->IsBooleanObject()) {
         v.type = V8ResponseType::Boolean;
-        v.result.booleanValue = (uint8_t)handle->BooleanValue(isolate);
+        v.result.booleanValue = (uint8_t)handle->BooleanValue();
     } else if (handle->IsInt32()) {
         v.type = V8ResponseType::Integer;
         v.result.intValue = handle->Int32Value(context).ToChecked();

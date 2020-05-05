@@ -35,8 +35,8 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11 -fexceptions"
-                //arguments "-DANDROID_STL=c++_static"
-                arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_STL=c++_shared"
+                arguments "-DANDROID_STL=c++_static"
+                // arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_STL=c++_shared"
             }
         }
 
@@ -85,18 +85,18 @@ task copyHeadersToAARRelease(type: Zip) {
     def aarNameO = "build/outputs/aar/liquidcore-V8-release.aar"
 
     from zipTree(aarNameO)
-    from("../include") {
-        into('include/v8')
-        include ('**/*.h')
-    }
-//    from("../deps/node-10.15.3/deps/uv/include") {
-//        into('include/uv')
+//    from("../include") {
+//        into('include/v8')
 //        include ('**/*.h')
 //    }
-//    from("../deps/JavaScriptCore/include/JavaScriptCore") {
-//        into('include/JavaScriptCore')
-//        include('*.h')
-//    }
+    from("../deps/node-10.15.3/deps/uv/include") {
+        into('include/uv')
+        include ('**/*.h')
+    }
+    from("../deps/JavaScriptCore/include/JavaScriptCore") {
+        into('include/JavaScriptCore')
+        include('*.h')
+    }
 }
 task removeOldAARRelease(type: Delete) {
     delete file('build/outputs/aar/liquidcore-V8-release.aar.in')

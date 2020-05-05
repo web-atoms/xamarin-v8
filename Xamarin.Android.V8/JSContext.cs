@@ -18,15 +18,19 @@ using V8Handle = System.IntPtr;
 
 namespace Xamarin.Android.V8
 {
-
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate V8Response ExternalCall(V8Response fx, V8Response thisHandle, V8Response args);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate V8Response CLRExternalCall(V8Response thisHandle, V8Response args);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate Utf16Value ReadDebugMessage();
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate void ReadDebugMessageFromV8(
         int len,
         [MarshalAs(UnmanagedType.LPStr, SizeParamIndex = 0)]
@@ -34,14 +38,19 @@ namespace Xamarin.Android.V8
         [MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 0)]
         string char16);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate void JSContextLog(IntPtr text);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate void JSFreeMemory(IntPtr ptr);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate IntPtr JSAllocateMemory(int len);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate void FatalErrorCallback(IntPtr location, IntPtr message);
 
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate void BreakPauseOn(bool boolSwitch);
 
 
@@ -271,24 +280,26 @@ namespace Xamarin.Android.V8
                 NativeLog("Start");
 
                 NativeLog(NativeAdd(1, 2).ToString());
+                var env = new CLREnv
+                {
+                    allocateMemory = allocateMemory,
+                    freeMemory = freeMemory,
+
+                    freeHandle = freeHandle,
+                    externalCall = externalCaller,
+
+                    logger = logger,
+                    WaitForDebugMessageFromProtocol = readDebugMessage,
+                    SendDebugMessageToProtocol = receiveDebugFromV8,
+                    fatalErrorCallback = fatalErrorCallback,
+
+                    breakPauseOn = breakPauseOn
+                };
 
                 this.context = V8Context_Create(
-                    (byte)(protocol != null ? 1 : 0),
-                    new CLREnv
-                    {
-                        allocateMemory = Marshal.GetFunctionPointerForDelegate(allocateMemory),
-                        freeMemory = Marshal.GetFunctionPointerForDelegate(freeMemory),
-
-                        freeHandle = Marshal.GetFunctionPointerForDelegate(freeHandle),
-                        externalCall = Marshal.GetFunctionPointerForDelegate(externalCaller),
-
-                        logger = Marshal.GetFunctionPointerForDelegate(logger),
-                        WaitForDebugMessageFromProtocol = Marshal.GetFunctionPointerForDelegate(readDebugMessage),
-                        SendDebugMessageToProtocol = Marshal.GetFunctionPointerForDelegate(receiveDebugFromV8),
-                        fatalErrorCallback = Marshal.GetFunctionPointerForDelegate(fatalErrorCallback),
-
-                        breakPauseOn = Marshal.GetFunctionPointerForDelegate(breakPauseOn)
-                    });
+                    protocol != null ? 1 : 0,
+                    env
+                    );
             }
             
             this.Undefined = new JSValue(this, V8Context_CreateUndefined(context));
@@ -606,8 +617,8 @@ namespace Xamarin.Android.V8
 
         [DllImport(LibName)]
         internal extern static V8Handle V8Context_Create(
-            [MarshalAs(UnmanagedType.I1)]
-            byte debug,
+            [MarshalAs(UnmanagedType.SysInt)]
+            int debug,
             [MarshalAs(UnmanagedType.LPStruct)]
             CLREnv env
             );

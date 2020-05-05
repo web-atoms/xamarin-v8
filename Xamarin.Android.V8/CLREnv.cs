@@ -16,18 +16,27 @@ namespace Xamarin.Android.V8
     [StructLayout(LayoutKind.Sequential)]
     internal struct CLREnv
     {
-        public IntPtr allocateMemory;
-        public IntPtr freeMemory;
+        // [MarshalAs(UnmanagedType.FunctionPtr)]
+        public Delegate allocateMemory;
+        // [MarshalAs(UnmanagedType.FunctionPtr)]
+        public Delegate freeMemory;
 
         // this is for wrapped objects
-        public IntPtr freeHandle;
-        public IntPtr externalCall;
-        public IntPtr logger;
-        public IntPtr WaitForDebugMessageFromProtocol;
-        public IntPtr SendDebugMessageToProtocol;
-        public IntPtr fatalErrorCallback;
+//         [MarshalAs(UnmanagedType.FunctionPtr)]
+        public Delegate freeHandle;
+   //      [MarshalAs(UnmanagedType.FunctionPtr)]
+        public Delegate externalCall;
+      //  [MarshalAs(UnmanagedType.FunctionPtr)]
+        public Delegate logger;
+       // [MarshalAs(UnmanagedType.FunctionPtr)]
+        public Delegate WaitForDebugMessageFromProtocol;
+      //  [MarshalAs(UnmanagedType.FunctionPtr)]
+        public Delegate SendDebugMessageToProtocol;
+      //  [MarshalAs(UnmanagedType.FunctionPtr)]
+        public Delegate fatalErrorCallback;
 
-        public IntPtr breakPauseOn;
+       // [MarshalAs(UnmanagedType.FunctionPtr)]
+        public Delegate breakPauseOn;
 
     }
 
