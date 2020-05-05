@@ -8,14 +8,12 @@
 
 using namespace v8;
 
-static bool _V8Initialized = false;
-
-static CTSL::HashMap<uintptr_t,int> map;
+static CTSL::HashMap<uintptr_t,int>* map = new CTSL::HashMap<uintptr_t,int>();
 
 bool IsContextDisposed(V8Context* c) {
     int n;
     auto i = reinterpret_cast<std::uintptr_t>(c);
-    return !map.find(i, n);
+    return !map->find(i, n);
 }
 
 #define VerifyContext(c) \
@@ -70,7 +68,7 @@ extern "C" {
                 &env);
         _logger = env.loggerCallback;
         auto i = reinterpret_cast<std::uintptr_t>(c);
-        map.insert(i, 1);
+        map->insert(i, 1);
         return c;
     }
 
@@ -84,21 +82,17 @@ extern "C" {
                 &env);
         _logger = env.loggerCallback;
         auto i = reinterpret_cast<std::uintptr_t>(c);
-        map.insert(i, 1);
+        map->insert(i, 1);
         return c;
     }
 
 
     void V8Context_Dispose(ClrPointer ctx) {
-        try {
-            INIT_CONTEXT
-            auto i = reinterpret_cast<std::uintptr_t>(context);
-            map.erase(i);
-            context->Dispose();
-            delete context;
-        } catch (...) {
-            LogAndroid1("V8", "Dispose Error");
-        }
+        INIT_CONTEXT
+        auto i = reinterpret_cast<std::uintptr_t>(context);
+        map->erase(i);
+        context->Dispose();
+        delete context;
     }
 
     V8Response V8Context_CreateString(ClrPointer ctx, Utf16Value value) {

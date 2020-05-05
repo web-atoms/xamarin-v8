@@ -34,19 +34,19 @@ private:
     }
     void flushProtocolNotifications() override {}
 
-    inline Local<Context> GetContext() {
+    inline v8::Local<v8::Context> GetContext() {
         return vc->GetContext();
     }
 
     void Send(int callId, const v8_inspector::StringView& string) {
         if (string.is8Bit()) {
-            sendDebugMessage_(string.length(), string.characters8(), nullptr);
+            sendDebugMessage_((int)string.length(), string.characters8(), nullptr);
         } else {
-            sendDebugMessage_(string.length(), nullptr, string.characters16());
+            sendDebugMessage_((int)string.length(), nullptr, string.characters16());
         }
     }
 
-    Isolate* isolate_;
+    v8::Isolate* isolate_;
     V8Context* vc;
     SendDebugMessage sendDebugMessage_;
 };
@@ -69,7 +69,7 @@ public:
         inspector_ = v8_inspector::V8Inspector::create(isolate_, this);
         session_ =
                 inspector_->connect(1, channel_.get(), v8_inspector::StringView());
-        Local<Context> context = vc->GetContext();
+        v8::Local<v8::Context> context = vc->GetContext();
         context->SetAlignedPointerInEmbedderData(kInspectorClientIndex, this);
         inspector_->contextCreated(v8_inspector::V8ContextInfo(
                 context, kContextGroupId, v8_inspector::StringView()));
@@ -110,7 +110,7 @@ public:
 
 private:
 
-    Local<Context> ensureDefaultContextInGroup(int group_id) override {
+    v8::Local<v8::Context> ensureDefaultContextInGroup(int group_id) override {
         // DCHECK(isolate_);
         // DCHECK_EQ(kContextGroupId, group_id);
         return context_.Get(isolate_);
@@ -121,8 +121,8 @@ private:
     std::unique_ptr<v8_inspector::V8Inspector> inspector_;
     std::unique_ptr<v8_inspector::V8InspectorSession> session_;
     std::unique_ptr<v8_inspector::V8Inspector::Channel> channel_;
-    Global<Context> context_;
-    Isolate* isolate_;
+    v8::Global<v8::Context> context_;
+    v8::Isolate* isolate_;
     v8::Platform* platform_;
     bool running_nested_loop_;
     bool terminated_;

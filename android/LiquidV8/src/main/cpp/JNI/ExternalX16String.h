@@ -26,7 +26,7 @@ public:
 
     virtual const uint16_t* data() const override {
         return _data;
-    };
+    }
 
     /**
      * The length of the string. That is, the number of two-byte characters.

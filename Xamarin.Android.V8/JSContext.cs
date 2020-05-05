@@ -107,6 +107,7 @@ namespace Xamarin.Android.V8
 
         private static object creationLock = new object();
 
+        // const string LibName = "v8android";
         const string LibName = "liquidjs";
 
         static JSFreeMemory freeHandle;
@@ -272,7 +273,7 @@ namespace Xamarin.Android.V8
                 NativeLog(NativeAdd(1, 2).ToString());
 
                 this.context = V8Context_Create(
-                    protocol != null,
+                    (byte)(protocol != null ? 1 : 0),
                     new CLREnv
                     {
                         allocateMemory = Marshal.GetFunctionPointerForDelegate(allocateMemory),
@@ -602,21 +603,30 @@ namespace Xamarin.Android.V8
             Int64 breakPauseOn
             );
 
-        internal static V8Handle V8Context_Create(
-            bool debug, 
+
+        [DllImport(LibName)]
+        internal extern static V8Handle V8Context_Create(
+            [MarshalAs(UnmanagedType.I1)]
+            byte debug,
+            [MarshalAs(UnmanagedType.LPStruct)]
             CLREnv env
-            )
-        {
-            return (IntPtr)V8Context_Create1(debug ? 1 : 0, 
-                env.allocateMemory.ToInt64(),
-                env.freeMemory.ToInt64(), 
-                env.freeHandle.ToInt64(),
-                env.logger.ToInt64(), 
-                env.WaitForDebugMessageFromProtocol.ToInt64(),
-                env.SendDebugMessageToProtocol.ToInt64(),
-                env.fatalErrorCallback.ToInt64(), 
-                env.breakPauseOn.ToInt64());
-        }
+            );
+
+        //internal static V8Handle V8Context_Create(
+        //    bool debug, 
+        //    CLREnv env
+        //    )
+        //{
+        //    return (IntPtr)V8Context_Create1(debug ? 1 : 0, 
+        //        env.allocateMemory.ToInt64(),
+        //        env.freeMemory.ToInt64(), 
+        //        env.freeHandle.ToInt64(),
+        //        env.logger.ToInt64(), 
+        //        env.WaitForDebugMessageFromProtocol.ToInt64(),
+        //        env.SendDebugMessageToProtocol.ToInt64(),
+        //        env.fatalErrorCallback.ToInt64(), 
+        //        env.breakPauseOn.ToInt64());
+        //}
 
         [DllImport(LibName)]
         internal extern static void V8Context_Dispose(V8Handle context);

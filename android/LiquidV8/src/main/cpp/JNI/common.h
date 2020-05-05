@@ -9,14 +9,12 @@
 #include "libplatform/libplatform.h"
 
 
-using namespace v8;
-
 #define WRAPPED_CLASS 0xA0A
 
 #define TO_CHECKED(n)   Checked(__FILE__, __LINE__, n)
 
 template<typename T>
-    static Local<T> Checked(const char * fileName, const int line, MaybeLocal<T> m) {
+    static v8::Local<T> Checked(const char * fileName, const int line, v8::MaybeLocal<T> m) {
         if (m.IsEmpty()) {
             __android_log_print(ANDROID_LOG_ERROR, "V8", "MayBeLocal is Empty at %s %d", fileName, line);
         }
@@ -24,7 +22,7 @@ template<typename T>
     }
 
 template<typename T>
-static T Checked(const char * fileName, const int line, Maybe<T> m) {
+static T Checked(const char * fileName, const int line, v8::Maybe<T> m) {
     T value;
     if (!m.To(&value)) {
         __android_log_print(ANDROID_LOG_ERROR, "V8", "MayBeLocal is Empty at %s %d", fileName, line);
@@ -40,8 +38,7 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
 */
 
 #define V8_HANDLE_SCOPE \
-    HandleScope scope(_isolate); \
-    Local<Context> context = GetContext();
+    HandleScope scope(_isolate);
 
 
 /*
@@ -79,7 +76,7 @@ typedef const uint8_t* X8String;
    Everything is sent as a pointer to Persistent object, reason is, JavaScript engine should
    not destroy it till it is explicitly destroyed by host application.
 */
-typedef Global<Value>* V8Handle;
+typedef v8::Global<v8::Value>* V8Handle;
 
 typedef void* ClrPointer;
 
@@ -87,7 +84,7 @@ typedef void* ClrPointer;
 
 char* CopyString(const char* msg) ;
 
-extern "C" { ;
+extern "C" {
 
 struct __Utf16Value {
     const uint16_t* Value;

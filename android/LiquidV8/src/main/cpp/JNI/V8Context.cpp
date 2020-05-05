@@ -9,6 +9,8 @@
 #include "InspectorChannel.h"
 #include "ExternalX16String.h"
 
+using namespace v8;
+
 #define RETURN_EXCEPTION(e) \
     return FromException(context, e, __FILE__, __LINE__);                    \
 
@@ -21,8 +23,8 @@ static AllocateMemory clrAllocateMemory;
 static FreeMemory clrFreeHandle;
 
 // static TV8Platform* _platform;
-static std::unique_ptr<v8::Platform> sPlatform;
-static FatalErrorCallback fatalErrorCallback;
+static std::unique_ptr<v8::Platform>* sPlatform;
+static v8::FatalErrorCallback fatalErrorCallback;
 void LogAndroid(const char* location, const char* message) {
     __android_log_print(ANDROID_LOG_ERROR, "V8", "%s %s", location, message);
     // fatalErrorCallback(CopyString(location), CopyString(message));
@@ -40,7 +42,7 @@ void OnPromiseRejectCallback(PromiseRejectMessage msg) {
     LogAndroid("Promise", "Promise Rejected");
 }
 
-static __ClrEnv clrEnv;
+// static __ClrEnv clrEnv;
 
 V8Context::V8Context(
         bool debug,
@@ -51,9 +53,12 @@ V8Context::V8Context(
         clrAllocateMemory = env->allocateMemory;
         V8::InitializeICU();
 
-        sPlatform = v8::platform::NewDefaultPlatform();
+        auto p = v8::platform::NewDefaultPlatform();
 
-        V8::InitializePlatform(sPlatform.get());
+        sPlatform = new std::unique_ptr<Platform>();
+        sPlatform->swap(p);
+
+        V8::InitializePlatform(sPlatform->get());
 
         V8::Initialize();
         clrExternalCall = env->externalCall;
@@ -63,7 +68,7 @@ V8Context::V8Context(
     }
     // ReturnValue = (uint16_t*) malloc(2048);
     _logger = env->loggerCallback;
-    _platform = sPlatform.get();
+    _platform = sPlatform->get();
     Isolate::CreateParams params;
     _arrayBufferAllocator = ArrayBuffer::Allocator::NewDefaultAllocator();
     params.array_buffer_allocator = _arrayBufferAllocator;
@@ -128,7 +133,7 @@ V8Context::V8Context(
         inspectorClient = new XV8InspectorClient(
                 this,
                 true,
-                sPlatform.get(),
+                sPlatform->get(),
                 env);
     }
 
@@ -208,8 +213,6 @@ V8Response V8Context::Equals(V8Handle left, V8Handle right) {
 }
 
 V8Response V8Context::GC() {
-
-    V8_CONTEXT_SCOPE
     V8WrappedVisitor v;
     v.context = this;
     _isolate->VisitHandlesWithClassIds(&v);
@@ -277,18 +280,21 @@ V8Response V8Context::CreateArray() {
 
 V8Response V8Context::CreateNumber(double value) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> r = Number::New(_isolate, value);
     return V8Response_From(context, r);
 }
 
 V8Response V8Context::CreateBoolean(bool value) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> r = v8::Boolean::New(_isolate, value);
     return V8Response_From(context, r);
 }
 
 V8Response V8Context::CreateUndefined() {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
 //    LogAndroid("CreateUndefined", "Get");
     Local<Value> r = _undefined.Get(_isolate);
     LogAndroid("CreateUndefined", "Result");
@@ -301,12 +307,14 @@ V8Response V8Context::CreateUndefined() {
 
 V8Response V8Context::CreateNull() {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> r = _null.Get(_isolate);
     return V8Response_From(context, r);
 }
 
 V8Response V8Context::CreateString(Utf16Value value) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> r = V8_UTF16STRING(value);
     return V8Response_From(context, r);
 }
@@ -335,12 +343,14 @@ V8Response V8Context::CreateStringFrom(Local<v8::String> &value) {
 
 V8Response V8Context::CreateSymbol(Utf16Value name) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> symbol = Symbol::New(_isolate, V8_UTF16STRING(name));
     return V8Response_From(context, symbol);
 }
 
 V8Response V8Context::CreateDate(int64_t value) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> r = v8::Date::New(GetContext(), (double)value).ToLocalChecked();
     return V8Response_From(context, r);
 }
@@ -348,7 +358,7 @@ V8Response V8Context::CreateDate(int64_t value) {
 V8Response V8Context::FromError(const char *msg) {
     V8Response r = {};
     r.type = V8ResponseType::Error;
-    int n = strlen(msg);
+    int n = (int)strlen(msg);
     uint16_t* buffer;
     if (n < 1024) {
         buffer = ReturnValue;
@@ -530,9 +540,8 @@ V8Response V8Context::CreateFunction(ExternalCall function, Utf16Value debugHelp
 }
 
 V8Response V8Context::Evaluate(Utf16Value script,Utf16Value location) {
-    V8_HANDLE_SCOPE
+    V8_CONTEXT_SCOPE
 
-    TryCatch tryCatch(_isolate);
     Local<v8::String> v8ScriptSrc = V8_UTF16STRING(script);
     Local<v8::String> v8ScriptLocation = V8_UTF16STRING(location);
 
@@ -551,18 +560,14 @@ V8Response V8Context::Evaluate(Utf16Value script,Utf16Value location) {
 
 
 V8Response V8Context::Release(V8Handle handle, bool post) {
-    V8_CONTEXT_SCOPE
-    try {
-        FreeWrapper(handle, false);
-        // LogAndroid("Release", "Handle Deleted");
-        delete handle;
-        V8Response r = {};
-        r.type = V8ResponseType ::Boolean;
-        r.result.booleanValue = true;
-        return r;
-    } catch (std::exception const &ex) {
-        return FromError(ex.what());
-    }
+    V8_HANDLE_SCOPE
+    FreeWrapper(handle, false);
+    // LogAndroid("Release", "Handle Deleted");
+    delete handle;
+    V8Response r = {};
+    r.type = V8ResponseType ::Boolean;
+    r.result.booleanValue = true;
+    return r;
 }
 
 V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, int len, void** args) {
@@ -629,7 +634,6 @@ V8Response V8Context::IsInstanceOf(V8Handle target, V8Handle jsClass) {
     V8_CONTEXT_SCOPE
     Local<Value> targetValue = target->Get(_isolate);
     Local<v8::Object> targetObj = TO_CHECKED(targetValue->ToObject(context));
-    Local<Value> classValue = jsClass->Get(_isolate);
     Local<v8::Object> classObj = TO_CHECKED(targetObj->ToObject(context));
     bool v = TO_CHECKED(targetObj->InstanceOf(context, classObj));
     return V8Response_FromBoolean(v);
@@ -637,7 +641,6 @@ V8Response V8Context::IsInstanceOf(V8Handle target, V8Handle jsClass) {
 
 V8Response V8Context::GetArrayLength(V8Handle target) {
     V8_HANDLE_SCOPE
-    // 
     Local<Value> value = target->Get(_isolate);
     if (!value->IsArray()) {
         return FromError("Target is not an array");
@@ -674,7 +677,7 @@ V8Response V8Context::NewInstance(V8Handle target, int len, void** args) {
 
 V8Response V8Context::Has(V8Handle target, V8Handle index) {
     V8_HANDLE_SCOPE
-    // 
+    auto context = GetContext();
     Local<Value> value = target->Get(_isolate);
     if (!value->IsObject()) {
         return FromError("Target is not an object ");
@@ -686,6 +689,7 @@ V8Response V8Context::Has(V8Handle target, V8Handle index) {
 
 V8Response V8Context::Get(V8Handle target, V8Handle index) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> v = target->Get(_isolate);
     // 
     if (!v->IsObject())
@@ -698,6 +702,7 @@ V8Response V8Context::Get(V8Handle target, V8Handle index) {
 
 V8Response V8Context::Set(V8Handle target, V8Handle index, V8Handle value) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> t = target->Get(_isolate);
     Local<Value> v = value->Get(_isolate);
     //
@@ -712,7 +717,7 @@ V8Response V8Context::Set(V8Handle target, V8Handle index, V8Handle value) {
 
 V8Response V8Context::HasProperty(V8Handle target, Utf16Value name) {
     V8_HANDLE_SCOPE
-    // 
+    auto context = GetContext();
     Local<Value> value = target->Get(_isolate);
     if (!value->IsObject()) {
         return FromError("Target is not an object ");
@@ -724,6 +729,7 @@ V8Response V8Context::HasProperty(V8Handle target, Utf16Value name) {
 
 V8Response V8Context::GetProperty(V8Handle target, Utf16Value name) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> v = target->Get(_isolate);
     // 
     if (!v->IsObject())
@@ -736,6 +742,7 @@ V8Response V8Context::GetProperty(V8Handle target, Utf16Value name) {
 
 V8Response V8Context::SetProperty(V8Handle target, Utf16Value name, V8Handle value) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> t = target->Get(_isolate);
     Local<Value> v = value->Get(_isolate);
     // 
@@ -749,6 +756,7 @@ V8Response V8Context::SetProperty(V8Handle target, Utf16Value name, V8Handle val
 
 V8Response V8Context::GetPropertyAt(V8Handle target, int index) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> v = target->Get(_isolate);
     
     if (!v->IsArray())
@@ -760,6 +768,7 @@ V8Response V8Context::GetPropertyAt(V8Handle target, int index) {
 
 V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) {
     V8_HANDLE_SCOPE
+    auto context = GetContext();
     Local<Value> t = target->Get(_isolate);
     Local<Value> v = value->Get(_isolate);
     
