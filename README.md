@@ -3,10 +3,6 @@
 # Xamarin V8 Bindings
 V8 Bindings for Xamarin for Android
 
-# Limitation
-
-Currently ARM64 is not supported as something is broken in mono interop, till the time it is resolved, you can remove `arm64-v8a` ABI from your app. This limitation is temporary till we resolve the issue.
-
 # NuGet
 ```xml
 <PackageReference Include="Xamarin.Android.V8" Version="1.4.79" />
