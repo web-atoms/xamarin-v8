@@ -10,7 +10,7 @@ namespace Xamarin.Android.V8
     public class JSValue: IJSValue
     {
         readonly JSContext jsContext;
-        readonly V8Handle context;
+        readonly V8ContextHandle context;
         internal V8Response handle;
         internal JSValue(JSContext context, V8Response r)
         {
@@ -245,21 +245,25 @@ namespace Xamarin.Android.V8
 
         ~JSValue()
         {
-            if (handle.address != IntPtr.Zero)
+            // if context was disposed
+            // the underlying handle was already deleted forcefully
+            // so we can ignore this..
+            if (context.IsDisposed || handle.address == IntPtr.Zero)
             {
-                IntPtr h = handle.address;
-                handle.address = IntPtr.Zero;
-                if (MainThread.IsMainThread)
+                return;
+            }
+            IntPtr h = handle.address;
+            handle.address = IntPtr.Zero;
+            if (MainThread.IsMainThread)
+            {
+                JSContext.V8Context_ReleaseHandle(context, h).GetBooleanValue();
+            }
+            else
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
                 {
                     JSContext.V8Context_ReleaseHandle(context, h).GetBooleanValue();
-                }
-                else
-                {
-                    MainThread.BeginInvokeOnMainThread(() =>
-                    {
-                        JSContext.V8Context_ReleaseHandle(context, h).GetBooleanValue();
-                    });
-                }
+                });
             }
         }
         internal IntPtr GetHandle()

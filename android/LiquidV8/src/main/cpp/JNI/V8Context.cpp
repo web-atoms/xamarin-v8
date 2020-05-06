@@ -255,7 +255,7 @@ void V8Context::Dispose() {
         wrapField.Reset();
         // cc->Exit();
     }
-    // _isolate->Exit();
+    _isolate->Exit();
     _isolate->Dispose();
     // delete _isolate;
     delete _arrayBufferAllocator;
@@ -289,14 +289,8 @@ V8Response V8Context::CreateBoolean(bool value) {
 
 V8Response V8Context::CreateUndefined() {
     V8_HANDLE_SCOPE
-//    LogAndroid("CreateUndefined", "Get");
     Local<Value> r = _undefined.Get(_isolate);
-    LogAndroid("CreateUndefined", "Result");
-    if (r->IsUndefined()) {
-        LogAndroid("CreateUndefined", "Undefined check done");
-    }
-    V8Response r1 = V8Response_From(context, r);
-    return r1;
+    return V8Response_From(context, r);
 }
 
 V8Response V8Context::CreateNull() {
@@ -435,7 +429,7 @@ V8Response V8Context::DefineProperty(
 V8Response V8Context::Wrap(void *value) {
     V8_CONTEXT_SCOPE
 
-    Local<v8::Value> external = V8External::Wrap(context, value);
+    Local<v8::Value> external = V8External::Wrap(context, value, false);
 
     V8Response r = {};
     r.type = V8ResponseType::Wrapped;
@@ -526,7 +520,7 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
 
 V8Response V8Context::CreateFunction(ExternalCall function, Utf16Value debugHelper) {
     V8_CONTEXT_SCOPE
-    Local<Value> e = V8External::Wrap(context, (void*)function);
+    Local<Value> e = V8External::Wrap(context, (void*)function, true);
     // Local<External> e = External::New(_isolate, (void*)function);
 
     Local<v8::Function> f = v8::Function::New(context, X8Call, e).ToLocalChecked();
@@ -558,8 +552,8 @@ V8Response V8Context::Evaluate(Utf16Value script,Utf16Value location) {
 
 
 V8Response V8Context::Release(V8Handle handle, bool post) {
-    V8_CONTEXT_SCOPE
     try {
+        V8_CONTEXT_SCOPE
         FreeWrapper(handle, false);
         // LogAndroid("Release", "Handle Deleted");
         delete handle;

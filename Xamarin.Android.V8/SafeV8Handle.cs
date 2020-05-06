@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -13,26 +14,52 @@ using Android.Widget;
 
 namespace Xamarin.Android.V8
 {
-    public class SafeV8Handle : SafeHandle
+
+    internal class V8ContextHandle
     {
+        private IntPtr value;
 
-        private bool _isInvalid = false;
-
-        public SafeV8Handle()
+        public void Clear()
         {
-
+            this.value = IntPtr.Zero;
         }
 
-        public SafeV8Handle(IntPtr invalidHandleValue, bool ownsHandle) : base(invalidHandleValue, ownsHandle)
+        public bool IsDisposed => this.value == IntPtr.Zero;
+
+        public static implicit operator V8ContextHandle(IntPtr v)
         {
-            this._isInvalid = true;
+            return new V8ContextHandle { value = v };
         }
 
-        public override bool IsInvalid => _isInvalid;
-
-        protected override bool ReleaseHandle()
+        public static implicit operator IntPtr(V8ContextHandle v)
         {
-            throw new NotImplementedException();
+            if (v.value == IntPtr.Zero)
+            {
+                throw new ObjectDisposedException("Context has been disposed");
+            }
+            return v.value;
         }
+
     }
+
+    //public class SafeV8Handle : Microsoft.Win32.SafeHandles.SafeHandleZeroOrMinusOneIsInvalid
+    //{
+    //    /// <summary>Initializes a new instance of the <see cref="SafeV8Handle" /> class, specifying whether the handle is to be reliably released.</summary>
+    //    /// <param name="ownsHandle">
+    //    /// <see langword="true" /> to reliably release the handle during the finalization phase; <see langword="false" /> to prevent reliable release (not recommended).</param>
+    //    [ReliabilityContract(Consistency.WillNotCorruptState, Cer.MayFail)]
+    //    protected SafeV8Handle(bool ownsHandle) : base(ownsHandle)
+    //    {
+
+    //    }
+
+    //    protected override bool ReleaseHandle()
+    //    {
+    //        if (!this.IsInvalid)
+    //        {
+
+    //        }
+    //        return true;
+    //    }
+    //}
 }

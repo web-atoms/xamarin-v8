@@ -123,7 +123,7 @@ namespace Xamarin.Android.V8
 
         public Action<string> Logger { get; set; }
 
-        internal V8Handle context;
+        internal V8ContextHandle context;
 
         public event EventHandler<ErrorEventArgs> ErrorEvent;
 
@@ -563,7 +563,7 @@ namespace Xamarin.Android.V8
 
         ~JSContext()
         {
-            if (context == IntPtr.Zero)
+            if (context.IsDisposed)
                 return;
             Dispose();
         }
@@ -768,10 +768,10 @@ namespace Xamarin.Android.V8
 
         public void Dispose()
         {
-            if (context == IntPtr.Zero)
+            if (context.IsDisposed)
                 return;
             V8Context_Dispose(context);
-            context = IntPtr.Zero;
+            context.Clear();
         }
     }
 }
