@@ -25,7 +25,7 @@ namespace Xamarin.Android.V8
 
     public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
 
-    internal delegate Utf16Value ReadDebugMessage();
+    internal delegate Utf16IntPtr ReadDebugMessage();
 
     internal delegate void ReadDebugMessageFromV8(
         int len,
@@ -256,12 +256,7 @@ namespace Xamarin.Android.V8
                         }
                         catch (Exception ex)
                         {
-                            var msg = Marshal.StringToAllocatedMemoryUTF8(ex.ToString());
-                            return new V8Response
-                            {
-                                Type = V8HandleType.Error,
-                                address = msg
-                            };
+                            return ex;
                         }
                     };
 
@@ -439,12 +434,7 @@ namespace Xamarin.Android.V8
                     };
                 } catch (Exception ex)
                 {
-                    IntPtr msg = Marshal.StringToAllocatedMemoryUTF8(ex.ToString());
-                    // IntPtr stack = Marshal.StringToAllocatedMemoryUTF8(ex.StackTrace);
-                    return new V8Response {
-                        Type = V8HandleType.Error,
-                        address = msg
-                    };
+                    return ex;
                 }
             };
 

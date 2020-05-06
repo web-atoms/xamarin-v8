@@ -350,7 +350,7 @@ V8Response V8Context::FromError(const char *msg) {
     r.type = V8ResponseType::Error;
     int n = strlen(msg);
     uint16_t* buffer;
-    if (n < 1024) {
+    if (n < 1023) {
         buffer = ReturnValue;
         r.type = V8ResponseType::ConstError;
     } else {
@@ -499,11 +499,18 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
 
     // free(params);
 
-    if (r.type == V8ResponseType::Error) {
+    if (r.type == V8ResponseType::Error || r.type == V8ResponseType::ConstError) {
         // error will be sent as UTF8
-        Local<v8::String> error = V8_STRING((char*)r.address);
+        Local<v8::String> error =
+                TO_CHECKED(v8::String::NewFromTwoByte(
+                        _isolate,
+                        (const uint16_t*)r.address,
+                        NewStringType::kNormal,
+                        r.length));
         // free(r.result.error.message);
-        clrFreeMemory((void*)r.address);
+        if (r.type == V8ResponseType::Error) {
+            clrFreeMemory((void *) r.address);
+        }
         Local<Value> ex = Exception::Error(error);
         isolate->ThrowException(ex);
     } else {

@@ -42,7 +42,7 @@ namespace Xamarin.Android.V8
                 {
                     Marshal.FreeHGlobal(r.address);
                 }
-                throw new Exception(msg);
+                throw new JavaScriptException(msg);
             }
         }
 

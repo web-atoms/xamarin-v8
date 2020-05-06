@@ -61,6 +61,7 @@ public:
     :v8_inspector::V8InspectorClient()
     {
         if (!connect) return;
+        freeMemory = env->freeMemory;
         readDebugMessage_ = env->readDebugMessage;
         breakPauseOn_ = env->breakPauseOn;
         platform_ = platform;
@@ -92,6 +93,8 @@ public:
             v8_inspector::StringView message_view(dm.Value, dm.Length);
             session_->dispatchProtocolMessage(message_view);
             while (v8::platform::PumpMessageLoop(platform_, isolate_)) {}
+            // this was allocated on HGlobal
+            freeMemory((void*)dm.Value);
         }
 
         terminated_ = false;
@@ -128,6 +131,7 @@ private:
     bool terminated_;
     ReadDebugMessage readDebugMessage_;
     BreakPauseOn  breakPauseOn_;
+    FreeMemory freeMemory;
 };
 
 #endif //ANDROID_INSPECTORCHANNEL_H

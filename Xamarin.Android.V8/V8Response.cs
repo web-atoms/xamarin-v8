@@ -4,6 +4,23 @@ using System.Runtime.InteropServices;
 
 namespace Xamarin.Android.V8
 {
+
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct Utf16IntPtr
+    {
+        internal IntPtr Value;
+
+        internal int Length;
+
+        public static implicit operator Utf16IntPtr(string value) => new Utf16IntPtr
+        {
+            Value = Marshal.StringToHGlobalUni(value),
+            Length = value?.Length ?? 0 
+        };
+    }
+
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct Utf16Value
     {
@@ -105,6 +122,17 @@ namespace Xamarin.Android.V8
                 result[i] = new JSValue(context, r);
             }
             return result;
+        }
+
+        public static implicit operator V8Response(Exception ex)
+        {
+            string error = ex.ToString();
+            IntPtr ptr = Marshal.StringToHGlobalUni(error);
+            return new V8Response {
+                Type = V8HandleType.Error,
+                address = ptr,
+                length = error.Length
+            };
         }
     }
 }
