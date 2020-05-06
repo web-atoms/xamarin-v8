@@ -360,7 +360,7 @@ V8Response V8Context::FromError(const char *msg) {
     r.type = V8ResponseType::Error;
     int n = (int)strlen(msg);
     uint16_t* buffer;
-    if (n < 1024) {
+    if (n < 1023) {
         buffer = ReturnValue;
         r.type = V8ResponseType::ConstError;
     } else {

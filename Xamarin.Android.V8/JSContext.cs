@@ -25,7 +25,7 @@ namespace Xamarin.Android.V8
 
     public delegate JSValue Function(JSValue jsThis, JSValue jsArgs);
 
-    internal delegate Utf16Value ReadDebugMessage();
+    internal delegate Utf16IntPtr ReadDebugMessage();
 
     internal delegate void ReadDebugMessageFromV8(
         int len,
