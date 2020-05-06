@@ -98,7 +98,7 @@ typedef __Utf16Value* Utf16Value;
 
 typedef void (*FreeMemory)(void *location);
 
-typedef void (*LoggerCallback)(XString text);
+typedef void (*LoggerCallback)(const uint16_t* text, int length);
 
 typedef void* (*AllocateMemory) (int length);
 

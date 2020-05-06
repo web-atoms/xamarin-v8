@@ -36,10 +36,6 @@ void FatalErrorLogger(Local<Message> message, Local<Value> data) {
     __android_log_print(ANDROID_LOG_ERROR, "V8", "Some Error");
 }
 
-void OnPromiseRejectCallback(PromiseRejectMessage msg) {
-    LogAndroid("Promise", "Promise Rejected");
-}
-
 static __ClrEnv clrEnv;
 
 V8Context::V8Context(
@@ -74,7 +70,16 @@ V8Context::V8Context(
     // _isolate->SetStackLimit(reinterpret_cast<uintptr_t>(&here - kWorkerMaxStackSize / sizeof(uint32_t*)));
     // V8_HANDLE_SCOPE
 
-    _isolate->SetPromiseRejectCallback(OnPromiseRejectCallback);
+    auto cb = [](PromiseRejectMessage msg){
+        auto self = V8Context::From(Isolate::GetCurrent());
+        auto ctx = Isolate::GetCurrent()->GetCurrentContext();
+        HandleScope hs(self->_isolate);
+        Local<v8::String> msgText = TO_CHECKED(msg.GetValue()->ToString(self->GetContext()));
+        v8::String::Value v(self->_isolate, msgText);
+        self->_logger(*v, v.length());
+    };
+
+    _isolate->SetPromiseRejectCallback(cb);
 
     // v8::Isolate::Scope isolate_scope(_isolate);
     /// Isolate::Scope iscope(_isolate);

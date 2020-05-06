@@ -33,6 +33,15 @@ namespace Xamarin.Android.V8
             return new DateTime(t, DateTimeKind.Utc);
         }
 
+        internal unsafe static string ToUtf16String(this IntPtr value, int len = 0)
+        {
+            if (len == 0)
+            {
+                return new String((char*)value);
+            }
+            return new String((char*)value, 0, len);
+        }
+
         internal static void ThrowError(this V8Response r)
         {
             if (r.Type == V8HandleType.Error || r.Type == V8HandleType.ConstError)

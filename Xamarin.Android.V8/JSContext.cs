@@ -34,7 +34,7 @@ namespace Xamarin.Android.V8
         [MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 0)]
         string char16);
 
-    internal delegate void JSContextLog(IntPtr text);
+    internal delegate void JSContextLog(IntPtr text, int length);
 
     internal delegate void JSFreeMemory(IntPtr ptr);
 
@@ -175,8 +175,8 @@ namespace Xamarin.Android.V8
         private JSContext(V8InspectorProtocol protocol = null)
         {
             inspectorProtocol = protocol;
-            logger = (t) => {
-                var s = Marshal.PtrToStringUTF8(t);
+            logger = (t, l) => {
+                var s = t.ToUtf16String(l);
                 Logger?.Invoke(s);
             };
             Logger = (s) => {
