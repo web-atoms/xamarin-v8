@@ -40,37 +40,6 @@ namespace DroidV8Test.Droid
             LoadApplication(new App());
 
 
-            //var button = new Xamarin.Forms.Button();
-            //button.Text = "Start";
-            //App.Current.MainPage = new Xamarin.Forms.ContentPage {
-            //    Content = button
-            //};
-
-            //button.Clicked += (s, e) => {
-            //    using (var j = new JSContext(true))
-            //    {
-            //        j["a"] = j.CreateString("Akash");
-            //        j["k"] = j.CreateString("Kava");
-            //        var ak = j.Evaluate("`${a} ${k}`");
-            //        Assert.Equal("Akash Kava", ak.ToString());
-
-            //        j["n5"] = j.CreateNumber(5);
-            //        var a = j.Evaluate("4 + n5");
-            //        Assert.True(a.IsNumber);
-            //        Assert.Equal(a.IntValue, 9);
-
-            //        j["add"] = j.CreateFunction(0, (c, a) =>
-            //        {
-            //            return j.CreateString($"{a[0]} {a[1]}");
-            //        }, "Add");
-
-            //        a = j.Evaluate("add(a, k)");
-            //        Assert.Equal("Akash Kava", a.ToString());
-
-            //    }
-
-            //};
-
             // var sys = new AndroidSystem();
             // sys.Activity = this;
             // jc = new JSContext(true);
@@ -100,8 +69,7 @@ namespace DroidV8Test.Droid
                 Assert.True(a.IsNumber);
                 Assert.Equal(a.IntValue, 9);
 
-                j["add"] = j.CreateFunction(0, (c, a) =>
-                {
+                j["add"] = j.CreateFunction(0, (c, a) => {
                     return j.CreateString($"{a[0]} {a[1]}");
                 }, "Add");
 

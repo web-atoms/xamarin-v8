@@ -8,12 +8,14 @@
 
 using namespace v8;
 
-static CTSL::HashMap<uintptr_t,int>* map = new CTSL::HashMap<uintptr_t,int>();
+static bool _V8Initialized = false;
+
+static CTSL::HashMap<uintptr_t,int> map;
 
 bool IsContextDisposed(V8Context* c) {
     int n;
     auto i = reinterpret_cast<std::uintptr_t>(c);
-    return !map->find(i, n);
+    return !map.find(i, n);
 }
 
 #define VerifyContext(c) \
@@ -34,65 +36,29 @@ void LogAndroid1(const char* location, const char* message) {
 
 extern "C" {
 
-    void Log(const char* text) {
-        LogAndroid1("Test", text);
-    }
-
-    int  Add(int a, int b) {
-        return a + b;
-    }
-
-//    V8Context* V8Context_Create1(
-//            int debug,
-//            void* allocateMemory,
-//            void* freeMemory,
-//            void* freeHandle,
-//            void* logger,
-//            void* waitForDebugMessageFromProtocol,
-//            void* sendDebugMessageToProtocol,
-//            void* fatalErrorCallback,
-//            void* breakPauseOn) {
-//        LogAndroid1("Create" , "Start");
-//        __ClrEnv env;
-//        env.allocateMemory = (AllocateMemory)allocateMemory;
-//        env.freeMemory = (FreeMemory)freeMemory;
-//        env.freeHandle = (FreeMemory)freeHandle;
-//        env.loggerCallback = (LoggerCallback)logger;
-//        env.readDebugMessage = (ReadDebugMessage)waitForDebugMessageFromProtocol;
-//        env.sendDebugMessage = (SendDebugMessage)sendDebugMessageToProtocol;
-//        env.fatalErrorCallback = (FatalErrorCallback)fatalErrorCallback;
-//        env.breakPauseOn = (BreakPauseOn) breakPauseOn;
-//
-//        V8Context*c = new V8Context(
-//                debug,
-//                &env);
-//        _logger = env.loggerCallback;
-//        auto i = reinterpret_cast<std::uintptr_t>(c);
-//        map->insert(i, 1);
-//        return c;
-//    }
-
-
     V8Context* V8Context_Create(
-            uint8_t debug,
-            __ClrEnv env) {
-        LogAndroid1("Create" , "Start");
+            bool debug,
+            ClrEnv env) {
         V8Context*c = new V8Context(
                 debug,
-                &env);
-        _logger = env.loggerCallback;
+                env);
+        _logger = env->loggerCallback;
         auto i = reinterpret_cast<std::uintptr_t>(c);
-        map->insert(i, 1);
+        map.insert(i, 1);
         return c;
     }
 
 
     void V8Context_Dispose(ClrPointer ctx) {
-        INIT_CONTEXT
-        auto i = reinterpret_cast<std::uintptr_t>(context);
-        map->erase(i);
-        context->Dispose();
-        delete context;
+        try {
+            INIT_CONTEXT
+            auto i = reinterpret_cast<std::uintptr_t>(context);
+            map.erase(i);
+            context->Dispose();
+            delete context;
+        } catch (...) {
+            LogAndroid1("V8", "Dispose Error");
+        }
     }
 
     V8Response V8Context_CreateString(ClrPointer ctx, Utf16Value value) {

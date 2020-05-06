@@ -6,6 +6,15 @@ using V8Handle = System.IntPtr;
 
 namespace Xamarin.Android.V8
 {
+
+    public class JavaScriptException: Exception
+    {
+        public JavaScriptException(string message): base(message)
+        {
+
+        }
+    }
+
     internal static class JSExtensions
     {
         public static JSValue ToJSValue(this IJSValue v)

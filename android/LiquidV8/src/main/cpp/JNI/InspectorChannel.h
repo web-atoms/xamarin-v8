@@ -34,19 +34,19 @@ private:
     }
     void flushProtocolNotifications() override {}
 
-    inline v8::Local<v8::Context> GetContext() {
+    inline Local<Context> GetContext() {
         return vc->GetContext();
     }
 
     void Send(int callId, const v8_inspector::StringView& string) {
         if (string.is8Bit()) {
-            sendDebugMessage_((int)string.length(), string.characters8(), nullptr);
+            sendDebugMessage_(string.length(), string.characters8(), nullptr);
         } else {
-            sendDebugMessage_((int)string.length(), nullptr, string.characters16());
+            sendDebugMessage_(string.length(), nullptr, string.characters16());
         }
     }
 
-    v8::Isolate* isolate_;
+    Isolate* isolate_;
     V8Context* vc;
     SendDebugMessage sendDebugMessage_;
 };
@@ -61,7 +61,7 @@ public:
     :v8_inspector::V8InspectorClient()
     {
         if (!connect) return;
-        freeHandle = env->freeHandle;
+        freeMemory = env->freeMemory;
         readDebugMessage_ = env->readDebugMessage;
         breakPauseOn_ = env->breakPauseOn;
         platform_ = platform;
@@ -70,7 +70,7 @@ public:
         inspector_ = v8_inspector::V8Inspector::create(isolate_, this);
         session_ =
                 inspector_->connect(1, channel_.get(), v8_inspector::StringView());
-        v8::Local<v8::Context> context = vc->GetContext();
+        Local<Context> context = vc->GetContext();
         context->SetAlignedPointerInEmbedderData(kInspectorClientIndex, this);
         inspector_->contextCreated(v8_inspector::V8ContextInfo(
                 context, kContextGroupId, v8_inspector::StringView()));
@@ -92,8 +92,9 @@ public:
             auto dm = readDebugMessage_();
             v8_inspector::StringView message_view(dm.Value, dm.Length);
             session_->dispatchProtocolMessage(message_view);
-            freeHandle((void*)dm.Value);
             while (v8::platform::PumpMessageLoop(platform_, isolate_)) {}
+            // this was allocated on HGlobal
+            freeMemory((void*)dm.Value);
         }
 
         terminated_ = false;
@@ -112,7 +113,7 @@ public:
 
 private:
 
-    v8::Local<v8::Context> ensureDefaultContextInGroup(int group_id) override {
+    Local<Context> ensureDefaultContextInGroup(int group_id) override {
         // DCHECK(isolate_);
         // DCHECK_EQ(kContextGroupId, group_id);
         return context_.Get(isolate_);
@@ -123,14 +124,14 @@ private:
     std::unique_ptr<v8_inspector::V8Inspector> inspector_;
     std::unique_ptr<v8_inspector::V8InspectorSession> session_;
     std::unique_ptr<v8_inspector::V8Inspector::Channel> channel_;
-    v8::Global<v8::Context> context_;
-    v8::Isolate* isolate_;
+    Global<Context> context_;
+    Isolate* isolate_;
     v8::Platform* platform_;
     bool running_nested_loop_;
     bool terminated_;
     ReadDebugMessage readDebugMessage_;
     BreakPauseOn  breakPauseOn_;
-    FreeMemory freeHandle;
+    FreeMemory freeMemory;
 };
 
 #endif //ANDROID_INSPECTORCHANNEL_H

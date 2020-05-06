@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 namespace Xamarin.Android.V8
 {
 
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct Utf16IntPtr
     {
@@ -12,34 +13,23 @@ namespace Xamarin.Android.V8
 
         internal int Length;
 
-        public unsafe static implicit operator Utf16IntPtr(string value)
+        public static implicit operator Utf16IntPtr(string value) => new Utf16IntPtr
         {
-            return new Utf16IntPtr
-            {
-                Value = Marshal.StringToHGlobalUni(value),
-                Length = value.Length
-            };
-        }
+            Value = Marshal.StringToHGlobalUni(value),
+            Length = value?.Length ?? 0 
+        };
     }
+
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct Utf16Value
     {
-        // following is not possible in ARM64, bug in ARM64 ...
         [MarshalAs(UnmanagedType.LPWStr)]
         internal string Value;
 
         internal int Length;
 
-        public unsafe static implicit operator Utf16Value(string value)
-        {
-            return new Utf16Value { Value = value, Length = value.Length };
-            //GCHandle handle = GCHandle.Alloc(value);
-            //var a = value.ToCharArray();
-            //fixed (char* ch  = &a[0]) {
-            //    return new Utf16Value { Value = handle.AddrOfPinnedObject(), Length = value?.Length ?? 0 };
-            //}
-        }
+        public static implicit operator Utf16Value(string value) => new Utf16Value { Value = value, Length = value?.Length ?? 0};
     }
 
     [StructLayout(LayoutKind.Explicit)]
@@ -62,6 +52,38 @@ namespace Xamarin.Android.V8
         public IntPtr refValue;
 
     }
+
+    //[StructLayout(LayoutKind.Sequential)]
+    //public struct ArrayValue
+    //{
+    //    [MarshalAs(UnmanagedType.I4)]
+    //    public int Length;
+
+    //    public IntPtr stringValue;
+
+    //    public IntPtr arrayValue;
+
+    //    internal unsafe JSValue[] ToJSValueArray(JSContext context)
+    //    {
+    //        V8Response* p = (V8Response*)arrayValue;
+    //        JSValue[] result = new JSValue[Length];
+    //        for (int i = 0; i < Length; i++)
+    //        {
+    //            var r = p[i];
+    //            result[i] = new JSValue(context, r.GetContainer());
+    //        }
+    //        return result;
+    //    }
+
+    //    internal unsafe string String
+    //    {
+    //        get
+    //        {
+    //            char* c = (char*)stringValue;
+    //            return new String(c, 0, Length);
+    //        }
+    //    }
+    //}
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct V8Response
@@ -100,6 +122,17 @@ namespace Xamarin.Android.V8
                 result[i] = new JSValue(context, r);
             }
             return result;
+        }
+
+        public static implicit operator V8Response(Exception ex)
+        {
+            string error = ex.ToString();
+            IntPtr ptr = Marshal.StringToHGlobalUni(error);
+            return new V8Response {
+                Type = V8HandleType.Error,
+                address = ptr,
+                length = error.Length
+            };
         }
     }
 }

@@ -76,7 +76,7 @@ disposed by the caller by calling V8Context_Release method.
     };
 
 }
-V8Response V8Response_From(v8::Local<v8::Context> &context, v8::Local<v8::Value> &handle);
+V8Response V8Response_From(Local<Context> &context, Local<Value> &handle);
 
 // V8Response V8Response_FromWrappedObject(Local<Context> context, Local<v8::External> handle);
 

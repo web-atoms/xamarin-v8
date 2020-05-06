@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.4.1)
 
 #include(ndk-stl-config.cmake)
 
@@ -444,7 +444,7 @@ set( SOURCES
 
 add_library( liquidjs SHARED ${SOURCES} )
 
-add_library(v8android SHARED IMPORTED)
+add_library(v8android STATIC IMPORTED)
 set_target_properties(
 		v8android PROPERTIES IMPORTED_LOCATION
         ${PROJECT_SOURCE_DIR}/../../../prebuilt/${ANDROID_ABI}/libv8android.so )
