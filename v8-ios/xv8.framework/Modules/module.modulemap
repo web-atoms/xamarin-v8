@@ -1,0 +1,6 @@
+framework module xv8 {
+  umbrella header "xv8.h"
+
+  export *
+  module * { export * }
+}

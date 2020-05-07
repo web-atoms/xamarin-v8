@@ -5,7 +5,8 @@
 #ifndef LIQUIDCORE_MASTER_COMMON_H
 #define LIQUIDCORE_MASTER_COMMON_H
 #include "v8.h"
-#include <android/log.h>
+#include "log.h"
+// #include <android/log.h>
 #include "libplatform/libplatform.h"
 
 
@@ -18,7 +19,7 @@ using namespace v8;
 template<typename T>
     static Local<T> Checked(const char * fileName, const int line, MaybeLocal<T> m) {
         if (m.IsEmpty()) {
-            __android_log_print(ANDROID_LOG_ERROR, "V8", "MayBeLocal is Empty at %s %d", fileName, line);
+            _log("MayBeLocal is Empty at %s %d", fileName, line);
         }
         return m.ToLocalChecked();
     }
@@ -27,7 +28,7 @@ template<typename T>
 static T Checked(const char * fileName, const int line, Maybe<T> m) {
     T value;
     if (!m.To(&value)) {
-        __android_log_print(ANDROID_LOG_ERROR, "V8", "MayBeLocal is Empty at %s %d", fileName, line);
+        _log("MayBeLocal is Empty at %s %d", fileName, line);
     }
     return value;
 }

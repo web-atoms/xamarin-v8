@@ -1,0 +1,418 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A06FF2132463FEF8004DF235 /* xv8.h in Headers */ = {isa = PBXBuildFile; fileRef = A06FF2112463FEF8004DF235 /* xv8.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A06FF2172463FF0D004DF235 /* libv8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A06FF1E92463FBC7004DF235 /* libv8.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
+		A06FF2182463FF81004DF235 /* libv8.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = A06FF1E92463FBC7004DF235 /* libv8.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A06FF2192463FF81004DF235 /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				A06FF2182463FF81004DF235 /* libv8.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		A04F972A2463E9B200AF11DB /* universal */ = {isa = PBXFileReference; lastKnownFileType = folder; name = universal; path = ../lib/universal; sourceTree = "<group>"; };
+		A04F972B2463EA1F00AF11DB /* HashNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HashNode.h; path = ../../../android/LiquidV8/src/main/cpp/JNI/HashNode.h; sourceTree = "<group>"; };
+		A04F972C2463EA1F00AF11DB /* InspectorChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InspectorChannel.h; path = ../../../android/LiquidV8/src/main/cpp/JNI/InspectorChannel.h; sourceTree = "<group>"; };
+		A04F972D2463EA1F00AF11DB /* InspectorChannel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InspectorChannel.cpp; path = ../../../android/LiquidV8/src/main/cpp/JNI/InspectorChannel.cpp; sourceTree = "<group>"; };
+		A04F972E2463EA1F00AF11DB /* V8Context.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = V8Context.cpp; path = ../../../android/LiquidV8/src/main/cpp/JNI/V8Context.cpp; sourceTree = "<group>"; };
+		A04F972F2463EA1F00AF11DB /* V8Context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = V8Context.h; path = ../../../android/LiquidV8/src/main/cpp/JNI/V8Context.h; sourceTree = "<group>"; };
+		A04F97302463EA1F00AF11DB /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HashMap.h; path = ../../../android/LiquidV8/src/main/cpp/JNI/HashMap.h; sourceTree = "<group>"; };
+		A04F97312463EA1F00AF11DB /* xv8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xv8.cpp; path = ../../../android/LiquidV8/src/main/cpp/JNI/xv8.cpp; sourceTree = "<group>"; };
+		A04F97322463EA1F00AF11DB /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = ../../../android/LiquidV8/src/main/cpp/JNI/common.h; sourceTree = "<group>"; };
+		A06FF1E92463FBC7004DF235 /* libv8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libv8.dylib; path = ../lib/universal/libv8.dylib; sourceTree = "<group>"; };
+		A06FF1F22463FC89004DF235 /* xv8.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xv8.h; sourceTree = "<group>"; };
+		A06FF1F32463FC89004DF235 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A06FF1FE2463FD53004DF235 /* xv8.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = xv8.hpp; sourceTree = "<group>"; };
+		A06FF2002463FD53004DF235 /* xv8Priv.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = xv8Priv.hpp; sourceTree = "<group>"; };
+		A06FF2022463FD53004DF235 /* xv8.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = xv8.cpp; sourceTree = "<group>"; };
+		A06FF20F2463FEF8004DF235 /* xv8.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = xv8.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		A06FF2112463FEF8004DF235 /* xv8.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xv8.h; sourceTree = "<group>"; };
+		A06FF2122463FEF8004DF235 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A0B450332463EF9500B91FE0 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A06FF20C2463FEF8004DF235 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A06FF2172463FF0D004DF235 /* libv8.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A06FF1E82463FBC7004DF235 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A06FF1E92463FBC7004DF235 /* libv8.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A06FF1F12463FC89004DF235 /* xv8 */ = {
+			isa = PBXGroup;
+			children = (
+				A06FF1F22463FC89004DF235 /* xv8.h */,
+				A06FF1F32463FC89004DF235 /* Info.plist */,
+			);
+			path = xv8;
+			sourceTree = "<group>";
+		};
+		A06FF1FD2463FD53004DF235 /* xv8 */ = {
+			isa = PBXGroup;
+			children = (
+				A06FF1FE2463FD53004DF235 /* xv8.hpp */,
+				A06FF2002463FD53004DF235 /* xv8Priv.hpp */,
+				A06FF2022463FD53004DF235 /* xv8.cpp */,
+			);
+			path = xv8;
+			sourceTree = "<group>";
+		};
+		A06FF2102463FEF8004DF235 /* xv8 */ = {
+			isa = PBXGroup;
+			children = (
+				A06FF2112463FEF8004DF235 /* xv8.h */,
+				A06FF2122463FEF8004DF235 /* Info.plist */,
+			);
+			path = xv8;
+			sourceTree = "<group>";
+		};
+		A0A3331B2463D7B000C37BF2 = {
+			isa = PBXGroup;
+			children = (
+				A0A333262463D7B000C37BF2 /* xv8 */,
+				A06FF1F12463FC89004DF235 /* xv8 */,
+				A06FF1FD2463FD53004DF235 /* xv8 */,
+				A06FF2102463FEF8004DF235 /* xv8 */,
+				A0A333252463D7B000C37BF2 /* Products */,
+				A04F972A2463E9B200AF11DB /* universal */,
+				A06FF1E82463FBC7004DF235 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		A0A333252463D7B000C37BF2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A06FF20F2463FEF8004DF235 /* xv8.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A0A333262463D7B000C37BF2 /* xv8 */ = {
+			isa = PBXGroup;
+			children = (
+				A04F97322463EA1F00AF11DB /* common.h */,
+				A04F97302463EA1F00AF11DB /* HashMap.h */,
+				A04F972B2463EA1F00AF11DB /* HashNode.h */,
+				A04F972D2463EA1F00AF11DB /* InspectorChannel.cpp */,
+				A04F972C2463EA1F00AF11DB /* InspectorChannel.h */,
+				A04F972E2463EA1F00AF11DB /* V8Context.cpp */,
+				A04F972F2463EA1F00AF11DB /* V8Context.h */,
+				A04F97312463EA1F00AF11DB /* xv8.cpp */,
+				A0B450332463EF9500B91FE0 /* log.h */,
+			);
+			path = xv8;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		A06FF20A2463FEF8004DF235 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A06FF2132463FEF8004DF235 /* xv8.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		A06FF20E2463FEF8004DF235 /* xv8 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A06FF2142463FEF8004DF235 /* Build configuration list for PBXNativeTarget "xv8" */;
+			buildPhases = (
+				A06FF20A2463FEF8004DF235 /* Headers */,
+				A06FF20B2463FEF8004DF235 /* Sources */,
+				A06FF20C2463FEF8004DF235 /* Frameworks */,
+				A06FF20D2463FEF8004DF235 /* Resources */,
+				A06FF2192463FF81004DF235 /* Embed Libraries */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = xv8;
+			productName = xv8;
+			productReference = A06FF20F2463FEF8004DF235 /* xv8.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A0A3331C2463D7B000C37BF2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1140;
+				ORGANIZATIONNAME = NeuroSpeech;
+				TargetAttributes = {
+					A06FF20E2463FEF8004DF235 = {
+						CreatedOnToolsVersion = 11.4.1;
+					};
+				};
+			};
+			buildConfigurationList = A0A3331F2463D7B000C37BF2 /* Build configuration list for PBXProject "xv8" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A0A3331B2463D7B000C37BF2;
+			productRefGroup = A0A333252463D7B000C37BF2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A06FF20E2463FEF8004DF235 /* xv8 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A06FF20D2463FEF8004DF235 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A06FF20B2463FEF8004DF235 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A06FF2152463FEF8004DF235 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = xv8/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "../lib/universal/**";
+				PRODUCT_BUNDLE_IDENTIFIER = com.webatoms.xv8;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		A06FF2162463FEF8004DF235 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = xv8/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "../lib/universal/**";
+				PRODUCT_BUNDLE_IDENTIFIER = com.webatoms.xv8;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A0A3332B2463D7B000C37BF2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "../include/**";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LIBRARY_SEARCH_PATHS = "";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A0A3332C2463D7B000C37BF2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "../include/**";
+				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				LIBRARY_SEARCH_PATHS = "";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A06FF2142463FEF8004DF235 /* Build configuration list for PBXNativeTarget "xv8" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A06FF2152463FEF8004DF235 /* Debug */,
+				A06FF2162463FEF8004DF235 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A0A3331F2463D7B000C37BF2 /* Build configuration list for PBXProject "xv8" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A0A3332B2463D7B000C37BF2 /* Debug */,
+				A0A3332C2463D7B000C37BF2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A0A3331C2463D7B000C37BF2 /* Project object */;
+}

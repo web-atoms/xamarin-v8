@@ -2,12 +2,13 @@
 // Created by ackav on 08-04-2020.
 //
 
-#include <android/log.h>
+// #include <android/log.h>
 #include "V8Context.h"
 #include "V8Response.h"
 #include "V8External.h"
 #include "InspectorChannel.h"
 #include "ExternalX16String.h"
+#include "log.h"
 
 #define RETURN_EXCEPTION(e) \
     return FromException(context, e, __FILE__, __LINE__);                    \
@@ -24,7 +25,7 @@ static FreeMemory clrFreeHandle;
 static std::unique_ptr<v8::Platform> sPlatform;
 static FatalErrorCallback fatalErrorCallback;
 void LogAndroid(const char* location, const char* message) {
-    __android_log_print(ANDROID_LOG_ERROR, "V8", "%s %s", location, message);
+    _log("%s %s", location, message);
     // fatalErrorCallback(CopyString(location), CopyString(message));
 }
 
@@ -33,7 +34,7 @@ bool CanAbort(Isolate* isolate) {
 }
 
 void FatalErrorLogger(Local<Message> message, Local<Value> data) {
-    __android_log_print(ANDROID_LOG_ERROR, "V8", "Some Error");
+    _log("Some Error");
 }
 
 static __ClrEnv clrEnv;

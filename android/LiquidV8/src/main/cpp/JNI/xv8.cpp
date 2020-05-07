@@ -2,6 +2,7 @@
 #include "V8Response.h"
 #include "V8Context.h"
 #include "HashMap.h"
+#include "log.h"
 // #include "V8Hack.h"
 
 #define INIT_CONTEXT V8Context* context = static_cast<V8Context*>(ctx);
@@ -30,7 +31,7 @@ bool IsContextDisposed(V8Context* c) {
 LoggerCallback _logger;
 
 void LogAndroid1(const char* location, const char* message) {
-    __android_log_print(ANDROID_LOG_ERROR, "V8", "%s %s", location, message);
+    _log("%s %s", location, message);
     // fatalErrorCallback(CopyString(location), CopyString(message));
 }
 

@@ -5,7 +5,7 @@
 #ifndef ANDROID_INSPECTORCHANNEL_H
 #define ANDROID_INSPECTORCHANNEL_H
 
-#include <android/log.h>
+// #include <android/log.h>
 
 #include "common.h"
 #include "v8-inspector.h"
