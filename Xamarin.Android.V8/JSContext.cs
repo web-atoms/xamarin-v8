@@ -102,7 +102,7 @@ namespace Xamarin.Android.V8
             }
         }
     }
-    public class JSContext: IJSContext, IDisposable
+    public class JSContext : IJSContext, IDisposable
     {
 
         private static object creationLock = new object();
@@ -134,6 +134,8 @@ namespace Xamarin.Android.V8
         public IJSValue Global { get; }
 
         public JSValue Null { get; }
+
+        IJSValue IJSContext.Null => Null;
 
         public string Stack => this.Global["Error"].CreateNewInstance()["stack"].ToString();
 
@@ -326,20 +328,6 @@ namespace Xamarin.Android.V8
 
         }
 
-
-        private async Task<string> ReadDebugMessageAsync()
-        {
-            lock(this)
-            {
-                readMessageTask = new TaskCompletionSource<string>();
-            }
-            var msg = await readMessageTask.Task;
-            lock(this)
-            {
-                readMessageTask = null;
-            }
-            return msg;
-        }
 
         private TaskCompletionSource<string> readMessageTask;
 
