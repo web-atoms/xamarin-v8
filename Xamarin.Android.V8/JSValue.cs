@@ -12,6 +12,7 @@ namespace Xamarin.Android.V8
         readonly JSContext jsContext;
         readonly V8ContextHandle context;
         internal V8Response handle;
+        private string cachedString;
         internal JSValue(JSContext context, V8Response r)
         {
             this.jsContext = context;
@@ -237,6 +238,14 @@ namespace Xamarin.Android.V8
                 case V8HandleType.Integer: return this.handle.result.intValue.ToString();
                 case V8HandleType.BigInt: return this.handle.result.longValue.ToString();
                 case V8HandleType.Number: return this.handle.result.doubleValue.ToString();
+                case V8HandleType.String:
+                    if (cachedString == null)
+                    {
+                        var rs = JSContext.V8Context_ToString(context, handle.address);
+                        rs.ThrowError();
+                        cachedString = rs.StringValue;
+                    }
+                    return this.cachedString;
             }
             var r = JSContext.V8Context_ToString(context, handle.address);
             r.ThrowError();

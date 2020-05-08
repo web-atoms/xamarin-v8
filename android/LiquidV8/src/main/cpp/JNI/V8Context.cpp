@@ -824,6 +824,12 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
         return v;
     }
 
+    // this is just for reference
+    // this is only used in CLR to compare two object
+    // if address is same, objects are considered equal
+    // otherwise JavaScript equals method is invoked
+    v.result.refValue = *handle;
+
     Isolate* isolate = context->GetIsolate();
 
     HandleScope hs(isolate);
@@ -891,6 +897,7 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
     V8Handle h = new Global<Value>();
     h->SetWrapperClassId(WRAPPED_CLASS);
     v.address = (void*)h;
+    // this is just to skip equals when we need to compare two array items
     h->Reset(isolate, handle);
     return v;
 }

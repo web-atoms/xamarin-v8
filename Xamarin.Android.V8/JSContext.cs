@@ -145,6 +145,23 @@ namespace Xamarin.Android.V8
 
         internal IJSValue WrappedSymbol { get; }
 
+        private IJSValue _elementWrapper;
+        private IJSValue elementWrapper => 
+            _elementWrapper ?? (_elementWrapper = this.Evaluate(
+                @"(function () {
+                    var bridge = global.bridge ? global.bridge : null;
+                    function ElementWrapper () {
+                    }
+                    if (bridge) {
+                        ElementWrapper.prototype.appendChild = function(e) { return bridge.appendChild(this,e);  };
+                        ElementWrapper.prototype.dispatchEvent = function(e) { return bridge.dispatchEvent(this,e);  };
+                        Object.defineProperty(ElementWrapper.prototype, 'expand', {
+                            get: function() { return bridge.describe(this); }, configurable: true, enumerable: true
+                        });
+                    }
+                    return ElementWrapper;
+                })()"));
+
         private V8InspectorProtocol inspectorProtocol;
 
         /// <summary>
@@ -489,38 +506,45 @@ namespace Xamarin.Android.V8
                 return this.CreatePromiseWithResult(task);
             }
 
-
             var wgc = GCHandle.Alloc(value);
             var wgcPtr = GCHandle.ToIntPtr(wgc);
-            var wrapped = new JSValue(this, V8Context_Wrap(context, wgcPtr ));
-            var w = new JSValue(this, V8Context_CreateObject(context));
-
-            if (!(value is IJSContext))
-            {
-                w.DefineProperty("expand", new JSPropertyDescriptor
-                {
-                    Enumerable = true,
-                    Configurable = true,
-                    Get = CreateFunction(0, (c, a) =>
-                    {
-                        return this.Serialize(value, SerializationMode.Reference);
-                    }, "Expand")
-                });
-
-                w["appendChild"] = this.CreateFunction(1, (c, p) =>
-                {
-                    this["bridge"].InvokeMethod("appendChild", new IJSValue[] { w, p[0] });
-                    return this.Undefined;
-                }, "appendChild");
-
-                w["dispatchEvent"] = this.CreateFunction(1, (c, p) =>
-                {
-                    var first = p[0];
-                    this["bridge"].InvokeMethod("dispatchEvent", new IJSValue[] { w, first });
-                    return first;
-                }, "dispatchEvent");
-
+            var wrapped = new JSValue(this, V8Context_Wrap(context, wgcPtr));
+            if (value is IJSContext) { 
+                
             }
+
+            var w = (value is IJSContext) 
+                    ? new JSValue(this, V8Context_CreateObject(context))
+                    : elementWrapper.CreateNewInstance();
+
+            //if (!(value is IJSContext))
+            //{
+            //    //w.DefineProperty("expand", new JSPropertyDescriptor
+            //    //{
+            //    //    Enumerable = true,
+            //    //    Configurable = true,
+            //    //    Get = CreateFunction(0, (c, a) =>
+            //    //    {
+            //    //        return this.Serialize(value, SerializationMode.Reference);
+            //    //    }, "Expand")
+            //    //});
+
+            //    elementWrapper.InvokeFunction(this.Global, w);
+
+            //    //w["appendChild"] = this.CreateFunction(1, (c, p) =>
+            //    //{
+            //    //    this["bridge"].InvokeMethod("appendChild", new IJSValue[] { w, p[0] });
+            //    //    return this.Undefined;
+            //    //}, "appendChild");
+
+            //    //w["dispatchEvent"] = this.CreateFunction(1, (c, p) =>
+            //    //{
+            //    //    var first = p[0];
+            //    //    this["bridge"].InvokeMethod("dispatchEvent", new IJSValue[] { w, first });
+            //    //    return first;
+            //    //}, "dispatchEvent");
+
+            //}
             w[WrappedSymbol] = wrapped;
             return w;
         }
