@@ -261,7 +261,7 @@ void V8Context::Dispose() {
         wrapField.Reset();
         // cc->Exit();
     }
-    _isolate->Exit();
+    // _isolate->Exit();
     _isolate->Dispose();
     // delete _isolate;
     delete _arrayBufferAllocator;
@@ -811,7 +811,7 @@ void V8External::Log(const char *msg) {
 }
 
 void V8External::Release(void *data) {
-    LogAndroid("V8External", "Wrapper Released");
+    // LogAndroid("V8External", "Wrapper Released");
     if (data != nullptr) {
         clrFreeHandle(data);
     }

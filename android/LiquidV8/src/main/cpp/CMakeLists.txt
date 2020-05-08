@@ -7,6 +7,7 @@ set( SOURCES
 
   # JNI API
 		JNI/xv8.cpp
+		JNI/log.cpp
 		JNI/V8Context.cpp
 		JNI/V8Response.cpp
 		JNI/V8External.cpp

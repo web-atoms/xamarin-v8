@@ -200,6 +200,7 @@ public:
             external->selfValue.Reset();
             Release(external->_data);
             external->_data = nullptr;
+            delete external;
             return true;
         }
         external->Release();
