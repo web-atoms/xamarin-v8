@@ -196,13 +196,12 @@ namespace Xamarin.Android.V8
         {
             if (obj is JSValue jv)
             {
-                if (handle.Type != jv.handle.Type)
-                    return false;
                 switch (handle.Type)
                 {
                     case V8HandleType.Null:
+                        return jv.handle.Type == V8HandleType.Null;
                     case V8HandleType.Undefined:
-                        return true;
+                        return jv.handle.Type == V8HandleType.Undefined;
                     case V8HandleType.Boolean:
                         return handle.result.booleanValue == jv.handle.result.booleanValue;
                     case V8HandleType.Number:
@@ -239,6 +238,8 @@ namespace Xamarin.Android.V8
                 case V8HandleType.BigInt: return this.handle.result.longValue.ToString();
                 case V8HandleType.Number: return this.handle.result.doubleValue.ToString();
                 case V8HandleType.String:
+                    // since JavaScript strings are immutable,
+                    // we can cache the result..
                     if (cachedString == null)
                     {
                         var rs = JSContext.V8Context_ToString(context, handle.address);
