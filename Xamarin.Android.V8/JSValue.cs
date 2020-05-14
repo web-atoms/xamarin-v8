@@ -40,7 +40,7 @@ namespace Xamarin.Android.V8
 
         public bool IsDate => handle.Type == V8HandleType.Date;
 
-        public bool IsNumber => (handle.Type & V8HandleType.Number) > 0 ;
+        public bool IsNumber => handle.Type == V8HandleType.Number || handle.Type == V8HandleType.NotANumber;
 
         public bool IsBoolean => handle.Type == V8HandleType.Boolean;
 

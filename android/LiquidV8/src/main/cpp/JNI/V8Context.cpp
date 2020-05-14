@@ -684,7 +684,7 @@ V8Response V8Context::Has(V8Handle target, V8Handle index) {
     // 
     Local<Value> value = target->Get(_isolate);
     if (!value->IsObject()) {
-        return FromError("Target is not an object ");
+        return V8Response_FromBoolean(false);
     }
     Local<v8::Object> obj = Local<v8::Object>::Cast(value);
     Local<v8::Name> key = Local<v8::Name>::Cast(index->Get(_isolate));
