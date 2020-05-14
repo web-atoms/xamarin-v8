@@ -272,6 +272,13 @@ namespace Xamarin.Android.V8
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
+                    // if context was disposed
+                    // the underlying handle was already deleted forcefully
+                    // so we can ignore this..
+                    if (context.IsDisposed || handle.address == IntPtr.Zero)
+                    {
+                        return;
+                    }
                     JSContext.V8Context_ReleaseHandle(context, h).GetBooleanValue();
                 });
             }
