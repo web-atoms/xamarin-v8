@@ -107,7 +107,7 @@ namespace Xamarin.Android.V8
     public class JSContext : IJSContext, IDisposable
     {
 
-        private static object creationLock = new object();
+        private static readonly object creationLock = new object();
 
         const string LibName = "liquidjs";
 
@@ -118,10 +118,10 @@ namespace Xamarin.Android.V8
         static JSAllocateMemory allocateMemory;
         static JSAllocateString allocateString;
 
-        ReadDebugMessageFromV8 receiveDebugFromV8;
-        ReadDebugMessage readDebugMessage;
-        JSContextLog logger;
-        BreakPauseOn breakPauseOn;
+        readonly ReadDebugMessageFromV8 receiveDebugFromV8;
+        readonly ReadDebugMessage readDebugMessage;
+        readonly JSContextLog logger;
+        readonly BreakPauseOn breakPauseOn;
 
 
         public Action<string> Logger { get; set; }
@@ -149,7 +149,7 @@ namespace Xamarin.Android.V8
         internal IJSValue WrappedSymbol { get; }
 
         private IJSValue _elementWrapper;
-        private IJSValue elementWrapper => 
+        private IJSValue ElementWrapper => 
             _elementWrapper ?? (_elementWrapper = this.Evaluate(
                 @"(function () {
                     var bridge = global.bridge ? global.bridge : null;
@@ -165,7 +165,7 @@ namespace Xamarin.Android.V8
                     return ElementWrapper;
                 })()"));
 
-        private V8InspectorProtocol inspectorProtocol;
+        private readonly V8InspectorProtocol inspectorProtocol;
 
         /// <summary>
         /// Creates JSContext with inverse web socket proxy, this is helpful if you do not want to create
@@ -192,7 +192,7 @@ namespace Xamarin.Android.V8
 
         }
 
-        private ReadMessageLock readLock = new ReadMessageLock();
+        private readonly ReadMessageLock readLock = new ReadMessageLock();
 
         private JSContext(V8InspectorProtocol protocol = null)
         {
@@ -525,7 +525,7 @@ namespace Xamarin.Android.V8
 
             var w = (value is IJSContext) 
                     ? new JSValue(this, V8Context_CreateObject(context))
-                    : elementWrapper.CreateNewInstance();
+                    : ElementWrapper.CreateNewInstance();
 
             //if (!(value is IJSContext))
             //{
@@ -566,7 +566,7 @@ namespace Xamarin.Android.V8
             var wrapped = new JSValue(this, V8Context_Wrap(context, wgcPtr));
             var w = (value is IJSContext)
                     ? Global
-                    : elementWrapper.CreateNewInstance();
+                    : ElementWrapper.CreateNewInstance();
             w[WrappedSymbol] = wrapped;
             return w;
         }

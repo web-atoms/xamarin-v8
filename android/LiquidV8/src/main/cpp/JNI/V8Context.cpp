@@ -5,7 +5,6 @@
 // #include <android/log.h>
 #include "V8Context.h"
 #include "V8Response.h"
-#include "V8External.h"
 #include "InspectorChannel.h"
 #include "ExternalX16String.h"
 #include "log.h"
@@ -316,17 +315,24 @@ V8Response V8Context::CreateString(Utf16Value value) {
 V8Response V8Context::CreateStringFrom(Local<v8::String> &value) {
     V8Response r = {};
     r.type = V8ResponseType::CharArray;
+    auto length = value->Length();
+    if (length == 0) {
+        // this tells CLR that this is an empty string.. it is not null
+        r.result.booleanValue = 1;
+        return r;
+    }
 
     // is it an external string?
-//    if (value->IsExternal()) {
-////        // value->GetExternalStringResource()
-////        r.type = V8ResponseType::ConstCharArray;
-////        ExternalX16String* ext = dynamic_cast<ExternalX16String*>(value->GetExternalStringResource());
-////        r.address = (void*)ext->Handle();
-////        return r;
-////    }
+    if (value->IsExternal()) {
+        // value->GetExternalStringResource()
+        ExternalX16String* ext = dynamic_cast<ExternalX16String*>(value->GetExternalStringResource());
+        if (ext != nullptr) {
+            r.type = V8ResponseType::ConstCharArray;
+            r.address = (void *) ext->Handle();
+            return r;
+        }
+    }
 
-    auto length = value->Length();
     auto es = clrAllocateString(length);
     value->Write(_isolate, (uint16_t*)es.Value, 0, length);
     r.length = length;

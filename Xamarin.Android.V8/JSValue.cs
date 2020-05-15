@@ -119,10 +119,9 @@ namespace Xamarin.Android.V8
         {
             get
             {
-                long n = 0;
                 if (this.handle.Type == V8HandleType.Number)
                 {
-                    n = (long)this.handle.result.doubleValue;
+                    var n = (long)this.handle.result.doubleValue;
                     return n.FromJSTime();
                 }
                 if (this.handle.Type == V8HandleType.BigInt)

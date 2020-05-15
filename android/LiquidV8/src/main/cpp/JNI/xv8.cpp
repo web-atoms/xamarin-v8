@@ -3,7 +3,6 @@
 #include "V8Context.h"
 #include "HashMap.h"
 #include "log.h"
-// #include "V8Hack.h"
 
 #define INIT_CONTEXT V8Context* context = static_cast<V8Context*>(ctx);
 

@@ -137,6 +137,14 @@ namespace Xamarin.Android.V8
         {
             get
             {
+                if (address == IntPtr.Zero)
+                {
+                    if (result.booleanValue)
+                    {
+                        return string.Empty;
+                    }
+                    return null;
+                }
                 var gc = GCHandle.FromIntPtr(address);
                 string value = (string)gc.Target;
                 // free only if it was not const...

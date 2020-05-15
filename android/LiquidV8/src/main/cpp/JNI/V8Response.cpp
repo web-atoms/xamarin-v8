@@ -3,7 +3,6 @@
 //
 #include "V8Response.h"
 #include "V8Context.h"
-#include "V8External.h"
 
 
 
