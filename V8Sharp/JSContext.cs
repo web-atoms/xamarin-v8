@@ -6,14 +6,16 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
+//using Android.App;
+//using Android.Content;
+//using Android.OS;
+//using Android.Runtime;
+//using Android.Views;
+//using Android.Widget;
 using WebAtoms;
 using V8Handle = System.IntPtr;
+
+using WebAtoms.V8Sharp;
 
 
 namespace Xamarin.Android.V8
@@ -109,8 +111,11 @@ namespace Xamarin.Android.V8
 
         private static readonly object creationLock = new object();
 
+#if __IOS__
+        const string LibName = "xv8";
+#else
         const string LibName = "liquidjs";
-
+#endif
         static JSFreeMemory freeHandle;
         static JSFreeMemory freeMemory;
         static FatalErrorCallback fatalErrorCallback;

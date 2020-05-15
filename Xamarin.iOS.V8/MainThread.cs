@@ -7,7 +7,7 @@ using Foundation;
 using ObjCRuntime;
 using UIKit;
 
-namespace NativeLibrary
+namespace WebAtoms.V8Sharp
 {
     class Timeout : IDisposable { 
     

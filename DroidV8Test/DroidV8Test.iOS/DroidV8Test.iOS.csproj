@@ -128,8 +128,12 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\DroidV8Test\DroidV8Test.csproj">
-      <Project>{496DC29C-3ECE-4B4A-9EF0-436F61CF13ED}</Project>
+      <Project>{2E071219-BAA7-4590-A7CE-F750C410CFA9}</Project>
       <Name>DroidV8Test</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.iOS.V8\Xamarin.iOS.V8.csproj">
+      <Project>{9B6BD4AC-3B51-4EA3-8710-0C3D87FC0D6A}</Project>
+      <Name>Xamarin.iOS.V8</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

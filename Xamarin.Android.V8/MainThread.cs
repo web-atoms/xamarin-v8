@@ -11,7 +11,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
     internal static partial class MainThread
     {

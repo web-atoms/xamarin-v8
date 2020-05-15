@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Xamarin.iOS" />
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -47,6 +48,14 @@
       <SmartLink>False</SmartLink>
     </NativeReference>
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="WebAtoms.Core">
+      <Version>1.4.101</Version>
+    </PackageReference>
+    <PackageReference Include="deniszykov.WebSocketListener">
+      <Version>4.2.4</Version>
+    </PackageReference>
+  </ItemGroup>
   <Import Project="..\V8Sharp\V8Sharp.projitems" Label="Shared" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.ObjCBinding.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

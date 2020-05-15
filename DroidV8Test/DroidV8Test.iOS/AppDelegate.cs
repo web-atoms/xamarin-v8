@@ -5,6 +5,8 @@ using System.Linq;
 using Foundation;
 using UIKit;
 
+using Xamarin.Android.V8;
+
 namespace DroidV8Test.iOS
 {
     // The UIApplicationDelegate for the application. This class is responsible for launching the 
@@ -24,6 +26,27 @@ namespace DroidV8Test.iOS
         {
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App());
+
+            using (var j = new JSContext(true))
+            {
+                j["a"] = j.CreateString("Akash");
+                j["k"] = j.CreateString("Kava");
+                var ak = j.Evaluate("`${a} ${k}`");
+                // Assert.Equal("Akash Kava", ak.ToString());
+
+                j["n5"] = j.CreateNumber(5);
+                var a = j.Evaluate("4 + n5");
+                // Assert.True(a.IsNumber);
+                // Assert.Equal(a.IntValue, 9);
+
+                j["add"] = j.CreateFunction(0, (c, a1) => {
+                    return j.CreateString($"{a1[0]} {a1[1]}");
+                }, "Add");
+
+                a = j.Evaluate("add(a, k)");
+                // Assert.Equal("Akash Kava", a.ToString());
+
+            }
 
             return base.FinishedLaunching(app, options);
         }

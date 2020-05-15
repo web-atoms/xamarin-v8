@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using WebAtoms;
 using V8Handle = System.IntPtr;
+using WebAtoms.V8Sharp;
 
 namespace Xamarin.Android.V8
 {
