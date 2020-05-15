@@ -415,6 +415,8 @@ namespace Xamarin.Android.V8
 
         public IJSValue CreateString(string value)
         {
+            if (value == null)
+                return Null;
             return new JSValue(this, V8Context_CreateString(context, value));
         }
 

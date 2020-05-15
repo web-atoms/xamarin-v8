@@ -130,6 +130,7 @@ V8Context::V8Context(
 
     _undefined.Reset(_isolate, v8::Undefined(_isolate));
     _null.Reset(_isolate, v8::Null(_isolate));
+    _emptyString.Reset(_isolate, v8::String::Empty(_isolate));
 
     if (debug) {
         inspectorClient = new XV8InspectorClient(
@@ -259,6 +260,7 @@ void V8Context::Dispose() {
         _global.Reset();
         _undefined.Reset();
         _null.Reset();
+        _emptyString.Reset();
         wrapField.Reset();
         // cc->Exit();
     }

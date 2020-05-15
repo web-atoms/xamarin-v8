@@ -50,7 +50,7 @@ namespace WebAtoms.V8Sharp
             if (handler?.Looper != Looper.MainLooper)
                 handler = new Handler(Looper.MainLooper);
 
-            return new Timeout(handler, action, delayMillis);
+            return new Xamarin.Android.V8.Timeout(handler, action, delayMillis);
         }
 
 

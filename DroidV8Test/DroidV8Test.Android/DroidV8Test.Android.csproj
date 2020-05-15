@@ -101,6 +101,10 @@
     <Folder Include="Resources\drawable\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\WebAtoms.Core\WebAtoms.Core.csproj">
+      <Project>{b93a9580-f2fa-4b77-b540-6a82be9ae4fb}</Project>
+      <Name>WebAtoms.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Xamarin.Android.V8\Xamarin.Android.V8.Run.csproj">
       <Project>{9230d81f-9c6d-4962-a316-eac608f494ea}</Project>
       <Name>Xamarin.Android.V8</Name>

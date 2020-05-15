@@ -19,7 +19,7 @@ namespace DroidV8Test.Droid.Tests
         [Test]
         public void Function()
         {
-            context["clrFunction"] = context.CreateFunction(0, (c, a) => c.Convert("Test"), "T1");
+            context["clrFunction"] = context.CreateFunction(0, (c, a) => c.CreateString("Test"), "T1");
             var a = context.Evaluate("clrFunction()");
             Assert.True(a.IsString);
             Assert.Equal("Test", a.ToString());
@@ -28,7 +28,7 @@ namespace DroidV8Test.Droid.Tests
         [Test]
         public void FunctionWithParameters()
         {
-            context["clrFunction"] = context.CreateFunction(0, (c, a) => c.Convert($"{a[0]} {a[1]}") , "T2");
+            context["clrFunction"] = context.CreateFunction(0, (c, a) => c.CreateString($"{a[0]} {a[1]}") , "T2");
             var a = context.Evaluate("clrFunction('Akash', 'Kava')");
             Assert.Equal("Akash Kava", a.ToString());
 

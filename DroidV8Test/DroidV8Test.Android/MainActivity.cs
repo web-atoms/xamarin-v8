@@ -59,6 +59,9 @@ namespace DroidV8Test.Droid
 
             using (var j = new JSContext(true))
             {
+                j["Empty"] = j.CreateString("");
+                // j["Null"] = j.CreateString(null);
+
                 j["a"] = j.CreateString("Akash");
                 j["k"] = j.CreateString("Kava");
                 var ak = j.Evaluate("`${a} ${k}`");

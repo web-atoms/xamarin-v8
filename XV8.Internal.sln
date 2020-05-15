@@ -18,7 +18,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.Android.V8", "Xamar
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAtoms.Core", "..\WebAtoms.Core\WebAtoms.Core.csproj", "{B93A9580-F2FA-4B77-B540-6A82BE9AE4FB}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "V8Sharp", "V8Sharp\V8Sharp.shproj", "{A23B74D2-EC8F-47FF-A64F-E87F408F3D22}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		V8Sharp\V8Sharp.projitems*{9230d81f-9c6d-4962-a316-eac608f494ea}*SharedItemsImports = 4
+		V8Sharp\V8Sharp.projitems*{a23b74d2-ec8f-47ff-a64f-e87f408f3d22}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
