@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="WebAtoms.Core">
-      <Version>1.4.95</Version>
+      <Version>1.4.101</Version>
     </PackageReference>
     <PackageReference Include="deniszykov.WebSocketListener">
       <Version>4.2.4</Version>
@@ -63,24 +63,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncHelpers.cs" />
-    <Compile Include="AsyncQueue.cs" />
-    <Compile Include="AtomAsyncDispatcher.cs" />
-    <Compile Include="CLREnv.cs" />
-    <Compile Include="JSContext.cs" />
-    <Compile Include="JSContextFactory.cs" />
-    <Compile Include="JSExtensions.cs" />
-    <Compile Include="JSValue.cs" />
     <Compile Include="MainThread.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SafeV8Handle.cs" />
     <Compile Include="Timeout.cs" />
-    <Compile Include="V8HandleContainer.cs" />
-    <Compile Include="V8HandleType.cs" />
-    <Compile Include="V8InspectorProtocol.cs" />
-    <Compile Include="V8Response.cs" />
-    <Compile Include="V8ResponseExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\drawable\" />
@@ -112,6 +98,7 @@
   <ItemGroup>
     <AndroidResource Include="Resources\values\strings.xml" />
   </ItemGroup>
+  <Import Project="..\V8Sharp\V8Sharp.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

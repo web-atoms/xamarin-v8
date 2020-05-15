@@ -38,6 +38,7 @@
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MainThread.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -46,5 +47,6 @@
       <SmartLink>False</SmartLink>
     </NativeReference>
   </ItemGroup>
+  <Import Project="..\V8Sharp\V8Sharp.projitems" Label="Shared" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.ObjCBinding.CSharp.targets" />
 </Project>

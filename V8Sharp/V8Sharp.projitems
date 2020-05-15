@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>a23b74d2-ec8f-47ff-a64f-e87f408f3d22</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>V8Sharp</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AsyncHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AsyncQueue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)AtomAsyncDispatcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)CLREnv.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSContextFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)JSValue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SafeV8Handle.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)V8HandleContainer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)V8HandleType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)V8InspectorProtocol.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)V8Response.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)V8ResponseExtensions.cs" />
+  </ItemGroup>
+</Project>

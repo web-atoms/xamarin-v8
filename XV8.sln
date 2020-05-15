@@ -18,7 +18,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.Android.V8.Run", "X
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.iOS.V8", "Xamarin.iOS.V8\Xamarin.iOS.V8.csproj", "{9B6BD4AC-3B51-4EA3-8710-0C3D87FC0D6A}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "V8Sharp", "V8Sharp\V8Sharp.shproj", "{A23B74D2-EC8F-47FF-A64F-E87F408F3D22}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		V8Sharp\V8Sharp.projitems*{9230d81f-9c6d-4962-a316-eac608f494ea}*SharedItemsImports = 4
+		V8Sharp\V8Sharp.projitems*{9b6bd4ac-3b51-4ea3-8710-0c3d87fc0d6a}*SharedItemsImports = 4
+		V8Sharp\V8Sharp.projitems*{a23b74d2-ec8f-47ff-a64f-e87f408f3d22}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
