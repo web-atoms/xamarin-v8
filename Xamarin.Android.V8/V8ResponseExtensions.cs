@@ -47,10 +47,6 @@ namespace Xamarin.Android.V8
             if (r.Type == V8HandleType.Error || r.Type == V8HandleType.ConstError)
             {
                 var msg = r.StringValue;
-                if (r.Type == V8HandleType.Error)
-                {
-                    Marshal.FreeHGlobal(r.address);
-                }
                 throw new JavaScriptException(msg);
             }
         }
