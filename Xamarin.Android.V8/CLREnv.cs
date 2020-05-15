@@ -17,6 +17,7 @@ namespace Xamarin.Android.V8
     internal struct CLREnv
     {
         public IntPtr allocateMemory;
+        public IntPtr allocateString;
         public IntPtr freeMemory;
 
         // this is for wrapped objects

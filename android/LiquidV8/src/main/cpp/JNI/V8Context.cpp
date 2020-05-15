@@ -17,7 +17,8 @@ static bool _V8Initialized = false;
 
 static ExternalCall clrExternalCall;
 static FreeMemory  clrFreeMemory;
-static AllocateMemory clrAllocateMemory;
+// static AllocateMemory clrAllocateMemory;
+static AllocateString clrAllocateString;
 
 static FreeMemory clrFreeHandle;
 
@@ -45,7 +46,7 @@ V8Context::V8Context(
     if (!_V8Initialized) // (the API changed: https://groups.google.com/forum/#!topic/v8-users/wjMwflJkfso)
     {
         fatalErrorCallback = env->fatalErrorCallback;
-        clrAllocateMemory = env->allocateMemory;
+        // clrAllocateMemory = env->allocateMemory;
         V8::InitializeICU();
 
         sPlatform = v8::platform::NewDefaultPlatform();
@@ -56,6 +57,7 @@ V8Context::V8Context(
         clrExternalCall = env->externalCall;
         clrFreeMemory = env->freeMemory;
         clrFreeHandle = env->freeHandle;
+        clrAllocateString = env->allocateString;
         _V8Initialized = true;
     }
     // ReturnValue = (uint16_t*) malloc(2048);
@@ -314,22 +316,37 @@ V8Response V8Context::CreateString(Utf16Value value) {
 V8Response V8Context::CreateStringFrom(Local<v8::String> &value) {
     V8Response r = {};
     r.type = V8ResponseType::CharArray;
-    int n = value->Length();
-    r.length = n;
-    if (n < 1024) {
 
-        // should not be deallocated by receiver...
-        r.type = V8ResponseType ::ConstCharArray;
-        // copy to internal buffer...
-        ReturnValue[n] = 0;
-        value->Write(_isolate, ReturnValue);
-        r.address = ReturnValue;
-        // not allocating string here ...
-        return r;
-    }
-    uint16_t* buffer = (uint16_t*)clrAllocateMemory((n+1)*2);
-    value->Write(_isolate, buffer);
-    r.address = buffer;
+    // is it an external string?
+//    if (value->IsExternal()) {
+////        // value->GetExternalStringResource()
+////        r.type = V8ResponseType::ConstCharArray;
+////        ExternalX16String* ext = dynamic_cast<ExternalX16String*>(value->GetExternalStringResource());
+////        r.address = (void*)ext->Handle();
+////        return r;
+////    }
+
+    auto length = value->Length();
+    auto es = clrAllocateString(length);
+    value->Write(_isolate, (uint16_t*)es.Value, 0, length);
+    r.length = length;
+    r.address = (void*)es.Handle;
+//    int n = value->Length();
+//    r.length = n;
+//    if (n < 1024) {
+//
+//        // should not be deallocated by receiver...
+//        r.type = V8ResponseType ::ConstCharArray;
+//        // copy to internal buffer...
+//        ReturnValue[n] = 0;
+//        value->Write(_isolate, ReturnValue);
+//        r.address = ReturnValue;
+//        // not allocating string here ...
+//        return r;
+//    }
+//    uint16_t* buffer = (uint16_t*)clrAllocateMemory((n+1)*2);
+//    value->Write(_isolate, buffer);
+//    r.address = buffer;
     return r;
 }
 
@@ -349,20 +366,26 @@ V8Response V8Context::FromError(const char *msg) {
     V8Response r = {};
     r.type = V8ResponseType::Error;
     int n = strlen(msg);
-    uint16_t* buffer;
-    if (n < 1023) {
-        buffer = ReturnValue;
-        r.type = V8ResponseType::ConstError;
-    } else {
-        buffer = (uint16_t*)clrAllocateMemory((n+1)*2);
-        r.address = buffer;
-    }
-    for (int i = 0; i < n; ++i) {
+    auto es = clrAllocateString(n);
+    uint16_t* buffer = (uint16_t*)es.Value;
+    for(int i=0; i<n; i++) {
         buffer[i] = static_cast<uint16_t>(msg[i]);
     }
-    buffer[n] = 0;
     r.length = n;
-    r.address = buffer;
+    r.address = (void*)es.Handle;
+//    if (n < 1023) {
+//        buffer = ReturnValue;
+//        r.type = V8ResponseType::ConstError;
+//    } else {
+//        buffer = (uint16_t*)clrAllocateMemory((n+1)*2);
+//        r.address = buffer;
+//    }
+//    for (int i = 0; i < n; ++i) {
+//        buffer[i] = static_cast<uint16_t>(msg[i]);
+//    }
+//    buffer[n] = 0;
+//    r.length = n;
+//    r.address = buffer;
     return r;
 }
 

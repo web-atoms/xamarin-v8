@@ -21,6 +21,7 @@ extern "C" {
 
     struct __ClrEnv {
         AllocateMemory allocateMemory;
+        AllocateString allocateString;
         FreeMemory freeMemory;
 
         // release wrapped handle...

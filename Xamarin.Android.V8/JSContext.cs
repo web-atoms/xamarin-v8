@@ -38,6 +38,8 @@ namespace Xamarin.Android.V8
 
     internal delegate void JSFreeMemory(IntPtr ptr);
 
+    internal delegate Utf16Value JSAllocateString(int len);
+
     internal delegate IntPtr JSAllocateMemory(int len);
 
     internal delegate void FatalErrorCallback(IntPtr location, IntPtr message);
@@ -114,6 +116,7 @@ namespace Xamarin.Android.V8
         static FatalErrorCallback fatalErrorCallback;
         static ExternalCall externalCaller;
         static JSAllocateMemory allocateMemory;
+        static JSAllocateString allocateString;
 
         ReadDebugMessageFromV8 receiveDebugFromV8;
         ReadDebugMessage readDebugMessage;
@@ -243,6 +246,12 @@ namespace Xamarin.Android.V8
                         return m;
                     };
 
+                    allocateString = (n) => {
+                        var s = new String(' ', n);
+                        Utf16Value v = s;
+                        return v;
+                    };
+
                     freeMemory = (n) =>
                     {
                         Marshal.FreeHGlobal(n);
@@ -287,6 +296,7 @@ namespace Xamarin.Android.V8
                     new CLREnv
                     {
                         allocateMemory = Marshal.GetFunctionPointerForDelegate(allocateMemory),
+                        allocateString = Marshal.GetFunctionPointerForDelegate(allocateString),
                         freeMemory = Marshal.GetFunctionPointerForDelegate(freeMemory),
 
                         freeHandle = Marshal.GetFunctionPointerForDelegate(freeHandle),
@@ -392,10 +402,10 @@ namespace Xamarin.Android.V8
             return new JSValue(this, V8Context_CreateNull(context));
         }
 
-        public IList<IJSValue> CreateArray()
+        public IJSArray CreateArray()
         {
             var a = new JSValue(this, V8Context_CreateArray(context));
-            return a.ToArray();
+            return new AtomEnumerable(a);
         }
 
         public IJSValue CreateString(string value)
@@ -545,6 +555,18 @@ namespace Xamarin.Android.V8
             //    //}, "dispatchEvent");
 
             //}
+            w[WrappedSymbol] = wrapped;
+            return w;
+        }
+
+        public IJSValue Wrap(object value)
+        {
+            var wgc = GCHandle.Alloc(value);
+            var wgcPtr = GCHandle.ToIntPtr(wgc);
+            var wrapped = new JSValue(this, V8Context_Wrap(context, wgcPtr));
+            var w = (value is IJSContext)
+                    ? Global
+                    : elementWrapper.CreateNewInstance();
             w[WrappedSymbol] = wrapped;
             return w;
         }

@@ -137,8 +137,12 @@ namespace Xamarin.Android.V8
         {
             get
             {
-                char* c = (char*)address;
-                return new String(c, 0, length);
+                var gc = GCHandle.FromIntPtr(address);
+                string value = (string)gc.Target;
+                gc.Free();
+                return value;
+                // char* c = (char*)address;
+                // return new String(c, 0, length);
 
             }
         }

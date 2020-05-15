@@ -16,6 +16,10 @@ private:
     FreeMemory _freeMemory;
 public:
 
+    inline const void* Handle() {
+        return _handle;
+    }
+
     ExternalX16String(const uint16_t* d, int len, const void* handle, FreeMemory freeMemory):
         _data(d),
         _len(static_cast<size_t>(len)),

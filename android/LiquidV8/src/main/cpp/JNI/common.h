@@ -108,6 +108,8 @@ typedef void (*LoggerCallback)(const uint16_t* text, int length);
 
 typedef void* (*AllocateMemory) (int length);
 
+typedef __Utf16Value (*AllocateString) (int length);
+
 typedef __Utf16Value (*ReadDebugMessage)();
 
 typedef void (*SendDebugMessage)(int len, X8String text, X16String text16);
