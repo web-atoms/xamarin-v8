@@ -12,16 +12,23 @@ class ExternalX16String : public v8::String::ExternalStringResource {
 private:
     const uint16_t* _data;
     const size_t _len;
+    const void* _handle;
+    FreeMemory _freeMemory;
 public:
 
-    ExternalX16String(const uint16_t* d, int len):
+    ExternalX16String(const uint16_t* d, int len, const void* handle, FreeMemory freeMemory):
         _data(d),
-        _len(static_cast<size_t>(len))
+        _len(static_cast<size_t>(len)),
+        _handle(handle),
+        _freeMemory(freeMemory)
     {
     }
 
     ~ExternalX16String() override {
         // do nothing...
+        if (_handle != nullptr) {
+            _freeMemory(_handle);
+        }
     }
 
     virtual const uint16_t* data() const override {

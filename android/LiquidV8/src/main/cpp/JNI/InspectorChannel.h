@@ -61,7 +61,7 @@ public:
     :v8_inspector::V8InspectorClient()
     {
         if (!connect) return;
-        freeMemory = env->freeMemory;
+        freeMemory = env->freeHandle;
         readDebugMessage_ = env->readDebugMessage;
         breakPauseOn_ = env->breakPauseOn;
         platform_ = platform;
@@ -93,8 +93,8 @@ public:
             v8_inspector::StringView message_view(dm.Value, dm.Length);
             session_->dispatchProtocolMessage(message_view);
             while (v8::platform::PumpMessageLoop(platform_, isolate_)) {}
-            // this was allocated on HGlobal
-            freeMemory((void*)dm.Value);
+            freeMemory(dm.Handle);
+
         }
 
         terminated_ = false;

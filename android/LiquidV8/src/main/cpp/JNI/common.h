@@ -65,10 +65,14 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
 #define V8_STRING16(s, l) \
     TO_CHECKED(v8::String::NewFromTwoByte(_isolate, s, NewStringType::kNormal, l))
 
-
+/*
 #define V8_UTF16STRING(s) \
     TO_CHECKED(v8::String::NewFromTwoByte(_isolate, s->Value, NewStringType::kNormal, s->Length))
+    */
 
+#define V8_UTF16STRING(s) \
+    TO_CHECKED(v8::String::NewExternalTwoByte(  \
+            _isolate, new ExternalX16String(s->Value, s->Length, s->Handle, clrFreeHandle)))
 
 typedef char* XString;
 
@@ -93,11 +97,12 @@ extern "C" { ;
 struct __Utf16Value {
     const uint16_t* Value;
     int Length;
+    const void* Handle;
 };
 
 typedef __Utf16Value* Utf16Value;
 
-typedef void (*FreeMemory)(void *location);
+typedef void (*FreeMemory)(const void *location);
 
 typedef void (*LoggerCallback)(const uint16_t* text, int length);
 

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Java.Util.Logging;
+using System;
+using System.Buffers;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -13,23 +15,52 @@ namespace Xamarin.Android.V8
 
         internal int Length;
 
-        public static implicit operator Utf16IntPtr(string value) => new Utf16IntPtr
-        {
-            Value = Marshal.StringToHGlobalUni(value),
-            Length = value?.Length ?? 0 
-        };
+        internal IntPtr Handle;
+
+        public static implicit operator Utf16IntPtr(string value) {
+            // Value = Marshal.StringToHGlobalUni(value),
+            // Length = value?.Length ?? 0
+
+            if (string.IsNullOrEmpty(value))
+            {
+                return new Utf16IntPtr { Value = IntPtr.Zero, Handle = IntPtr.Zero };
+            }
+            var h = GCHandle.Alloc(value, GCHandleType.Pinned);
+            var p = h.AddrOfPinnedObject();
+
+            return new Utf16IntPtr {
+                Value = p,
+                Handle = GCHandle.ToIntPtr(h),
+                Length = value?.Length ?? 0
+            };
+        }
     }
 
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct Utf16Value
     {
-        [MarshalAs(UnmanagedType.LPWStr)]
-        internal string Value;
+
+        internal IntPtr Value;
 
         internal int Length;
 
-        public static implicit operator Utf16Value(string value) => new Utf16Value { Value = value, Length = value?.Length ?? 0};
+        internal IntPtr Handle;
+
+        public unsafe static implicit operator Utf16Value(string value) {
+            if (string.IsNullOrEmpty(value))
+            {
+                return new Utf16Value { Value = IntPtr.Zero, Handle = IntPtr.Zero };
+            }
+            var h = GCHandle.Alloc(value, GCHandleType.Pinned);
+            var p = h.AddrOfPinnedObject();
+
+            return new Utf16Value {
+                Value = p,
+                Handle = GCHandle.ToIntPtr(h),
+                Length = value?.Length ?? 0
+            };
+        }
     }
 
     [StructLayout(LayoutKind.Explicit)]
