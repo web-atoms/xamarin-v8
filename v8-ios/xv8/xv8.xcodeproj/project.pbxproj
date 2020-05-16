@@ -7,9 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A0B185DD246FF15600C0C0A8 /* xv8.m in Sources */ = {isa = PBXBuildFile; fileRef = A0B185DC246FF15600C0C0A8 /* xv8.m */; };
-		A0B185DE246FF15600C0C0A8 /* xv8.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = A0B185DB246FF15600C0C0A8 /* xv8.h */; };
 		A0B185E2246FF17500C0C0A8 /* libv8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A06FF1E92463FBC7004DF235 /* libv8.dylib */; };
+		A0B185E3246FFDEC00C0C0A8 /* common.h in Sources */ = {isa = PBXBuildFile; fileRef = A04F97322463EA1F00AF11DB /* common.h */; };
+		A0B185E4246FFDEC00C0C0A8 /* HashMap.h in Sources */ = {isa = PBXBuildFile; fileRef = A04F97302463EA1F00AF11DB /* HashMap.h */; };
+		A0B185E5246FFDEC00C0C0A8 /* HashNode.h in Sources */ = {isa = PBXBuildFile; fileRef = A04F972B2463EA1F00AF11DB /* HashNode.h */; };
+		A0B185E6246FFDEC00C0C0A8 /* InspectorChannel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A04F972D2463EA1F00AF11DB /* InspectorChannel.cpp */; };
+		A0B185E7246FFDEC00C0C0A8 /* InspectorChannel.h in Sources */ = {isa = PBXBuildFile; fileRef = A04F972C2463EA1F00AF11DB /* InspectorChannel.h */; };
+		A0B185E8246FFDEC00C0C0A8 /* V8Context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A04F972E2463EA1F00AF11DB /* V8Context.cpp */; };
+		A0B185E9246FFDEC00C0C0A8 /* V8Context.h in Sources */ = {isa = PBXBuildFile; fileRef = A04F972F2463EA1F00AF11DB /* V8Context.h */; };
+		A0B185EA246FFDEC00C0C0A8 /* xv8.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A04F97312463EA1F00AF11DB /* xv8.cpp */; };
+		A0B185EB246FFDEC00C0C0A8 /* log.h in Sources */ = {isa = PBXBuildFile; fileRef = A0B450332463EF9500B91FE0 /* log.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -19,7 +26,6 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				A0B185DE246FF15600C0C0A8 /* xv8.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -37,8 +43,6 @@
 		A04F97322463EA1F00AF11DB /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = ../../../android/LiquidV8/src/main/cpp/JNI/common.h; sourceTree = "<group>"; };
 		A06FF1E92463FBC7004DF235 /* libv8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libv8.dylib; path = ../lib/universal/libv8.dylib; sourceTree = "<group>"; };
 		A0B185D9246FF15600C0C0A8 /* libxv8.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libxv8.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		A0B185DB246FF15600C0C0A8 /* xv8.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = xv8.h; sourceTree = "<group>"; };
-		A0B185DC246FF15600C0C0A8 /* xv8.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = xv8.m; sourceTree = "<group>"; };
 		A0B450332463EF9500B91FE0 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -66,7 +70,6 @@
 			isa = PBXGroup;
 			children = (
 				A0A333262463D7B000C37BF2 /* xv8 */,
-				A0B185DA246FF15600C0C0A8 /* xv8 */,
 				A0A333252463D7B000C37BF2 /* Products */,
 				A04F972A2463E9B200AF11DB /* universal */,
 				A06FF1E82463FBC7004DF235 /* Frameworks */,
@@ -93,15 +96,6 @@
 				A04F972F2463EA1F00AF11DB /* V8Context.h */,
 				A04F97312463EA1F00AF11DB /* xv8.cpp */,
 				A0B450332463EF9500B91FE0 /* log.h */,
-			);
-			path = xv8;
-			sourceTree = "<group>";
-		};
-		A0B185DA246FF15600C0C0A8 /* xv8 */ = {
-			isa = PBXGroup;
-			children = (
-				A0B185DB246FF15600C0C0A8 /* xv8.h */,
-				A0B185DC246FF15600C0C0A8 /* xv8.m */,
 			);
 			path = xv8;
 			sourceTree = "<group>";
@@ -163,7 +157,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A0B185DD246FF15600C0C0A8 /* xv8.m in Sources */,
+				A0B185E3246FFDEC00C0C0A8 /* common.h in Sources */,
+				A0B185E4246FFDEC00C0C0A8 /* HashMap.h in Sources */,
+				A0B185E5246FFDEC00C0C0A8 /* HashNode.h in Sources */,
+				A0B185E6246FFDEC00C0C0A8 /* InspectorChannel.cpp in Sources */,
+				A0B185E7246FFDEC00C0C0A8 /* InspectorChannel.h in Sources */,
+				A0B185E8246FFDEC00C0C0A8 /* V8Context.cpp in Sources */,
+				A0B185E9246FFDEC00C0C0A8 /* V8Context.h in Sources */,
+				A0B185EA246FFDEC00C0C0A8 /* xv8.cpp in Sources */,
+				A0B185EB246FFDEC00C0C0A8 /* log.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
