@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 
 using Foundation;
+using ObjCRuntime;
 
 // This attribute allows you to mark your assemblies as “safe to link”.
 // When the attribute is present, the linker—if enabled—will process the assembly
@@ -32,3 +33,4 @@ using Foundation;
 
 //[assembly: AssemblyDelaySign(false)]
 //[assembly: AssemblyKeyFile("")]
+// [assembly: LinkWith("libxv8.a", LinkTarget = LinkTarget.ArmV6 | LinkTarget.ArmV7 | LinkTarget.Simulator, ForceLoad = true, IsCxx = true)]

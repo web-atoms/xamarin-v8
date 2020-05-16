@@ -112,7 +112,7 @@ namespace Xamarin.Android.V8
         private static readonly object creationLock = new object();
 
 #if __IOS__
-        const string LibName = "xv8";
+        const string LibName = "__Internal";
 #else
         const string LibName = "liquidjs";
 #endif
@@ -616,7 +616,7 @@ namespace Xamarin.Android.V8
             CLREnv env
             );
 
-        [DllImport(LibName)]
+        [DllImport(LibName, EntryPoint= nameof(V8Context_Dispose))]
         internal extern static void V8Context_Dispose(V8Handle context);
 
         [DllImport(LibName)]
