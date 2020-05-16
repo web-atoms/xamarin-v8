@@ -609,7 +609,7 @@ namespace Xamarin.Android.V8
             Dispose();
         }
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_Create))]
+        [DllImport(LibName)]
         internal extern static V8Handle V8Context_Create(
             bool debug, 
             [MarshalAs(UnmanagedType.LPStruct)]
@@ -619,46 +619,46 @@ namespace Xamarin.Android.V8
         [DllImport(LibName, EntryPoint= nameof(V8Context_Dispose))]
         internal extern static void V8Context_Dispose(V8Handle context);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_CreateObject))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateObject(V8Handle context);
 
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_CreateNull))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateNull(V8Handle context);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_CreateUndefined))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateUndefined(V8Handle context);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_CreateArray))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateArray(V8Handle context);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_CreateBoolean))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateBoolean(V8Handle context, bool value);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_CreateNumber))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateNumber(V8Handle context, double value);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_CreateDate))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateDate(V8Handle context, long value);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_CreateString))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateString(V8Handle context, 
             [MarshalAs(UnmanagedType.LPStruct)] Utf16Value value);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_CreateSymbol))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateSymbol(V8Handle context,
             [MarshalAs(UnmanagedType.LPStruct)] Utf16Value name);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_GetGlobal))]
-        internal extern static V8Response V8Context_GetGlobal(V8Handle context);
-
-        [DllImport(LibName, EntryPoint = nameof(V8Context_NewInstance))]
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_GetGlobal(V8Handle context); 
+        
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_NewInstance(V8Handle context, 
             V8Handle target, int len,
             [MarshalAs(UnmanagedType.LPArray)]
             V8Handle[] args);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_InvokeMethod))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_InvokeMethod(V8Handle context,
             V8Handle target,
             [MarshalAs(UnmanagedType.LPStruct)]
@@ -668,7 +668,7 @@ namespace Xamarin.Android.V8
             V8Handle[] args);
 
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_InvokeFunction))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_InvokeFunction(V8Handle context,
             V8Handle target,
             V8Handle thisValue,
@@ -676,10 +676,10 @@ namespace Xamarin.Android.V8
             [MarshalAs(UnmanagedType.LPArray)]
             V8Handle[] args);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_IsInstanceOf))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_IsInstanceOf(V8Handle context, V8Handle target, V8Handle jsClass);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_DefineProperty))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_DefineProperty(V8Handle context,
             V8Handle target,
             [MarshalAs(UnmanagedType.LPStruct)]
@@ -696,53 +696,53 @@ namespace Xamarin.Android.V8
         );
 
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_GetArrayLength))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_GetArrayLength(
             V8Handle context,
             IntPtr handle);
 
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_HasProperty))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_HasProperty(
             V8Handle context,
             IntPtr handle,
             [MarshalAs(UnmanagedType.LPStruct)]
             Utf16Value name);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_Has))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_Has(
             V8Handle context,
             IntPtr handle,
             IntPtr symbol);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_DeleteProperty))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_DeleteProperty(
             V8Handle context,
             IntPtr handle,
             [MarshalAs(UnmanagedType.LPStruct)]
             Utf16Value name);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_Get))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_Get(
             V8Handle context,
             IntPtr handle,
             IntPtr name);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_Set))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_Set(
             V8Handle context,
             IntPtr handle,
             IntPtr name,
             IntPtr value);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_GetProperty))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_GetProperty(
             V8Handle context, 
             IntPtr handle, 
             [MarshalAs(UnmanagedType.LPStruct)]
             Utf16Value name);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_SetProperty))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_SetProperty(
             V8Handle context,
             IntPtr handle,
@@ -750,56 +750,56 @@ namespace Xamarin.Android.V8
             Utf16Value name,
             IntPtr value);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_GetPropertyAt))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_GetPropertyAt(V8Handle context, IntPtr handle, int index);
 
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_SetPropertyAt))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_SetPropertyAt(
             V8Handle context,
             IntPtr handle,
             int index,
             IntPtr value);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_PostTask))]
+        [DllImport(LibName)]
         internal extern static void V8Context_PostTask(
             IntPtr handle
             );
 
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_SendDebugMessage))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_SendDebugMessage(
             V8Handle context,
             [MarshalAs(UnmanagedType.LPStruct)]
             Utf16Value message
             );
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_ToString))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_ToString(
             V8Handle context,
             IntPtr handle);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_Equals))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_Equals(V8Handle context, IntPtr left, IntPtr right);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_Wrap))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_Wrap(
             V8Handle context,
             IntPtr handle);
 
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_Release))]
+        [DllImport(LibName)]
         internal extern static void V8Context_Release(V8Response r);
 
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_ReleaseHandle))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_ReleaseHandle(IntPtr context, IntPtr r);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_CreateFunction))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateFunction(
             V8Handle context, IntPtr function, [MarshalAs(UnmanagedType.LPStruct)]Utf16Value name);
 
-        [DllImport(LibName, EntryPoint = nameof(V8Context_Evaluate))]
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_Evaluate(
             V8Handle context,
             [MarshalAs(UnmanagedType.LPStruct)]

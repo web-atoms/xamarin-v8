@@ -135,6 +135,8 @@
     <ProjectReference Include="..\..\Xamarin.iOS.V8\Xamarin.iOS.V8.csproj">
       <Project>{9B6BD4AC-3B51-4EA3-8710-0C3D87FC0D6A}</Project>
       <Name>Xamarin.iOS.V8</Name>
+      <IsAppExtension>false</IsAppExtension>
+      <IsWatchApp>false</IsWatchApp>
     </ProjectReference>
   </ItemGroup>
 </Project>
