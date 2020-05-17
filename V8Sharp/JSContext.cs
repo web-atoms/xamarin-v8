@@ -143,7 +143,15 @@ namespace Xamarin.Android.V8
 
         public JSValue Null { get; }
 
+        public JSValue True { get; }
+
+        public JSValue False { get; }
+
         IJSValue IJSContext.Null => Null;
+
+        IJSValue IJSContext.True => True;
+
+        IJSValue IJSContext.False => False;
 
         public string Stack => this.Global["Error"].CreateNewInstance()["stack"].ToString();
 
@@ -322,6 +330,10 @@ namespace Xamarin.Android.V8
 
             this.Null = new JSValue(this, V8Context_CreateNull(context));
 
+            this.True = new JSValue(this, V8Context_CreateBoolean(context, true));
+
+            this.False = new JSValue(this, V8Context_CreateBoolean(context, false));
+
             this.WrappedSymbol = new JSValue(this, V8Context_CreateSymbol(context, "WrappedSymbol"));
 
             // Add SetTimeout...
@@ -430,11 +442,6 @@ namespace Xamarin.Android.V8
             return new JSValue(this, V8Context_CreateNumber(context, value));
         }
 
-        public IJSValue CreateBoolean(bool value)
-        {
-            return new JSValue(this, V8Context_CreateBoolean(context, value));
-        }
-
         public IJSValue CreateDate(DateTime value)
         {
             return new JSValue(this, V8Context_CreateDate(context, value.ToJSTime()));
@@ -475,96 +482,6 @@ namespace Xamarin.Android.V8
                 script, 
                 location);
             return new JSValue(this, c);
-        }
-
-        public IJSValue Convert(object value)
-        {
-            if (value == null)
-            {
-                return this.Undefined;
-            }
-            if (value is IJSValue jsv)
-            {
-                return jsv;
-            }
-            if (value is IJSService jvs)
-            {
-                // build...
-                return JSService.Create(this, jvs);
-            }
-            if (value is string s)
-                return this.CreateString(s);
-
-            if (value is int i)
-                return this.CreateNumber(i);
-
-            if (value is float f)
-                return this.CreateNumber(f);
-
-            if (value is double d)
-                return this.CreateNumber(d);
-            if (value is decimal dec)
-                return this.CreateNumber((double)dec);
-
-            if (value is bool b)
-                return this.CreateBoolean(b);
-            
-            if (value is AtomEnumerable en)
-            {
-                return en.array;
-            }
-
-            if (value is DateTime dt)
-            {
-                return this.CreateDate(dt);
-            }
-            
-            if (value is Task<IJSValue> task)
-            {
-                return this.CreatePromiseWithResult(task);
-            }
-
-            var wgc = GCHandle.Alloc(value);
-            var wgcPtr = GCHandle.ToIntPtr(wgc);
-            var wrapped = new JSValue(this, V8Context_Wrap(context, wgcPtr));
-            if (value is IJSContext) { 
-                
-            }
-
-            var w = (value is IJSContext) 
-                    ? new JSValue(this, V8Context_CreateObject(context))
-                    : ElementWrapper.CreateNewInstance();
-
-            //if (!(value is IJSContext))
-            //{
-            //    //w.DefineProperty("expand", new JSPropertyDescriptor
-            //    //{
-            //    //    Enumerable = true,
-            //    //    Configurable = true,
-            //    //    Get = CreateFunction(0, (c, a) =>
-            //    //    {
-            //    //        return this.Serialize(value, SerializationMode.Reference);
-            //    //    }, "Expand")
-            //    //});
-
-            //    elementWrapper.InvokeFunction(this.Global, w);
-
-            //    //w["appendChild"] = this.CreateFunction(1, (c, p) =>
-            //    //{
-            //    //    this["bridge"].InvokeMethod("appendChild", new IJSValue[] { w, p[0] });
-            //    //    return this.Undefined;
-            //    //}, "appendChild");
-
-            //    //w["dispatchEvent"] = this.CreateFunction(1, (c, p) =>
-            //    //{
-            //    //    var first = p[0];
-            //    //    this["bridge"].InvokeMethod("dispatchEvent", new IJSValue[] { w, first });
-            //    //    return first;
-            //    //}, "dispatchEvent");
-
-            //}
-            w[WrappedSymbol] = wrapped;
-            return w;
         }
 
         public IJSValue Wrap(object value)

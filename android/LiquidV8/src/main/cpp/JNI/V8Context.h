@@ -54,13 +54,12 @@ protected:
 
     std::vector<__Utf16Value> dirtyStrings;
 
-    // try to reuse buffer... if value below 1024 for most cases it will be
-    uint16_t ReturnValue[1024];
-
     // delete array allocator
     ArrayBuffer::Allocator* _arrayBufferAllocator;
 
     LoggerCallback _logger;
+
+    std::vector<V8Handle> handles;
 
 public:
 
@@ -80,6 +79,30 @@ public:
 
     inline Isolate* GetIsolate() {
         return _isolate;
+    }
+
+    inline V8Handle NewHandle() {
+        V8Handle h = nullptr;
+        if (!handles.empty()) {
+            h = handles.back();
+            handles.pop_back();
+            return h;
+        }
+        h = new Global<v8::Value>();
+        return h;
+    }
+
+    inline void Free(V8Handle handle) {
+        if (handles.size() < handles.capacity()) {
+            // we should remove this...
+            if(handle->IsWeak()) {
+                handle->ClearWeak();
+            }
+            handle->Reset();
+            handles.push_back(handle);
+            return;
+        }
+        delete handle;
     }
 
     Global<Private> wrapField;
@@ -138,7 +161,9 @@ public:
     V8Response ToString(V8Handle target);
     V8Response GC();
 
+    V8Response V8Response_From(Local<Context> &context, Local<Value> &handle);
 private:
+
 
 };
 

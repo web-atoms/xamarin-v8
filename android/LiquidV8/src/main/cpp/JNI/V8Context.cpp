@@ -41,7 +41,8 @@ static __ClrEnv clrEnv;
 
 V8Context::V8Context(
         bool debug,
-        ClrEnv env) {
+        ClrEnv env)
+        {
     if (!_V8Initialized) // (the API changed: https://groups.google.com/forum/#!topic/v8-users/wjMwflJkfso)
     {
         fatalErrorCallback = env->fatalErrorCallback;
@@ -140,7 +141,14 @@ V8Context::V8Context(
                 env);
     }
 
+    handles.reserve(100);
 
+    // lets put global handles...
+    // Global<v8::Value>* all = &handleCache[0];
+    int gs = sizeof(Global<v8::Value>);
+    for (int i = 0; i < 100; ++i) {
+        handles.push_back(new Global<v8::Value>());
+    }
 }
 
 V8Response V8Context::FromException(Local<Context> &context, TryCatch &tc, const char* file, const int line) {
@@ -514,11 +522,11 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     for (uint32_t i = 0; i < n; i++) {
         Local<Value> v = args[i];
         // *p1 =V8Response_From(context, v);
-        params.push_back(V8Response_From(context, v));
+        params.push_back(cc->V8Response_From(context, v));
         // p1 += sizeof(V8Response);
     }
     Local<Value> _this = args.This();
-    V8Response target = V8Response_From(context, _this);
+    V8Response target = cc->V8Response_From(context, _this);
     // Local<Value> av = a;
     V8Response handleArgs = {};
     handleArgs.type = V8ResponseType::ResponseArray;
@@ -598,7 +606,8 @@ V8Response V8Context::Release(V8Handle handle, bool post) {
         V8_CONTEXT_SCOPE
         FreeWrapper(handle, false);
         // LogAndroid("Release", "Handle Deleted");
-        delete handle;
+        // delete handle;
+        Free(handle);
         V8Response r = {};
         r.type = V8ResponseType ::Boolean;
         r.result.booleanValue = true;
@@ -853,7 +862,7 @@ void V8External::Release(void *data) {
     }
 }
 
-V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
+V8Response V8Context::V8Response_From(Local<Context> &context, Local<Value> &handle)
 {
     V8Response v = {};
     if (handle.IsEmpty()) {
@@ -869,6 +878,7 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
     Isolate* isolate = context->GetIsolate();
 
     HandleScope hs(isolate);
+
 
     // for handle, we need to set the type..
     if (handle->IsUndefined()) {
@@ -930,7 +940,7 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
         v.type = V8ResponseType::Object;
     }
 
-    V8Handle h = new Global<Value>();
+    V8Handle h = NewHandle();
     h->SetWrapperClassId(WRAPPED_CLASS);
     v.address = (void*)h;
     // this is just to skip equals when we need to compare two array items
