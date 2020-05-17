@@ -466,7 +466,7 @@ V8Response V8Context::DefineProperty(
 V8Response V8Context::Wrap(void *value) {
     V8_CONTEXT_SCOPE
 
-    Local<v8::Value> external = V8External::Wrap(context, value, false);
+    Local<v8::Value> external = V8External::Wrap(context, value, nullptr);
 
     V8Response r = {};
     r.type = V8ResponseType::Wrapped;
@@ -524,9 +524,11 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     handleArgs.type = V8ResponseType::ResponseArray;
     handleArgs.address = (void*)params.data();
     handleArgs.length = n;
-    Local<Value> dv = data;
-    V8Response fx = V8Response_From(context, dv);
-    V8Response r = clrExternalCall(fx, target, handleArgs);
+    // Local<Value> dv = data;
+    // V8Response fx = V8Response_From(context, dv);
+    Local<External> ext = Local<External>::Cast(data);
+    ExternalCall exCall = (ExternalCall)((V8External*)ext->Value())->Data();
+    V8Response r = exCall(target, handleArgs);
 
     // free(params);
 
@@ -555,9 +557,12 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     }
 }
 
-V8Response V8Context::CreateFunction(ExternalCall function, Utf16Value debugHelper) {
+V8Response V8Context::CreateFunction(
+        ExternalCall function,
+        ClrPointer  handle,
+        Utf16Value debugHelper) {
     V8_CONTEXT_SCOPE
-    Local<Value> e = V8External::Wrap(context, (void*)function, true);
+    Local<Value> e = V8External::Wrap(context, (void*)handle, (void*)function);
     // Local<External> e = External::New(_isolate, (void*)function);
 
     Local<v8::Function> f = v8::Function::New(context, X8Call, e).ToLocalChecked();
@@ -913,15 +918,15 @@ V8Response V8Response_From(Local<Context> &context, Local<Value> &handle)
         v.type = V8ResponseType::Wrapped;
         V8External* e = V8External::CheckInExternal(context, handle);
         if (e != nullptr) {
-            v.result.refValue = e->Data();
+            v.result.refValue = e->Handle();
         }
     }
     else if (handle->IsObject()) {
-        v.type = V8ResponseType::Wrapped;
-        V8External* e = V8External::CheckInExternal(context, handle);
-        if (e != nullptr) {
-            v.result.refValue = e->Data();
-        }
+//        v.type = V8ResponseType::Wrapped;
+//        V8External* e = V8External::CheckInExternal(context, handle);
+//        if (e != nullptr) {
+//            v.result.refValue = e->Handle();
+//        }
         v.type = V8ResponseType::Object;
     }
 
