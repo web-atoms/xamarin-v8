@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A0B185E2246FF17500C0C0A8 /* libv8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A06FF1E92463FBC7004DF235 /* libv8.dylib */; };
+		A0A38BCD24700390009EECA2 /* libv8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A0A38BCC24700390009EECA2 /* libv8.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
 		A0B185E3246FFDEC00C0C0A8 /* common.h in Sources */ = {isa = PBXBuildFile; fileRef = A04F97322463EA1F00AF11DB /* common.h */; };
 		A0B185E4246FFDEC00C0C0A8 /* HashMap.h in Sources */ = {isa = PBXBuildFile; fileRef = A04F97302463EA1F00AF11DB /* HashMap.h */; };
 		A0B185E5246FFDEC00C0C0A8 /* HashNode.h in Sources */ = {isa = PBXBuildFile; fileRef = A04F972B2463EA1F00AF11DB /* HashNode.h */; };
@@ -41,7 +41,7 @@
 		A04F97302463EA1F00AF11DB /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HashMap.h; path = ../../../android/LiquidV8/src/main/cpp/JNI/HashMap.h; sourceTree = "<group>"; };
 		A04F97312463EA1F00AF11DB /* xv8.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = xv8.cpp; path = ../../../android/LiquidV8/src/main/cpp/JNI/xv8.cpp; sourceTree = "<group>"; };
 		A04F97322463EA1F00AF11DB /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = common.h; path = ../../../android/LiquidV8/src/main/cpp/JNI/common.h; sourceTree = "<group>"; };
-		A06FF1E92463FBC7004DF235 /* libv8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libv8.dylib; path = ../lib/universal/libv8.dylib; sourceTree = "<group>"; };
+		A0A38BCC24700390009EECA2 /* libv8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libv8.dylib; path = ../lib/universal/libv8.dylib; sourceTree = "<group>"; };
 		A0B185D9246FF15600C0C0A8 /* libxv8.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libxv8.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0B450332463EF9500B91FE0 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -51,28 +51,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A0B185E2246FF17500C0C0A8 /* libv8.dylib in Frameworks */,
+				A0A38BCD24700390009EECA2 /* libv8.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A06FF1E82463FBC7004DF235 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				A06FF1E92463FBC7004DF235 /* libv8.dylib */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		A0A3331B2463D7B000C37BF2 = {
 			isa = PBXGroup;
 			children = (
 				A0A333262463D7B000C37BF2 /* xv8 */,
 				A0A333252463D7B000C37BF2 /* Products */,
 				A04F972A2463E9B200AF11DB /* universal */,
-				A06FF1E82463FBC7004DF235 /* Frameworks */,
+				A0A38BCB24700390009EECA2 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -98,6 +90,14 @@
 				A0B450332463EF9500B91FE0 /* log.h */,
 			);
 			path = xv8;
+			sourceTree = "<group>";
+		};
+		A0A38BCB24700390009EECA2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A0A38BCC24700390009EECA2 /* libv8.dylib */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
