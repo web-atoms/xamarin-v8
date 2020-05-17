@@ -462,7 +462,8 @@ namespace Xamarin.Android.V8
 
             var gfx = GCHandle.Alloc(efx);
             var ptr = GCHandle.ToIntPtr(gfx);
-            var c = V8Context_CreateFunction(context, ptr, debugDescription);
+            var fxPtr = Marshal.GetFunctionPointerForDelegate(efx);
+            var c = V8Context_CreateFunction(context, fxPtr, ptr, debugDescription);
             return new JSValue(this, c);
         }
 
@@ -797,7 +798,7 @@ namespace Xamarin.Android.V8
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_CreateFunction(
-            V8Handle context, IntPtr function, [MarshalAs(UnmanagedType.LPStruct)]Utf16Value name);
+            V8Handle context, IntPtr function, IntPtr handle, [MarshalAs(UnmanagedType.LPStruct)]Utf16Value name);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_Evaluate(

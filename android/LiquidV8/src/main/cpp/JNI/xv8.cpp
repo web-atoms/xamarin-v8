@@ -112,9 +112,13 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->CreateUndefined();
     }
 
-    V8Response V8Context_CreateFunction(ClrPointer ctx, ExternalCall fn, Utf16Value debugDisplay) {
+    V8Response V8Context_CreateFunction(
+            ClrPointer ctx,
+            ExternalCall fn,
+            ClrPointer handle,
+            Utf16Value debugDisplay) {
         INIT_CONTEXT
-        return context->CreateFunction(fn, debugDisplay);
+        return context->CreateFunction(fn, handle, debugDisplay);
     }
 
     V8Response V8Context_DefineProperty(ClrPointer ctx,
