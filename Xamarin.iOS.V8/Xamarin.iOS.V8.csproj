@@ -51,17 +51,17 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <NativeReference Include="..\v8-ios\libxv8.a">
-      <Kind>Static</Kind>
-      <ForceLoad>True</ForceLoad>
-      <SmartLink>False</SmartLink>
-      <IsCxx>True</IsCxx>
-    </NativeReference>
     <NativeReference Include="..\v8-ios\lib\universal\libv8.dylib">
       <Kind>Dynamic</Kind>
       <ForceLoad>True</ForceLoad>
-      <SmartLink>False</SmartLink>
       <IsCxx>True</IsCxx>
+      <LinkerFlags>-lc++</LinkerFlags>
+    </NativeReference>
+    <NativeReference Include="..\v8-ios\xv8\libxv8.a">
+      <Kind>Static</Kind>
+      <IsCxx>True</IsCxx>
+      <ForceLoad>True</ForceLoad>
+      <LinkerFlags>-lc++</LinkerFlags>
     </NativeReference>
   </ItemGroup>
   <Import Project="..\V8Sharp\V8Sharp.projitems" Label="Shared" />
