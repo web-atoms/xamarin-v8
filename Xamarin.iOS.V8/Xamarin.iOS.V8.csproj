@@ -44,7 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="WebAtoms.Core">
-      <Version>1.4.101</Version>
+      <Version>1.4.104</Version>
     </PackageReference>
     <PackageReference Include="deniszykov.WebSocketListener">
       <Version>4.2.4</Version>

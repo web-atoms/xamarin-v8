@@ -6,7 +6,7 @@ TARGET=xv8
 all: lib$(TARGET).a
 
 lib$(TARGET)-i386.a:
-	$(XBUILD) -project $(PROJECT) -target $(TARGET) -sdk iphonesimulator -configuration Release clean build
+	$(XBUILD) -project $(PROJECT) -target $(TARGET) -sdk iphonesimulator -arch x86_64 -configuration Release clean build
 	-mv $(PROJECT_ROOT)/build/Release-iphonesimulator/lib$(TARGET).a $@
 
 lib$(TARGET)-armv7.a:
