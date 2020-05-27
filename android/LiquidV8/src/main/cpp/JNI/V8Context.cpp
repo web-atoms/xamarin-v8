@@ -691,7 +691,7 @@ V8Response V8Context::GetArrayLength(V8Handle target) {
     V8_HANDLE_SCOPE
     // 
     Local<Value> value = target->Get(_isolate);
-    if (!value->IsArray()) {
+    if (!(value->IsArray() || value->IsArgumentsObject())) {
         return FromError("Target is not an array");
     }
     Local<v8::Array> array = Local<v8::Array>::Cast(value);
@@ -802,12 +802,12 @@ V8Response V8Context::SetProperty(V8Handle target, Utf16Value name, V8Handle val
 V8Response V8Context::GetPropertyAt(V8Handle target, int index) {
     V8_HANDLE_SCOPE
     Local<Value> v = target->Get(_isolate);
-    
-    if (!v->IsArray())
-        return FromError("This is not an array");
-    Local<v8::Object> a = TO_CHECKED(v->ToObject(context));
-    Local<Value> item = TO_CHECKED(a->Get(context, (uint) index));
-    return V8Response_From(context, item);
+
+    if (v->IsArray() || v->IsArgumentsObject()) {
+        Local<v8::Object> a = TO_CHECKED(v->ToObject(context));
+        Local<Value> item = TO_CHECKED(a->Get(context, (uint) index));
+        return V8Response_From(context, item);
+    } else return FromError("This is not an array");
 }
 
 V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) {
