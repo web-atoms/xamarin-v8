@@ -161,22 +161,24 @@ namespace Xamarin.Android.V8
 
         internal IJSValue WrappedSymbol { get; }
 
-        private IJSValue _elementWrapper;
-        private IJSValue ElementWrapper => 
-            _elementWrapper ?? (_elementWrapper = this.Evaluate(
-                @"(function () {
-                    var bridge = global.bridge ? global.bridge : null;
-                    function ElementWrapper () {
-                    }
-                    if (bridge) {
-                        ElementWrapper.prototype.appendChild = function(e) { return bridge.appendChild(this,e);  };
-                        ElementWrapper.prototype.dispatchEvent = function(e) { return bridge.dispatchEvent(this,e);  };
-                        Object.defineProperty(ElementWrapper.prototype, 'expand', {
-                            get: function() { return bridge.describe(this); }, configurable: true, enumerable: true
-                        });
-                    }
-                    return ElementWrapper;
-                })()"));
+        private (IJSValue appendChild, IJSValue addEventListener, IJSValue dispatchEvent) ElementWrapper;
+
+        // private IJSValue _elementWrapper;
+        //private IJSValue ElementWrapper => 
+        //    _elementWrapper ?? (_elementWrapper = this.Evaluate(
+        //        @"(function () {
+        //            var bridge = global.bridge ? global.bridge : null;
+        //            function ElementWrapper () {
+        //            }
+        //            if (bridge) {
+        //                ElementWrapper.prototype.appendChild = function(e) { return bridge.appendChild(this,e);  };
+        //                ElementWrapper.prototype.dispatchEvent = function(e) { return bridge.dispatchEvent(this,e);  };
+        //                Object.defineProperty(ElementWrapper.prototype, 'expand', {
+        //                    get: function() { return bridge.describe(this); }, configurable: true, enumerable: true
+        //                });
+        //            }
+        //            return ElementWrapper;
+        //        })()"));
 
         private readonly V8InspectorProtocol inspectorProtocol;
 
@@ -372,9 +374,6 @@ namespace Xamarin.Android.V8
 
         }
 
-
-        private TaskCompletionSource<string> readMessageTask;
-
         private static void Log(object message)
         {
             System.Diagnostics.Debug.WriteLine(message);
@@ -489,9 +488,23 @@ namespace Xamarin.Android.V8
             var wgc = GCHandle.Alloc(value);
             var wgcPtr = GCHandle.ToIntPtr(wgc);
             var wrapped = new JSValue(this, V8Context_Wrap(context, wgcPtr));
-            var w = (value is IJSContext)
-                    ? Global
-                    : ElementWrapper.CreateNewInstance();
+            IJSValue w;
+            if (value is IJSContext)
+            {
+                w = Global;
+            } else
+            {
+                w = CreateObject();
+                if (ElementWrapper.appendChild == null)
+                {
+                    ElementWrapper.appendChild = this.Evaluate("(function(e) { return bridge.appendChild(this, e); })");
+                    ElementWrapper.dispatchEvent = this.Evaluate("(function(e) { return bridge.dispatchEvent(this, e); })");
+                    ElementWrapper.addEventListener = this.Evaluate("(function(e) { return bridge.addEventHandler(this, e); })");
+                }
+                w["appendChild"] = ElementWrapper.appendChild;
+                w["dispatchEvent"] = ElementWrapper.dispatchEvent;
+                w["addEventListener"] = ElementWrapper.addEventListener;
+            }
             w[WrappedSymbol] = wrapped;
             return w;
         }
