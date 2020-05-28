@@ -4,7 +4,9 @@
 V8 Bindings for Xamarin for Android
 
 > Please note, you can use Web Atoms to create your entire Xamarin.Forms app with JavaScript and JSX.
-> For more details <a href="https://www.webatoms.in" target="_blank">Web Atoms</a>.
+
+> For more details please visit<a href="https://www.webatoms.in" target="_blank">Web Atoms</a>.
+
 > You can use code push and host your entire app on web server.
 
 # NuGet
