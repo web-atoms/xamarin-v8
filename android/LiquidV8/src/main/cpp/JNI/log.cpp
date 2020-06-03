@@ -2,6 +2,8 @@
 // Created by ackav on 08-05-2020.
 //
 #include "log.h"
+#if DROID
+
 #include <android/log.h>
 
 void _log(const char* format, ... ) {
@@ -11,4 +13,8 @@ void _log(const char* format, ... ) {
     va_end(args);
 }
 
+#else
+void _log(const char* format, ...) {
+}
 
+#endif

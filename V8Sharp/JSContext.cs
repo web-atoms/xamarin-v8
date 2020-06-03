@@ -16,12 +16,15 @@ using WebAtoms;
 using V8Handle = System.IntPtr;
 
 using WebAtoms.V8Sharp;
-
+using System.Diagnostics.Eventing.Reader;
 
 namespace Xamarin.Android.V8
 {
-
-    internal delegate V8Response ExternalCall(V8Response fx, V8Response thisHandle, V8Response args);
+    [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+    internal delegate void ExternalCall(
+        V8Response fx,
+        V8Response thisHandle,
+        V8Response args, ref V8Response result);
 
     internal delegate V8Response CLRExternalCall(V8Response thisHandle, V8Response args);
 
@@ -114,7 +117,11 @@ namespace Xamarin.Android.V8
 #if __IOS__
         const string LibName = "__Internal";
 #else
+#if WIN
+        const string LibName = "v8sharp.dll";
+#else
         const string LibName = "liquidjs";
+#endif
 #endif
         static JSFreeMemory freeHandle;
         static JSFreeMemory freeMemory;
@@ -288,42 +295,38 @@ namespace Xamarin.Android.V8
                         }
                     };
 
-                    externalCaller = (fx, t, a) =>
+                    externalCaller = (V8Response fx, V8Response t, V8Response a, ref V8Response b) =>
                     {
                         try
                         {
                             var fxc = fx;
                             var gc = GCHandle.FromIntPtr(fxc.result.refValue);
                             var ffx = (CLRExternalCall)gc.Target;
-                            return ffx(t, a);
+                            b = ffx(t, a);
                         }
                         catch (Exception ex)
                         {
-                            return ex;
+                            // return ex;
+                            b = ex;
                         }
                     };
 
                 }
 
+                CLREnv env = new CLREnv { };
+                env.allocateMemory = Marshal.GetFunctionPointerForDelegate(allocateMemory);
+                env.allocateString = Marshal.GetFunctionPointerForDelegate(allocateString);
+                env.freeMemory = Marshal.GetFunctionPointerForDelegate(freeMemory);
+                env.freeHandle = Marshal.GetFunctionPointerForDelegate(freeHandle);
+                env.externalCall = Marshal.GetFunctionPointerForDelegate(externalCaller);
+                env.logger = Marshal.GetFunctionPointerForDelegate(logger);
+                env.WaitForDebugMessageFromProtocol = Marshal.GetFunctionPointerForDelegate(readDebugMessage);
+                env.SendDebugMessageToProtocol = Marshal.GetFunctionPointerForDelegate(receiveDebugFromV8);
+                env.fatalErrorCallback = Marshal.GetFunctionPointerForDelegate(fatalErrorCallback);
+                env.breakPauseOn = Marshal.GetFunctionPointerForDelegate(breakPauseOn);
 
                 this.context = V8Context_Create(
-                    protocol != null,
-                    new CLREnv
-                    {
-                        allocateMemory = Marshal.GetFunctionPointerForDelegate(allocateMemory),
-                        allocateString = Marshal.GetFunctionPointerForDelegate(allocateString),
-                        freeMemory = Marshal.GetFunctionPointerForDelegate(freeMemory),
-
-                        freeHandle = Marshal.GetFunctionPointerForDelegate(freeHandle),
-                        externalCall = Marshal.GetFunctionPointerForDelegate(externalCaller),
-
-                        logger = Marshal.GetFunctionPointerForDelegate(logger),
-                        WaitForDebugMessageFromProtocol = Marshal.GetFunctionPointerForDelegate(readDebugMessage),
-                        SendDebugMessageToProtocol = Marshal.GetFunctionPointerForDelegate(receiveDebugFromV8),
-                        fatalErrorCallback = Marshal.GetFunctionPointerForDelegate(fatalErrorCallback),
-
-                        breakPauseOn = Marshal.GetFunctionPointerForDelegate(breakPauseOn)
-                    });
+                    protocol != null, env);
             }
             
             this.Undefined = new JSValue(this, V8Context_CreateUndefined(context));
@@ -540,10 +543,9 @@ namespace Xamarin.Android.V8
             Dispose();
         }
 
-        [DllImport(LibName)]
+        [DllImport(LibName, CallingConvention = CallingConvention.StdCall, SetLastError = false)]
         internal extern static V8Handle V8Context_Create(
             bool debug, 
-            [MarshalAs(UnmanagedType.LPStruct)]
             CLREnv env
             );
 

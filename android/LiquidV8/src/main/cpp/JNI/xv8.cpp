@@ -36,13 +36,13 @@ void LogAndroid1(const char* location, const char* message) {
 
 extern "C" {
 
-    V8Context* V8Context_Create(
+    __declspec(dllexport) V8Context* V8Context_Create(
             bool debug,
-            ClrEnv env) {
+            __ClrEnv env) {
         V8Context*c = new V8Context(
                 debug,
-                env);
-        _logger = env->loggerCallback;
+                &env);
+        _logger = env.loggerCallback;
         auto i = reinterpret_cast<std::uintptr_t>(c);
         map.insert(i, 1);
         return c;

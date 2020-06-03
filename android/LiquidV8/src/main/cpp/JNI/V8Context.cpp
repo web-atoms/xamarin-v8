@@ -514,7 +514,7 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     Context::Scope context_scope(context);
     Local<Value> data = args.Data();
 
-    uint32_t n = (uint)args.Length();
+    uint32_t n = (uint32_t)args.Length();
     // auto params = (V8Response*)malloc(sizeof(V8Response)*n*2);
     // std::vector<V8Response*> paramList;
     // V8Response* p1 = params;
@@ -805,7 +805,7 @@ V8Response V8Context::GetPropertyAt(V8Handle target, int index) {
 
     if (v->IsArray() || v->IsArgumentsObject()) {
         Local<v8::Object> a = TO_CHECKED(v->ToObject(context));
-        Local<Value> item = TO_CHECKED(a->Get(context, (uint) index));
+        Local<Value> item = TO_CHECKED(a->Get(context, (uint32_t) index));
         return V8Response_From(context, item);
     } else return FromError("This is not an array");
 }
@@ -818,7 +818,7 @@ V8Response V8Context::SetPropertyAt(V8Handle target, int index, V8Handle value) 
     if (!t->IsArray())
         return FromError("This is not an array");
     Local<v8::Object> obj = TO_CHECKED(t->ToObject(context));
-    obj->Set(context, (uint)index, v).ToChecked();
+    obj->Set(context, (uint32_t)index, v).ToChecked();
     return V8Response_From(context, v);
 }
 
