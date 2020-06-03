@@ -96,10 +96,10 @@ In order to access methods and properties of C# object, you have to serialize th
 ```c#
 
    // you can access all properties, no methods
-   var jsDictObject = context.Serialize( customClrObject , SerializationMode.Copy);
+   var jsDictObject = context.Marshal( customClrObject , SerializationMode.Copy);
    
    // you can access all properties and invoke method as well
-   var jsClrObject = context.Serialize( customClrObject , SerializationMode.Reference);
+   var jsClrObject = context.Marshal( customClrObject , SerializationMode.Reference);
 
 ```
 
