@@ -16,7 +16,7 @@ using WebAtoms;
 using V8Handle = System.IntPtr;
 
 using WebAtoms.V8Sharp;
-using System.Diagnostics.Eventing.Reader;
+// using System.Diagnostics.Eventing.Reader;
 
 namespace Xamarin.Android.V8
 {
