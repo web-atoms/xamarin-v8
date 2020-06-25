@@ -3,6 +3,12 @@
 # Xamarin V8 Bindings
 V8 Bindings for Xamarin for Android
 
+> Please note, you can use Web Atoms to create your entire Xamarin.Forms app with JavaScript and JSX.
+
+> For more details please visit<a href="https://www.webatoms.in" target="_blank">Web Atoms</a>.
+
+> You can use code push and host your entire app on web server.
+
 # NuGet
 ```xml
 <PackageReference Include="Xamarin.Android.V8" Version="1.4.79" />
@@ -20,6 +26,8 @@ If you want to change the default 9222 port, you can specify in the parameters.
 # Create Context
 
 ```c#
+using Xamarin.Android.V8;
+
 using(var context = new JSContext( /*Enable Debugging*/ true)) {
 
   // you can connect to dev tools by visiting url
@@ -88,10 +96,10 @@ In order to access methods and properties of C# object, you have to serialize th
 ```c#
 
    // you can access all properties, no methods
-   var jsDictObject = context.Serialize( customClrObject , SerializationMode.Copy);
+   var jsDictObject = context.Marshal( customClrObject , SerializationMode.Copy);
    
    // you can access all properties and invoke method as well
-   var jsClrObject = context.Serialize( customClrObject , SerializationMode.Reference);
+   var jsClrObject = context.Marshal( customClrObject , SerializationMode.Reference);
 
 ```
 
