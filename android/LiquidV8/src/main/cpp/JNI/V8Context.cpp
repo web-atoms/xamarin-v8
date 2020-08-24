@@ -66,7 +66,7 @@ V8Context::V8Context(
     Isolate::CreateParams params;
     _arrayBufferAllocator = ArrayBuffer::Allocator::NewDefaultAllocator();
     params.array_buffer_allocator = _arrayBufferAllocator;
-
+    
     _isolate = Isolate::New(params);
 
     // uint32_t here;
@@ -536,7 +536,8 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     // V8Response fx = V8Response_From(context, dv);
     Local<External> ext = Local<External>::Cast(data);
     ExternalCall exCall = (ExternalCall)((V8External*)ext->Value())->Data();
-    V8Response r = exCall(target, handleArgs);
+    V8Response r;
+    exCall(target, handleArgs, &r);
 
     // free(params);
 

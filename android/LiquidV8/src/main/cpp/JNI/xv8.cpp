@@ -34,9 +34,15 @@ void LogAndroid1(const char* location, const char* message) {
     // fatalErrorCallback(CopyString(location), CopyString(message));
 }
 
+#if _WINDOWS
+    #define V8SHARP_EXPORT __declspec(dllexport)
+#else
+    #define V8SHARP_EXPORT
+#endif
+
 extern "C" {
 
-    __declspec(dllexport) V8Context* V8Context_Create(
+    V8SHARP_EXPORT V8Context* V8Context_Create(
             bool debug,
             __ClrEnv env) {
         V8Context*c = new V8Context(
@@ -49,7 +55,7 @@ extern "C" {
     }
 
 
-    void V8Context_Dispose(ClrPointer ctx) {
+    V8SHARP_EXPORT void V8Context_Dispose(ClrPointer ctx) {
         try {
             INIT_CONTEXT
             auto i = reinterpret_cast<std::uintptr_t>(context);
@@ -61,22 +67,22 @@ extern "C" {
         }
     }
 
-    V8Response V8Context_CreateString(ClrPointer ctx, Utf16Value value) {
+    V8SHARP_EXPORT V8Response V8Context_CreateString(ClrPointer ctx, Utf16Value value) {
         INIT_CONTEXT
         return context->CreateString(value);
     }
 
-    V8Response V8Context_CreateSymbol(ClrPointer ctx, Utf16Value value) {
+    V8SHARP_EXPORT V8Response V8Context_CreateSymbol(ClrPointer ctx, Utf16Value value) {
         INIT_CONTEXT
         return context->CreateSymbol(value);
     }
 
-    V8Response V8Context_CreateDate(ClrPointer ctx, int64_t value) {
+    V8SHARP_EXPORT V8Response V8Context_CreateDate(ClrPointer ctx, int64_t value) {
         INIT_CONTEXT
         return context->CreateDate(value);
     }
 
-    V8Response V8Context_CreateBoolean(ClrPointer ctx, bool value) {
+    V8SHARP_EXPORT V8Response V8Context_CreateBoolean(ClrPointer ctx, bool value) {
         INIT_CONTEXT
         return context->CreateBoolean(value);
     }
@@ -86,33 +92,33 @@ extern "C" {
         // task->taskRunner->PostTaskWithInterrupt(task);
     }
 
-    V8Response V8Context_CreateNumber(ClrPointer ctx, double value) {
+    V8SHARP_EXPORT V8Response V8Context_CreateNumber(ClrPointer ctx, double value) {
         INIT_CONTEXT
         return context->CreateNumber(value);
     }
 
-    V8Response V8Context_CreateObject(ClrPointer ctx) {
+    V8SHARP_EXPORT V8Response V8Context_CreateObject(ClrPointer ctx) {
         INIT_CONTEXT
         return context->CreateObject();
     }
 
-    V8Response V8Context_CreateArray(ClrPointer ctx) {
+    V8SHARP_EXPORT V8Response V8Context_CreateArray(ClrPointer ctx) {
         INIT_CONTEXT
         return context->CreateArray();
     }
 
 
-V8Response V8Context_CreateNull(ClrPointer ctx) {
+V8SHARP_EXPORT V8Response V8Context_CreateNull(ClrPointer ctx) {
         INIT_CONTEXT
         return context->CreateNull();
     }
 
-    V8Response V8Context_CreateUndefined(ClrPointer ctx) {
+    V8SHARP_EXPORT V8Response V8Context_CreateUndefined(ClrPointer ctx) {
         INIT_CONTEXT
         return context->CreateUndefined();
     }
 
-    V8Response V8Context_CreateFunction(
+    V8SHARP_EXPORT V8Response V8Context_CreateFunction(
             ClrPointer ctx,
             ExternalCall fn,
             ClrPointer handle,
@@ -121,7 +127,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->CreateFunction(fn, handle, debugDisplay);
     }
 
-    V8Response V8Context_DefineProperty(ClrPointer ctx,
+    V8SHARP_EXPORT V8Response V8Context_DefineProperty(ClrPointer ctx,
                                         ClrPointer target,
                                         Utf16Value name,
                                         int configurable,
@@ -142,17 +148,17 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
                 TO_HANDLE(value));
     }
 
-    V8Response V8Context_GetArrayLength(ClrPointer ctx, ClrPointer target) {
+    V8SHARP_EXPORT V8Response V8Context_GetArrayLength(ClrPointer ctx, ClrPointer target) {
         INIT_CONTEXT
         return context->GetArrayLength(TO_HANDLE(target));
     }
 
-    V8Response V8Context_GetGlobal(ClrPointer ctx) {
+    V8SHARP_EXPORT V8Response V8Context_GetGlobal(ClrPointer ctx) {
         INIT_CONTEXT
         return context->GetGlobal();
     }
 
-    V8Response V8Context_NewInstance(
+    V8SHARP_EXPORT V8Response V8Context_NewInstance(
             ClrPointer ctx,
             ClrPointer target,
             int len,
@@ -163,7 +169,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     }
 
 
-    V8Response V8Context_InvokeFunction(
+    V8SHARP_EXPORT V8Response V8Context_InvokeFunction(
             ClrPointer ctx,
             ClrPointer target,
             ClrPointer thisValue,
@@ -175,7 +181,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
                 TO_HANDLE(thisValue), len, args);
     }
 
-    V8Response V8Context_InvokeMethod(
+    V8SHARP_EXPORT V8Response V8Context_InvokeMethod(
             ClrPointer ctx,
             ClrPointer target,
             Utf16Value name,
@@ -186,12 +192,12 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
                 TO_HANDLE(target), name, len, args);
     }
 
-    V8Response V8Context_IsInstanceOf(ClrPointer ctx, ClrPointer target, ClrPointer jsClass) {
+    V8SHARP_EXPORT V8Response V8Context_IsInstanceOf(ClrPointer ctx, ClrPointer target, ClrPointer jsClass) {
         INIT_CONTEXT
         return context->IsInstanceOf(TO_HANDLE(target), TO_HANDLE(jsClass));
     }
 
-    V8Response V8Context_Has(
+    V8SHARP_EXPORT V8Response V8Context_Has(
             ClrPointer ctx,
             ClrPointer  target,
             ClrPointer index
@@ -200,7 +206,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->Has(TO_HANDLE(target), TO_HANDLE(index));
     }
 
-    V8Response V8Context_SendDebugMessage(
+    V8SHARP_EXPORT V8Response V8Context_SendDebugMessage(
             ClrPointer ctx,
             Utf16Value message) {
         INIT_CONTEXT
@@ -208,7 +214,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     }
 
 
-    V8Response V8Context_HasProperty(
+    V8SHARP_EXPORT V8Response V8Context_HasProperty(
             ClrPointer ctx,
             ClrPointer  target,
             Utf16Value text
@@ -217,7 +223,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->HasProperty(TO_HANDLE(target), text);
     }
 
-    V8Response V8Context_DeleteProperty(
+    V8SHARP_EXPORT V8Response V8Context_DeleteProperty(
             ClrPointer ctx,
             ClrPointer target,
             Utf16Value name) {
@@ -225,7 +231,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->DeleteProperty(TO_HANDLE(target), name);
     }
 
-    V8Response V8Context_Get(
+    V8SHARP_EXPORT V8Response V8Context_Get(
             ClrPointer ctx,
             ClrPointer target,
             ClrPointer index) {
@@ -233,7 +239,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->Get(TO_HANDLE(target), TO_HANDLE(index));
     }
 
-    V8Response V8Context_Equals(
+    V8SHARP_EXPORT V8Response V8Context_Equals(
             ClrPointer ctx,
             ClrPointer left,
             ClrPointer right) {
@@ -241,7 +247,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->Equals(TO_HANDLE(left), TO_HANDLE(right));
     }
 
-    V8Response V8Context_Set(
+    V8SHARP_EXPORT V8Response V8Context_Set(
             ClrPointer ctx,
             ClrPointer target,
             ClrPointer index,
@@ -250,7 +256,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->Set(TO_HANDLE(target), TO_HANDLE(index), TO_HANDLE(value));
     }
 
-    V8Response V8Context_GetProperty(
+    V8SHARP_EXPORT V8Response V8Context_GetProperty(
             ClrPointer ctx,
             ClrPointer target,
             Utf16Value text) {
@@ -258,7 +264,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->GetProperty(TO_HANDLE(target), text);
     }
 
-    V8Response V8Context_GetPropertyAt(
+    V8SHARP_EXPORT V8Response V8Context_GetPropertyAt(
             ClrPointer ctx,
             ClrPointer target,
             int index) {
@@ -266,7 +272,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->GetPropertyAt(TO_HANDLE(target), index);
     }
 
-    V8Response V8Context_SetProperty(
+    V8SHARP_EXPORT V8Response V8Context_SetProperty(
             ClrPointer ctx,
             ClrPointer target,
             Utf16Value text,
@@ -275,7 +281,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->SetProperty(TO_HANDLE(target), text, TO_HANDLE(value));
     }
 
-    V8Response V8Context_SetPropertyAt(
+    V8SHARP_EXPORT V8Response V8Context_SetPropertyAt(
             ClrPointer ctx,
             ClrPointer target,
             int index,
@@ -284,7 +290,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->SetPropertyAt(TO_HANDLE(target), index, TO_HANDLE(value));
     }
 
-    V8Response V8Context_ToString(
+    V8SHARP_EXPORT V8Response V8Context_ToString(
             ClrPointer ctx,
             ClrPointer target
             ) {
@@ -292,7 +298,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->ToString(TO_HANDLE(target));
     }
 
-    V8Response V8Context_Evaluate(
+    V8SHARP_EXPORT V8Response V8Context_Evaluate(
             ClrPointer ctx,
             Utf16Value script,
             Utf16Value location) {
@@ -316,7 +322,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return 0;
     }
 
-    V8Response V8Context_ReleaseHandle(ClrPointer ctx, ClrPointer h) {
+    V8SHARP_EXPORT V8Response V8Context_ReleaseHandle(ClrPointer ctx, ClrPointer h) {
         INIT_CONTEXT
         if (IsContextDisposed(context)) {
             return V8Response_FromBoolean(true);
@@ -325,7 +331,7 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     }
 
 
-    V8Response V8Context_Wrap(ClrPointer ctx, ClrPointer value) {
+    V8SHARP_EXPORT V8Response V8Context_Wrap(ClrPointer ctx, ClrPointer value) {
         INIT_CONTEXT
         return context->Wrap(value);
     }

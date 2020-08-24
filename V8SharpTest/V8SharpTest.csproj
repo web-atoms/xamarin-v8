@@ -66,10 +66,6 @@
       <Link>icudtl.dat</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\snapshot_blob.bin">
-      <Link>snapshot_blob.bin</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="..\Windows\V8Sharp\x64\Debug\V8Sharp.ilk">
       <Link>V8Sharp.ilk</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -87,7 +83,7 @@
       <Version>4.2.4</Version>
     </PackageReference>
     <PackageReference Include="WebAtoms.Core">
-      <Version>1.4.106</Version>
+      <Version>1.4.116</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

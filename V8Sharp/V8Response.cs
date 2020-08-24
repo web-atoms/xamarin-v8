@@ -72,8 +72,7 @@ namespace Xamarin.Android.V8
         [FieldOffset(0)]
         public double doubleValue;
 
-        [FieldOffset(0)]
-        public bool booleanValue;
+        public bool booleanValue => intValue > 0;
 
         [FieldOffset(0)]
         public int intValue;

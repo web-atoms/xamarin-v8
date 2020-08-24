@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\v8-v142-x64.8.2.297.1\build\native\v8-v142-x64.props" Condition="Exists('..\packages\v8-v142-x64.8.2.297.1\build\native\v8-v142-x64.props')" />
-  <Import Project="..\packages\v8.redist-v142-x64.8.2.297.1\build\native\v8.redist-v142-x64.props" Condition="Exists('..\packages\v8.redist-v142-x64.8.2.297.1\build\native\v8.redist-v142-x64.props')" />
-  <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
+  <Import Project="..\packages\v8sharp.all-v142-x64.8.4.371.15\build\native\v8-v142-x64.props" Condition="Exists('..\packages\v8sharp.all-v142-x64.8.4.371.15\build\native\v8-v142-x64.props')" />
+  <Import Project="..\packages\v8sharp.redist-v142-x64.8.4.371.15\build\native\v8.redist-v142-x64.props" 
+    Condition="Exists('..\packages\v8sharp.redist-v142-x64.8.4.371.15\build\native\v8.redist-v142-x64.props')" />
+    <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">      
+    <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
-    </ProjectConfiguration>
+      </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -167,23 +168,23 @@
     <ClInclude Include="..\..\..\android\LiquidV8\src\main\cpp\JNI\log.h" />
     <ClInclude Include="..\..\..\android\LiquidV8\src\main\cpp\JNI\V8Context.h" />
     <ClInclude Include="..\..\..\android\LiquidV8\src\main\cpp\JNI\V8Response.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\libplatform\libplatform-export.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\libplatform\libplatform.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\libplatform\v8-tracing.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-fast-api-calls.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-inspector-protocol.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-inspector.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-internal.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-platform.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-profiler.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-util.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-value-serializer-version.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-version-string.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-version.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-wasm-trap-handler-posix.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-wasm-trap-handler-win.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8.h" />
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8config.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\libplatform\libplatform-export.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\libplatform\libplatform.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\libplatform\v8-tracing.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-fast-api-calls.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-inspector-protocol.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-inspector.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-internal.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-platform.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-profiler.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-util.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-value-serializer-version.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-version-string.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-version.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-wasm-trap-handler-posix.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-wasm-trap-handler-win.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8.h" />
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8config.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
@@ -209,7 +210,5 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\v8.redist-v142-x64.8.2.297.1\build\native\v8.redist-v142-x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\v8.redist-v142-x64.8.2.297.1\build\native\v8.redist-v142-x64.props'))" />
-    <Error Condition="!Exists('..\packages\v8-v142-x64.8.2.297.1\build\native\v8-v142-x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\v8-v142-x64.8.2.297.1\build\native\v8-v142-x64.props'))" />
-  </Target>
+  </Target>  
 </Project>

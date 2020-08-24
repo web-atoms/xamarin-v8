@@ -21,55 +21,55 @@
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8config.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-fast-api-calls.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-fast-api-calls.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-inspector.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-inspector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-inspector-protocol.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-inspector-protocol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-internal.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-platform.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-profiler.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-profiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-util.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-value-serializer-version.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-value-serializer-version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-version.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-version-string.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-version-string.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-wasm-trap-handler-posix.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-wasm-trap-handler-posix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\v8-wasm-trap-handler-win.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\v8-wasm-trap-handler-win.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\libplatform\libplatform.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\libplatform\libplatform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\libplatform\libplatform-export.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\libplatform\libplatform-export.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\packages\v8-v142-x64.8.2.297.1\include\libplatform\v8-tracing.h">
+    <ClInclude Include="..\packages\v8sharp.all-v142-x64.8.4.371.15\include\libplatform\v8-tracing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\android\LiquidV8\src\main\cpp\JNI\log.h">

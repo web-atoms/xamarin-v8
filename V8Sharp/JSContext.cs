@@ -24,7 +24,7 @@ namespace Xamarin.Android.V8
     internal delegate void ExternalCall(
         V8Response fx,
         V8Response thisHandle,
-        V8Response args, ref V8Response result);
+        V8Response args, out V8Response result);
 
     internal delegate V8Response CLRExternalCall(V8Response thisHandle, V8Response args);
 
@@ -295,7 +295,7 @@ namespace Xamarin.Android.V8
                         }
                     };
 
-                    externalCaller = (V8Response fx, V8Response t, V8Response a, ref V8Response b) =>
+                    externalCaller = (V8Response fx, V8Response t, V8Response a, out V8Response b) =>
                     {
                         try
                         {
