@@ -20,22 +20,22 @@ namespace DroidV8Test.Droid.Tests
         public void Function()
         {
             context["clrFunction"] = context.CreateFunction(0, (c, a) => c.CreateString("Test"), "T1");
-            var a = context.Evaluate("clrFunction()");
-            Assert.True(a.IsString);
-            Assert.Equal("Test", a.ToString());
+            var r = context.Evaluate("clrFunction()");
+            Assert.True(r.IsString);
+            Assert.Equal("Test", r.ToString());
         }
 
         [Test]
         public void FunctionWithParameters()
         {
             context["clrFunction"] = context.CreateFunction(0, (c, a) => c.CreateString($"{a[0]} {a[1]}") , "T2");
-            var a = context.Evaluate("clrFunction('Akash', 'Kava')");
-            Assert.Equal("Akash Kava", a.ToString());
+            var r = context.Evaluate("clrFunction('Akash', 'Kava')");
+            Assert.Equal("Akash Kava", r.ToString());
 
             context.Evaluate("function add(f, l) { return `${f} ${l}`; }");
-            var c = context["add"];
-            a = c.InvokeFunction(null, context.CreateString("Simmi"), context.CreateString("Kava"));
-            Assert.Equal("Simmi Kava", a.ToString());
+            var c1 = context["add"];
+            r = c1.InvokeFunction(null, context.CreateString("Simmi"), context.CreateString("Kava"));
+            Assert.Equal("Simmi Kava", r.ToString());
         }
 
         [Test]
@@ -61,7 +61,7 @@ namespace DroidV8Test.Droid.Tests
         public void SerializeTest()
         {
             var m = new Math();
-            var mv = context.Serialize(m, SerializationMode.Reference);
+            var mv = context.Marshal(m, SerializationMode.Reference);
             context["math"] = mv;
             var r = context.Evaluate("math.add(4, 5)");
             Assert.Equal(9, r.IntValue);

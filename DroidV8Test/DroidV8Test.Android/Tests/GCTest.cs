@@ -24,7 +24,7 @@ namespace DroidV8Test.Droid.Tests
             {
                 var a = new { };
                 r = new WeakReference(a);
-                jc["a"] = jc.Convert(a);
+                jc["a"] = jc.Wrap(a);
                 a = null;
             }
 

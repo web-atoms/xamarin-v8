@@ -72,8 +72,8 @@ namespace DroidV8Test.Droid
                 Assert.True(a.IsNumber);
                 Assert.Equal(a.IntValue, 9);
 
-                j["add"] = j.CreateFunction(0, (c, a) => {
-                    return j.CreateString($"{a[0]} {a[1]}");
+                j["add"] = j.CreateFunction(0, (c, a1) => {
+                    return j.CreateString($"{a1[0]} {a1[1]}");
                 }, "Add");
 
                 a = j.Evaluate("add(a, k)");
