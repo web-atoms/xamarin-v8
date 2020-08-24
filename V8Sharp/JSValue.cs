@@ -271,7 +271,7 @@ namespace WebAtoms.V8Sharp
             }
             IntPtr h = handle.address;
             handle.address = IntPtr.Zero;
-            if (MainThread.IsMainThread)
+            if (context.IsMultiThreaded || MainThread.IsMainThread)
             {
                 JSContext.V8Context_ReleaseHandle(context, h).GetBooleanValue();
             }

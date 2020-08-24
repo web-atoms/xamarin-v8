@@ -57,8 +57,10 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
 #define V8_CONTEXT_SCOPE \
     HandleScope scope(_isolate); \
     Local<Context> context = GetContext(); \
-    V8Lock locker(this->multiThreaded ? _isolate : nullptr, context); \
     TryCatch tryCatch(_isolate); \
+
+    // V8Lock locker(this->multiThreaded ? _isolate : nullptr, context); \
+    
 
 #define V8_STRING(s) \
     TO_CHECKED(v8::String::NewFromUtf8(_isolate, s, v8::NewStringType::kNormal))

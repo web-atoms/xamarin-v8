@@ -45,19 +45,29 @@ extern "C" {
 class V8Lock {
     Isolate* isolate;
     Local<Context> context;
+    v8::Locker locker;
+    v8::Isolate::Scope* scope;
+    Context::Scope* context_scope;
 public:
 
-    inline V8Lock(Isolate* _isolate, Local<Context> &_context) {
+    V8Lock(Isolate* _isolate, Local<Context> &_context):
+    locker(_isolate){
+        scope = nullptr;
+        context_scope = nullptr;
         this->context = _context;
         this->isolate = _isolate;
         if (_isolate != nullptr) {
+            scope = new v8::Isolate::Scope(_isolate);
+            context_scope = new Context::Scope(_context);
             _isolate->Enter();
             _context->Enter();
         }
     }
 
-    inline ~V8Lock() {
+    ~V8Lock() {
         if (isolate != nullptr) {
+            delete context_scope;
+            delete scope;
             this->context->Exit();
             this->isolate->Exit();
         }

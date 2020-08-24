@@ -19,6 +19,8 @@ namespace WebAtoms.V8Sharp
 
         public bool IsDisposed => this.value == IntPtr.Zero;
 
+        internal bool IsMultiThreaded = false;
+
         public static implicit operator V8ContextHandle(IntPtr v)
         {
             return new V8ContextHandle { value = v };

@@ -8,11 +8,11 @@ namespace V8SharpCoreTest
 {
     class Program
     {
-        static void Main(string[] args)
+        async static Task Main(string[] args)
         {
             try
             {
-                using (JSContext context = new JSContext(false, false))
+                using (JSContext context = new JSContext(false, true))
                 {
                     var name = context.EvaluateTemplate($"`${{{"Akash"}}} ${{{"Kava"}}}`");
                     Console.WriteLine(name.ToString());
@@ -25,14 +25,15 @@ namespace V8SharpCoreTest
                     var list = new string[][] {
                         new string [] { "a1", "b1"},
                         new string [] { "c1", "d1" }
-                    }.Select(x =>
+                    }.Select(async x =>
                     {
-                        var a = x[0];
-                        var b = x[1];
-                        return Task.FromResult(context.EvaluateTemplate($"add({a},{b})").ToString());
+                        await Task.Delay(100);
+                        var a = context.CreateString(x[0]);
+                        var b = context.CreateString(x[1]);
+                        return context.EvaluateTemplate($"add({a},{b})").ToString();
                     }).ToList();
 
-                    var result = Task.WhenAll(list).Result;
+                    var result = await Task.WhenAll(list);
                     foreach (var r in result)
                     {
                         Console.WriteLine(r);

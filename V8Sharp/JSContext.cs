@@ -328,6 +328,8 @@ namespace WebAtoms.V8Sharp
 
                 this.context = V8Context_Create(
                     protocol != null, env);
+
+                this.context.IsMultiThreaded = threadSafe;
             }
             
             this.Undefined = new JSValue(this, V8Context_CreateUndefined(context));
