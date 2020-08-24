@@ -44,10 +44,10 @@ extern "C" {
 
 class V8Lock {
     Isolate* isolate;
-    Context* context;
+    Local<Context> context;
 public:
 
-    V8Lock(Isolate* _isolate, Context* _context) {
+    inline V8Lock(Isolate* _isolate, Local<Context> &_context) {
         this->context = _context;
         this->isolate = _isolate;
         if (_isolate != nullptr) {
@@ -56,7 +56,7 @@ public:
         }
     }
 
-    ~V8Lock() {
+    inline ~V8Lock() {
         if (isolate != nullptr) {
             this->context->Exit();
             this->isolate->Exit();

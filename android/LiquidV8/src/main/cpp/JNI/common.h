@@ -57,7 +57,7 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
 #define V8_CONTEXT_SCOPE \
     HandleScope scope(_isolate); \
     Local<Context> context = GetContext(); \
-    V8Lock locker(this->multiThreaded ? _isolate : nullptr, *context); \
+    V8Lock locker(this->multiThreaded ? _isolate : nullptr, context); \
     TryCatch tryCatch(_isolate); \
 
 #define V8_STRING(s) \

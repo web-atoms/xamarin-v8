@@ -15,7 +15,7 @@ namespace V8SharpTest
 
             try
             {
-                using (JSContext context = new JSContext(false))
+                using (JSContext context = new JSContext(false, true))
                 {
                     var name = context.EvaluateTemplate($"`${{{"Akash"}}} ${{{"Kava"}}}`");
                     Console.WriteLine(name.ToString());
@@ -24,6 +24,22 @@ namespace V8SharpTest
 
                     name = context.EvaluateTemplate($"add({"Akash"},{"Kava"})");
                     Console.WriteLine(name.ToString());
+
+                    var list = new string[][] {
+                        new string [] { "a1", "b1"},
+                        new string [] { "c1", "d1" }
+                    }.Select(x =>
+                    {
+                        var a = x[0];
+                        var b = x[1];
+                        return Task.FromResult(context.EvaluateTemplate($"add({a},{b})").ToString());
+                    }).ToList();
+
+                    var result = Task.WhenAll(list).Result;
+                    foreach(var r in result)
+                    {
+                        Console.WriteLine(r);
+                    }
                 }
             }catch(Exception ex) {
                 Console.WriteLine(ex);

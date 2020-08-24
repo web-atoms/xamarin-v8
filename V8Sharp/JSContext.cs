@@ -197,8 +197,8 @@ namespace WebAtoms.V8Sharp
         /// You can specify additional parameters on uri to identify connecting client.
         /// </summary>
         /// <param name="webSocketProxyUri"></param>
-        public JSContext(Uri webSocketProxyUri)
-            : this(V8InspectorProtocol.CreateInverseProxy(webSocketProxyUri))
+        public JSContext(Uri webSocketProxyUri, bool threadSafe = false)
+            : this(V8InspectorProtocol.CreateInverseProxy(webSocketProxyUri), threadSafe)
         {
 
         }
@@ -208,15 +208,15 @@ namespace WebAtoms.V8Sharp
         /// </summary>
         /// <param name="debug"></param>
         /// <param name="webSocketServerPort"></param>
-        public JSContext(bool debug = false, int webSocketServerPort = 9222)
-            : this(debug  ? V8InspectorProtocol.CreateWebSocketServer(webSocketServerPort) : null )
+        public JSContext(bool debug = false, bool threadSafe = false, int webSocketServerPort = 9222)
+            : this(debug  ? V8InspectorProtocol.CreateWebSocketServer(webSocketServerPort) : null, threadSafe)
         {
 
         }
 
         private readonly ReadMessageLock readLock = new ReadMessageLock();
 
-        private JSContext(V8InspectorProtocol protocol = null)
+        private JSContext(V8InspectorProtocol protocol = null, bool threadSafe = false)
         {
             inspectorProtocol = protocol;
             logger = (t, l) => {
@@ -324,6 +324,7 @@ namespace WebAtoms.V8Sharp
                 env.SendDebugMessageToProtocol = Marshal.GetFunctionPointerForDelegate(receiveDebugFromV8);
                 env.fatalErrorCallback = Marshal.GetFunctionPointerForDelegate(fatalErrorCallback);
                 env.breakPauseOn = Marshal.GetFunctionPointerForDelegate(breakPauseOn);
+                env.multiThreaded = threadSafe ? 1 : 0;
 
                 this.context = V8Context_Create(
                     protocol != null, env);
