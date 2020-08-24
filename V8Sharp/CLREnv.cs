@@ -30,6 +30,8 @@ namespace WebAtoms.V8Sharp
 
         public IntPtr breakPauseOn;
 
+        public int multiThreaded;
+
     }
 
 }
