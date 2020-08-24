@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/10/nuspec.xsd">
+  <metadata>
+    <id>WebAtoms.V8Sharp.Droid</id>
+    <version>1.0.0</version>
+    <title>V8 JavaScript Engine Bindings for Xamarin.Android</title>
+    <authors>Akash Kava</authors>
+    <owners>Akash Kava</owners>
+    <licenseUrl>https://github.com/web-atoms/xamarin-v8/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/web-atoms/xamarin-v8</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>
+      V8 JavaScript Engine Bindings for Xamarin.Android with Inspector Enabled
+    </description>
+    <summary>
+      V8 JavaScript Engine Bindings for Xamarin.Android with Inspector Enabled
+    </summary>
+    <releaseNotes>
+    </releaseNotes>
+    <copyright>NeuroSpeech Technologies Pvt Ltd 2016</copyright>
+    <language>en-US</language>
+    <tags>xamarin, javascript, v8, engine, inspector, debug</tags>
+    <dependencies>
+      <group targetFramework="monoandroid10">
+        <dependency id="WebAtoms.Core" version="1.4.76"/>
+        <dependency id="System.Net.WebSockets.Client" version="4.3.2"/>
+        <dependency id="deniszykov.WebSocketListener" version="4.2.4"/>
+      </group>
+      <group targetFramework="netstandard2.0">
+        <dependency id="WebAtoms.Core" version="1.4.76"/>
+        <dependency id="System.Net.WebSockets.Client" version="4.3.2"/>
+        <dependency id="deniszykov.WebSocketListener" version="4.2.4"/>
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+
+    <!-- android -->
+    <file src="WebAtoms.V8Sharp.Droid\bin\Debug\WebAtoms.V8Sharp.Droid.dll" target="lib\MonoAndroid10" />
+    <file src="WebAtoms.V8Sharp.Droid\bin\Debug\WebAtoms.V8Sharp.Droid.pdb" target="lib\MonoAndroid10" />
+
+    <!-- windows x64 -->
+    <file src="Windows\WebAtoms.V8Sharp.Windows\bin\Debug\netstandard2.0\WebAtoms.V8Sharp.Windows.dll" target="lib\netstandard2.0" />
+    <file src="Windows\WebAtoms.V8Sharp.Windows\bin\Debug\netstandard2.0\WebAtoms.V8Sharp.Windows.pdb" target="lib\netstandard2.0" />
+    <file src="Windows\WebAtoms.V8Sharp.Windows\bin\Debug\netstandard2.0\icui18n.dll" target="lib\netstandard2.0" />
+    <file src="Windows\WebAtoms.V8Sharp.Windows\bin\Debug\netstandard2.0\icuuc.dll" target="lib\netstandard2.0" />
+    <file src="Windows\WebAtoms.V8Sharp.Windows\bin\Debug\netstandard2.0\v8.dll" target="lib\netstandard2.0" />
+    <file src="Windows\WebAtoms.V8Sharp.Windows\bin\Debug\netstandard2.0\v8_libbase.dll" target="lib\netstandard2.0" />
+    <file src="Windows\WebAtoms.V8Sharp.Windows\bin\Debug\netstandard2.0\v8_libplatform.dll" target="lib\netstandard2.0" />
+    <file src="Windows\WebAtoms.V8Sharp.Windows\bin\Debug\netstandard2.0\zlib.dll" target="lib\netstandard2.0" />
+
+  </files>
+</package>

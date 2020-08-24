@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAtoms.V8Sharp.Windows", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "V8SharpTest", "V8SharpTest\V8SharpTest.csproj", "{1CEDE96C-BE69-42A3-A47A-2A08D5CD08B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "V8SharpCoreTest", "V8SharpCoreTest\V8SharpCoreTest.csproj", "{BE79F6C0-F23A-42F8-8C06-79FD79450679}"
+EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\V8Sharp\V8Sharp.projitems*{a23b74d2-ec8f-47ff-a64f-e87f408f3d22}*SharedItemsImports = 13
@@ -27,6 +29,10 @@ Global
 		{1CEDE96C-BE69-42A3-A47A-2A08D5CD08B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CEDE96C-BE69-42A3-A47A-2A08D5CD08B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CEDE96C-BE69-42A3-A47A-2A08D5CD08B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE79F6C0-F23A-42F8-8C06-79FD79450679}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE79F6C0-F23A-42F8-8C06-79FD79450679}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE79F6C0-F23A-42F8-8C06-79FD79450679}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE79F6C0-F23A-42F8-8C06-79FD79450679}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

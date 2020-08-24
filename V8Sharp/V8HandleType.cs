@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
     internal enum V8HandleType : int
     {

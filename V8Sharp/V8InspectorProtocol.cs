@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using vtortola.WebSockets;
 using vtortola.WebSockets.Rfc6455;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
     public abstract class V8InspectorProtocol: IDisposable
     {

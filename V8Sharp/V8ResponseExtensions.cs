@@ -3,7 +3,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
     internal static class V8ResponseExtensions
     {

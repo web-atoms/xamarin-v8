@@ -25,8 +25,8 @@ namespace DroidV8Test.Droid
 		
 		public static void UpdateIdValues()
 		{
-			global::Xamarin.Android.V8.Resource.String.app_name = global::DroidV8Test.Droid.Resource.String.app_name;
-			global::Xamarin.Android.V8.Resource.String.hello = global::DroidV8Test.Droid.Resource.String.hello;
+			global::WebAtoms.V8Sharp.Resource.String.app_name = global::DroidV8Test.Droid.Resource.String.app_name;
+			global::WebAtoms.V8Sharp.Resource.String.hello = global::DroidV8Test.Droid.Resource.String.hello;
 			global::Xamarin.Essentials.Resource.Attribute.alpha = global::DroidV8Test.Droid.Resource.Attribute.alpha;
 			global::Xamarin.Essentials.Resource.Attribute.coordinatorLayoutStyle = global::DroidV8Test.Droid.Resource.Attribute.coordinatorLayoutStyle;
 			global::Xamarin.Essentials.Resource.Attribute.font = global::DroidV8Test.Droid.Resource.Attribute.font;

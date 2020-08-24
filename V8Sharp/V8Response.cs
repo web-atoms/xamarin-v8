@@ -3,7 +3,7 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
 
 
@@ -153,12 +153,9 @@ namespace Xamarin.Android.V8
                 var gc = GCHandle.FromIntPtr(address);
                 string value = (string)gc.Target;
                 // free only if it was not const...
-                if (Type == V8HandleType.String || Type == V8HandleType.Error)
+                if (Type == V8HandleType.CharArray || Type == V8HandleType.Error)
                     gc.Free();
                 return value;
-                // char* c = (char*)address;
-                // return new String(c, 0, length);
-
             }
         }
 

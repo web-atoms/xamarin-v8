@@ -35,15 +35,40 @@ extern "C" {
         FatalErrorCallback fatalErrorCallback;
 
         BreakPauseOn breakPauseOn;
+
+        int multiThreaded;
     };
 
     typedef __ClrEnv *ClrEnv;
 }
 
+class V8Lock {
+    Isolate* isolate;
+    Context* context;
+public:
+
+    V8Lock(Isolate* _isolate, Context* _context) {
+        this->context = _context;
+        this->isolate = _isolate;
+        if (_isolate != nullptr) {
+            _isolate->Enter();
+            _context->Enter();
+        }
+    }
+
+    ~V8Lock() {
+        if (isolate != nullptr) {
+            this->context->Exit();
+            this->isolate->Exit();
+        }
+    }
+};
+
 class V8Context {
 protected:
     Platform* _platform;
     Isolate* _isolate;
+    bool multiThreaded;
     Global<Context> _context;
     Global<Symbol> _wrapSymbol;
     Global<v8::Object> _global;

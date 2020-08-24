@@ -6,7 +6,7 @@ using WebAtoms;
 using V8Handle = System.IntPtr;
 using WebAtoms.V8Sharp;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
     public class JSValue: IJSValue
     {

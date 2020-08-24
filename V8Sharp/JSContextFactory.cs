@@ -11,7 +11,7 @@ using System.Text;
 //using Android.Widget;
 using WebAtoms;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
     public class JSContextFactory : IJSContextFactory
     {

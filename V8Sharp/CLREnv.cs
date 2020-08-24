@@ -11,7 +11,7 @@ using System.Text;
 //using Android.Views;
 //using Android.Widget;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
     [StructLayout(LayoutKind.Sequential)]
     internal struct CLREnv

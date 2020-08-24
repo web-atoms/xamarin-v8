@@ -6,7 +6,7 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using Android.OS;
-using Xamarin.Android.V8;
+using WebAtoms.V8Sharp;
 using WebAtoms;
 
 namespace DroidV8Test.Droid

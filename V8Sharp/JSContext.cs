@@ -18,7 +18,7 @@ using V8Handle = System.IntPtr;
 using WebAtoms.V8Sharp;
 // using System.Diagnostics.Eventing.Reader;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
     internal delegate void ExternalCall(
@@ -349,7 +349,7 @@ namespace Xamarin.Android.V8
 
             this["clearTimeout"] = this.CreateFunction(1, (c, a) => {
                 var tid = a[0].IntValue;
-                if(timeouts.TryGetValue(tid, out var token))
+                if(timeouts.Remove(tid, out var token))
                 {
                     token.Dispose();
                 }
@@ -361,11 +361,12 @@ namespace Xamarin.Android.V8
                 var fn = a[0];
                 var timeout = a[1];
                 var delay = timeout.IsUndefined ? 0 : timeout.LongValue;
+                var tid = System.Threading.Interlocked.Increment(ref id);
                 var ct = MainThread.PostTimeout(() => {
                     fn.InvokeFunction(Global);
+                    timeouts.Remove(tid);
                 }, delay);
-
-                var tid = System.Threading.Interlocked.Increment(ref id);
+                timeouts.Add(tid, ct);
                 return this.CreateNumber(tid);
 
             }, "setTimeout");

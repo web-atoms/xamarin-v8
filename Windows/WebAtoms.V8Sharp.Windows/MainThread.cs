@@ -24,21 +24,45 @@ namespace System
 
 namespace WebAtoms.V8Sharp
 {
+    public interface IMainThread
+    {
+        bool IsMainThread { get; }
+        IDisposable PostTimeout(Action action, long delay);
+        void InvokeOnMainThreadAsync(Action action);
+        void BeginInvokeOnMainThread(Action action);
+
+    }
+
+    public static class DictionaryExtensions
+    {
+        public static bool Remove<TKey, TValue>(this Dictionary<TKey, TValue> d, TKey key, out TValue value)
+        {
+            if (d.TryGetValue(key, out value))
+            {
+                return d.Remove(key);
+            }
+            return false;
+        }
+    }
+
     public class MainThread
     {
-        public static object PostTimeout(Action action, long delay)
+
+        public static IMainThread Instance;
+
+        public static IDisposable PostTimeout(Action action, long delay)
         {
-            throw new NotImplementedException();
+            return Instance.PostTimeout(action, delay);
         }
         public static void InvokeOnMainThreadAsync(Action action)
         {
-            throw new NotImplementedException();
+            Instance.InvokeOnMainThreadAsync(action);
         }
         public static void BeginInvokeOnMainThread(Action action)
         {
-            throw new NotImplementedException();
+            Instance.BeginInvokeOnMainThread(action);
         }
-        public static bool IsMainThread => SynchronizationContext.Current != null;
+        public static bool IsMainThread => Instance.IsMainThread;
 
     }
 }

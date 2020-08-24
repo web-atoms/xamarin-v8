@@ -5,7 +5,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
 
     internal class V8ContextHandle

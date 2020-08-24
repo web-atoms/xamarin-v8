@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using WebAtoms;
 using V8Handle = System.IntPtr;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
 
     public class JavaScriptException: Exception

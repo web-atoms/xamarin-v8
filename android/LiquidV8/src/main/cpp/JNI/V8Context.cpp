@@ -63,6 +63,7 @@ V8Context::V8Context(
     // ReturnValue = (uint16_t*) malloc(2048);
     _logger = env->loggerCallback;
     _platform = sPlatform.get();
+    this->multiThreaded = env->multiThreaded;
     Isolate::CreateParams params;
     _arrayBufferAllocator = ArrayBuffer::Allocator::NewDefaultAllocator();
     params.array_buffer_allocator = _arrayBufferAllocator;
@@ -931,12 +932,10 @@ V8Response V8Context::V8Response_From(Local<Context> &context, Local<Value> &han
             v.result.refValue = e->Handle();
         }
     }
+    else if (handle->IsFunction()) {
+        v.type = V8ResponseType::Function;
+    }
     else if (handle->IsObject()) {
-//        v.type = V8ResponseType::Wrapped;
-//        V8External* e = V8External::CheckInExternal(context, handle);
-//        if (e != nullptr) {
-//            v.result.refValue = e->Handle();
-//        }
         v.type = V8ResponseType::Object;
     }
 

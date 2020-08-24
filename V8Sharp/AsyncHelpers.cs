@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 //using Android.Views;
 //using Android.Widget;
 
-namespace Xamarin.Android.V8
+namespace WebAtoms.V8Sharp
 {
     /// <summary>
     /// Reference http://stackoverflow.com/questions/5095183/how-would-i-run-an-async-taskt-method-synchronously
