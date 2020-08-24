@@ -46,6 +46,8 @@ namespace Xamarin.Android.V8
 
         internal IntPtr Handle;
 
+        internal int unusedValue;
+
         public unsafe static implicit operator Utf16Value(string value) {
             if (string.IsNullOrEmpty(value))
             {
@@ -135,6 +137,11 @@ namespace Xamarin.Android.V8
         {
             get
             {
+                if (!(Type == V8HandleType.Error 
+                    || Type == V8HandleType.ConstError 
+                    || Type == V8HandleType.CharArray
+                    || Type == V8HandleType.ConstCharArray))
+                    return null;
                 if (address == IntPtr.Zero)
                 {
                     if (result.booleanValue)

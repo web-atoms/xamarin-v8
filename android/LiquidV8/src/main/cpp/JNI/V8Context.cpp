@@ -536,8 +536,7 @@ void X8Call(const FunctionCallbackInfo<v8::Value> &args) {
     // V8Response fx = V8Response_From(context, dv);
     Local<External> ext = Local<External>::Cast(data);
     ExternalCall exCall = (ExternalCall)((V8External*)ext->Value())->Data();
-    V8Response r;
-    exCall(target, handleArgs, &r);
+    V8Response r = exCall(target, handleArgs);
 
     // free(params);
 
@@ -828,7 +827,7 @@ V8Response V8Context::DispatchDebugMessage(Utf16Value msg, bool post) {
     V8_CONTEXT_SCOPE
     // LogAndroid("SendDebugMessage", "Locked");
     if (inspectorClient != nullptr) {
-        v8_inspector::StringView messageView(msg->Value, msg->Length);
+        v8_inspector::StringView messageView(msg.Value, msg.Length);
         inspectorClient->SendDebugMessage(messageView);
     }
     if (tryCatch.HasCaught()) {

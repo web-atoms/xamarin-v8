@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;WIN</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+  <Content Include="..\V8Sharp\x64\Debug\icui18n.dll">
+      <Link>icui18n.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\V8Sharp\x64\Debug\icuuc.dll">
+      <Link>icuuc.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\V8Sharp\x64\Debug\v8.dll">
+      <Link>v8.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\V8Sharp\x64\Debug\V8Sharp.dll">
+      <Link>V8Sharp.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\V8Sharp\x64\Debug\V8Sharp.pdb">
+      <Link>V8Sharp.pdb</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\V8Sharp\x64\Debug\v8_libbase.dll">
+      <Link>v8_libbase.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\V8Sharp\x64\Debug\v8_libplatform.dll">
+      <Link>v8_libplatform.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\V8Sharp\x64\Debug\zlib.dll">
+      <Link>zlib.dll</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WebAtoms.Core" Version="1.4.116" />
+    <PackageReference Include="deniszykov.WebSocketListener">
+      <Version>4.2.4</Version>
+    </PackageReference>
+    <PackageReference Include="GitVersionTask" Version="5.1.3">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="System.Net.WebSockets.Client">
+      <Version>4.3.2</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <Import Project="..\..\V8Sharp\V8Sharp.projitems" Label="Shared" />
+  
+</Project>

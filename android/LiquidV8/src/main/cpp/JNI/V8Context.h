@@ -13,7 +13,7 @@ class XV8InspectorClient;
 
 class V8Response;
 
-typedef void (*ExternalCall)(V8Response target, V8Response args, V8Response* result);
+typedef V8Response (*ExternalCall)(V8Response target, V8Response args);
 
 extern "C" {
 

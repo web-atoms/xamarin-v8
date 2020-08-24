@@ -71,9 +71,9 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
     */
 
 #define V8_UTF16STRING(s) \
-    s->Length == 0 ? _emptyString.Get(_isolate) : \
+    s.Length == 0 ? _emptyString.Get(_isolate) : \
     TO_CHECKED(v8::String::NewExternalTwoByte(  \
-            _isolate, new ExternalX16String(s->Value, s->Length, s->Handle, clrFreeHandle)))
+            _isolate, new ExternalX16String(s.Value, s.Length, s.Handle, clrFreeHandle)))
 
 typedef char* XString;
 
@@ -99,9 +99,10 @@ struct __Utf16Value {
     const uint16_t* Value;
     int Length;
     const void* Handle;
+    int unusedValue;
 };
 
-typedef __Utf16Value* Utf16Value;
+typedef __Utf16Value Utf16Value;
 
 typedef void (*FreeMemory)(const void *location);
 

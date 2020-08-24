@@ -3,26 +3,26 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30128.74
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAtoms.V8Sharp.Windows", "WebAtoms.V8Sharp.Windows.csproj", "{C7F66C01-72CD-4E68-9B09-25207E2216D0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "V8SharpTest", "..\V8SharpTest\V8SharpTest.csproj", "{1CEDE96C-BE69-42A3-A47A-2A08D5CD08B3}"
-EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "V8Sharp", "..\V8Sharp\V8Sharp.shproj", "{A23B74D2-EC8F-47FF-A64F-E87F408F3D22}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAtoms.V8Sharp.Windows", "WebAtoms.V8Sharp.Windows\WebAtoms.V8Sharp.Windows.csproj", "{DE283855-EB6F-4D4D-9D2B-2DAE849527A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "V8SharpTest", "V8SharpTest\V8SharpTest.csproj", "{1CEDE96C-BE69-42A3-A47A-2A08D5CD08B3}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		..\V8Sharp\V8Sharp.projitems*{a23b74d2-ec8f-47ff-a64f-e87f408f3d22}*SharedItemsImports = 13
-		..\V8Sharp\V8Sharp.projitems*{c7f66c01-72cd-4e68-9b09-25207e2216d0}*SharedItemsImports = 5
+		..\V8Sharp\V8Sharp.projitems*{de283855-eb6f-4d4d-9d2b-2dae849527a9}*SharedItemsImports = 5
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C7F66C01-72CD-4E68-9B09-25207E2216D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7F66C01-72CD-4E68-9B09-25207E2216D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7F66C01-72CD-4E68-9B09-25207E2216D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7F66C01-72CD-4E68-9B09-25207E2216D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE283855-EB6F-4D4D-9D2B-2DAE849527A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE283855-EB6F-4D4D-9D2B-2DAE849527A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE283855-EB6F-4D4D-9D2B-2DAE849527A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE283855-EB6F-4D4D-9D2B-2DAE849527A9}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1CEDE96C-BE69-42A3-A47A-2A08D5CD08B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1CEDE96C-BE69-42A3-A47A-2A08D5CD08B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CEDE96C-BE69-42A3-A47A-2A08D5CD08B3}.Release|Any CPU.ActiveCfg = Release|Any CPU

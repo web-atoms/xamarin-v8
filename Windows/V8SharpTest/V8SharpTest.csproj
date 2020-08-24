@@ -62,14 +62,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\icudtl.dat">
-      <Link>icudtl.dat</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\V8Sharp.ilk">
-      <Link>V8Sharp.ilk</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
@@ -85,40 +77,6 @@
     <PackageReference Include="WebAtoms.Core">
       <Version>1.4.116</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\icui18n.dll">
-      <Link>icui18n.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\icuuc.dll">
-      <Link>icuuc.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\v8.dll">
-      <Link>v8.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\V8Sharp.dll">
-      <Link>V8Sharp.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\V8Sharp.pdb">
-      <Link>V8Sharp.pdb</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\v8_libbase.dll">
-      <Link>v8_libbase.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\v8_libplatform.dll">
-      <Link>v8_libplatform.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Windows\V8Sharp\x64\Debug\zlib.dll">
-      <Link>zlib.dll</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.8">
