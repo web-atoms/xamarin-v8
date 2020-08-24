@@ -767,7 +767,7 @@ V8Response V8Context::HasProperty(V8Handle target, Utf16Value name) {
     // 
     Local<Value> value = target->Get(_isolate);
     if (!value->IsObject()) {
-        return FromError("Target is not an object ");
+        return V8Response_FromBoolean(false);
     }
     Local<v8::Object> obj = TO_CHECKED(value->ToObject(context));
     Local<v8::String> key = V8_UTF16STRING(name);

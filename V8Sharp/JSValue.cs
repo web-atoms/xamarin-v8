@@ -181,6 +181,10 @@ namespace Xamarin.Android.V8
         {
             // we need to get wrapped instance..
             var w = this[jsContext.WrappedSymbol] as JSValue;
+            if (w.IsUndefined)
+                throw new InvalidCastException($"Cannot cast undefined to {typeof(T).FullName}");
+            if (w.IsValueNull)
+                return (T)(object)null;
             IntPtr v = w.handle.result.refValue;
             //if (v == IntPtr.Zero)
             //{
