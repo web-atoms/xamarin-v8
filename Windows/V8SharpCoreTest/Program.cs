@@ -12,7 +12,7 @@ namespace V8SharpCoreTest
         {
             try
             {
-                using (JSContext context = new JSContext(false, true))
+                using (JSContext context = new JSContext(false, false))
                 {
                     var name = context.EvaluateTemplate($"`${{{"Akash"}}} ${{{"Kava"}}}`");
                     Console.WriteLine(name.ToString());
@@ -22,7 +22,11 @@ namespace V8SharpCoreTest
                     name = context.EvaluateTemplate($"add({"Akash"},{"Kava"})");
                     Console.WriteLine(name.ToString());
 
-                    var r = await Task.Run(() => context.EvaluateTemplate($"add({"Akash"},{"Kava"})"));
+                    var r = await Task.Run(async () =>
+                    {
+                        await Task.Delay(10);
+                        return context.EvaluateTemplate($"add({"Akash"},{"Kava"})");
+                    }); ; ;
 
                     Console.WriteLine(r);
 

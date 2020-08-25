@@ -40,11 +40,6 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
     Context::Scope context_scope(context); \
 */
 
-#define V8_HANDLE_SCOPE \
-    HandleScope scope(_isolate); \
-    Local<Context> context = GetContext();
-
-
 /*
 #define V8_CONTEXT_SCOPE \
     v8::Isolate::Scope isolate_scope(_isolate);\
@@ -56,6 +51,12 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
 
 #if _WINDOWS
 
+    #define V8_HANDLE_SCOPE \
+        HandleScope scope(_isolate); \
+        Local<Context> context = GetContext();\
+        V8Lock locker(this->multiThreaded ? _isolate : nullptr, context); \
+
+
     #define V8_CONTEXT_SCOPE \
         HandleScope scope(_isolate); \
         Local<Context> context = GetContext(); \
@@ -64,7 +65,11 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
 
 #else
 
-    #define V8_CONTEXT_SCOPE \
+#define V8_HANDLE_SCOPE \
+        HandleScope scope(_isolate); \
+        Local<Context> context = GetContext();
+
+#define V8_CONTEXT_SCOPE \
         HandleScope scope(_isolate); \
         Local<Context> context = GetContext(); \
         TryCatch tryCatch(_isolate); \

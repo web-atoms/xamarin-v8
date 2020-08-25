@@ -150,6 +150,11 @@ V8Context::V8Context(
     for (int i = 0; i < 100; ++i) {
         handles.push_back(new Global<v8::Value>());
     }
+
+    if (env->multiThreaded > 0) {
+        c->Exit();
+        _isolate->Exit();
+    }
 }
 
 V8Response V8Context::FromException(Local<Context> &context, TryCatch &tc, const char* file, const int line) {

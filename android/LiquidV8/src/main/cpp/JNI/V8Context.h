@@ -53,33 +53,25 @@ public:
 class V8Lock {
     Isolate* isolate;
     Local<Context> context;
-    // v8::Locker* locker;
-    // v8::Isolate::Scope* scope;
-    // Context::Scope* context_scope;
 public:
 
     V8Lock(Isolate* _isolate, Local<Context> &_context) {
-        // scope = nullptr;
-        // locker = nullptr;
-        // context_scope = nullptr;
         this->context = _context;
         this->isolate = _isolate;
         if (_isolate != nullptr) {
-            // locker = new v8::Locker(_isolate);
-            // scope = new v8::Isolate::Scope(_isolate);
-            // context_scope = new Context::Scope(_context);
             _isolate->Enter();
+        }
+        if (!_context.IsEmpty()) {
             _context->Enter();
         }
     }
 
     ~V8Lock() {
-        if (isolate != nullptr) {
+        if (!context.IsEmpty()) {
             this->context->Exit();
+        }
+        if (isolate != nullptr) {
             this->isolate->Exit();
-            // delete context_scope;
-            // delete scope;
-            // delete locker;
         }
     }
 };
