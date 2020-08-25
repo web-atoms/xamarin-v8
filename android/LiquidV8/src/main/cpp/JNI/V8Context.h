@@ -53,15 +53,15 @@ public:
 class V8Lock {
     Isolate* isolate;
     Local<Context> context;
-    v8::Locker* locker;
-    v8::Isolate::Scope* scope;
-    Context::Scope* context_scope;
+    // v8::Locker* locker;
+    // v8::Isolate::Scope* scope;
+    // Context::Scope* context_scope;
 public:
 
     V8Lock(Isolate* _isolate, Local<Context> &_context) {
-        scope = nullptr;
-        locker = nullptr;
-        context_scope = nullptr;
+        // scope = nullptr;
+        // locker = nullptr;
+        // context_scope = nullptr;
         this->context = _context;
         this->isolate = _isolate;
         if (_isolate != nullptr) {
