@@ -22,22 +22,26 @@ namespace V8SharpCoreTest
                     name = context.EvaluateTemplate($"add({"Akash"},{"Kava"})");
                     Console.WriteLine(name.ToString());
 
-                    var list = new string[][] {
-                        new string [] { "a1", "b1"},
-                        new string [] { "c1", "d1" }
-                    }.Select(async x =>
-                    {
-                        await Task.Delay(100);
-                        var a = context.CreateString(x[0]);
-                        var b = context.CreateString(x[1]);
-                        return context.EvaluateTemplate($"add({a},{b})").ToString();
-                    }).ToList();
+                    var r = await Task.Run(() => context.EvaluateTemplate($"add({"Akash"},{"Kava"})"));
 
-                    var result = await Task.WhenAll(list);
-                    foreach (var r in result)
-                    {
-                        Console.WriteLine(r);
-                    }
+                    Console.WriteLine(r);
+
+                    //var list = new string[][] {
+                    //    new string [] { "a1", "b1"},
+                    //    new string [] { "c1", "d1" }
+                    //}.Select(async x =>
+                    //{
+                    //    await Task.Delay(100);
+                    //    var a = context.CreateString(x[0]);
+                    //    var b = context.CreateString(x[1]);
+                    //    return context.EvaluateTemplate($"add({a},{b})").ToString();
+                    //}).ToList();
+
+                    //var result = await Task.WhenAll(list);
+                    //foreach (var r in result)
+                    //{
+                    //    Console.WriteLine(r);
+                    //}
                 }
             }
             catch (Exception ex)
