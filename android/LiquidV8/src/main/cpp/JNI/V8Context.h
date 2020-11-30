@@ -140,9 +140,11 @@ public:
             V8Handle set,
             V8Handle value            );
     V8Response DeleteProperty(V8Handle target, Utf16Value name);
+    V8Response DeletePropertyHandle(V8Handle target, ClrPointer name);
     V8Response Evaluate(Utf16Value script,Utf16Value location);
     V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, void** args);
     V8Response InvokeMethod(V8Handle target, Utf16Value name, int len, void** args);
+    V8Response InvokeMethodHandle(V8Handle target, ClrPointer name, int len, void** args);
     V8Response IsInstanceOf(V8Handle target, V8Handle jsClass);
     V8Response Equals(V8Handle left, V8Handle right);
     V8Response GetGlobal();
@@ -154,6 +156,9 @@ public:
     V8Response HasProperty(V8Handle target, Utf16Value name);
     V8Response GetProperty(V8Handle target, Utf16Value name);
     V8Response SetProperty(V8Handle target, Utf16Value name, V8Handle value);
+    V8Response HasPropertyHandle(V8Handle target, ClrPointer name);
+    V8Response GetPropertyHandle(V8Handle target, ClrPointer name);
+    V8Response SetPropertyHandle(V8Handle target, ClrPointer name, V8Handle value);
     V8Response GetPropertyAt(V8Handle target, int index);
     V8Response SetPropertyAt(V8Handle target, int index, V8Handle value);
     V8Response DispatchDebugMessage(Utf16Value message, bool post);

@@ -80,6 +80,13 @@ namespace Xamarin.Android.V8
             }
         }
 
+        IJSValue IJSValue.this[JSName name]
+        {
+            get => new JSValue(jsContext, JSContext.V8Context_GetPropertyHandle(context, handle.address, name.Key.Handle));
+            set => JSContext.V8Context_Set(context, handle.address, name.Key.Handle, value.ToHandle(jsContext));
+        }
+
+
 
 
         public IJSValue this[int index]
@@ -346,5 +353,20 @@ namespace Xamarin.Android.V8
             }
         }
 
+        bool IJSValue.HasProperty(in JSName name)
+        {
+            return JSContext.V8Context_HasPropertyHandle(context, handle.address, name.Key.Handle).GetBooleanValue();
+        }
+
+        bool IJSValue.DeleteProperty(in JSName name)
+        {
+            return JSContext.V8Context_DeletePropertyHandle(context, handle.address, name.Key.Handle).GetBooleanValue();
+        }
+
+        IJSValue IJSValue.InvokeMethod(in JSName name, params IJSValue[] args)
+        {
+            var r = JSContext.V8Context_InvokeMethodHandle(context, handle.address, name.Key.Handle, args.Length, args.ToHandles(jsContext));
+            return new JSValue(jsContext, r);
+        }
     }
 }

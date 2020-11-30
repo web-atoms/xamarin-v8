@@ -24,5 +24,11 @@ namespace Xamarin.Android.V8
         {
             return new JSContext(inverseWebSocketUri);
         }
+
+        public JSName CreateName(string name)
+        {
+            var key = JSContext.CreateGlobalString(name);
+            return new JSName(new JSNameKey(key),name);
+        }
     }
 }

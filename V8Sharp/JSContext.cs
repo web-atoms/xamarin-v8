@@ -540,6 +540,19 @@ namespace Xamarin.Android.V8
             Dispose();
         }
 
+        public static IntPtr CreateGlobalString(string name)
+        {
+            Utf16Value n = name;
+            var handle = V8Context_CreateGlobalString(n);
+            return handle;
+        }
+
+
+        [DllImport(LibName)]
+        internal extern static IntPtr V8Context_CreateGlobalString(
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name);
+
         [DllImport(LibName)]
         internal extern static V8Handle V8Context_Create(
             bool debug, 
@@ -598,6 +611,14 @@ namespace Xamarin.Android.V8
             [MarshalAs(UnmanagedType.LPArray)]
             V8Handle[] args);
 
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethodHandle(V8Handle context,
+            V8Handle target,
+            V8Handle name,
+            int len,
+            [MarshalAs(UnmanagedType.LPArray)]
+                    V8Handle[] args);
+
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_InvokeFunction(V8Handle context,
@@ -641,6 +662,12 @@ namespace Xamarin.Android.V8
             Utf16Value name);
 
         [DllImport(LibName)]
+        internal extern static V8Response V8Context_HasPropertyHandle(
+            V8Handle context,
+            IntPtr handle,
+            V8Handle name);
+
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_Has(
             V8Handle context,
             IntPtr handle,
@@ -652,6 +679,12 @@ namespace Xamarin.Android.V8
             IntPtr handle,
             [MarshalAs(UnmanagedType.LPStruct)]
             Utf16Value name);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_DeletePropertyHandle(
+            V8Handle context,
+            IntPtr handle,
+            V8Handle name);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_Get(
@@ -679,6 +712,19 @@ namespace Xamarin.Android.V8
             IntPtr handle,
             [MarshalAs(UnmanagedType.LPStruct)]
             Utf16Value name,
+            IntPtr value);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_GetPropertyHandle(
+            V8Handle context,
+            IntPtr handle,
+            IntPtr name);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_SetPropertyHandle(
+            V8Handle context,
+            IntPtr handle,
+            IntPtr name,
             IntPtr value);
 
         [DllImport(LibName)]

@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)AsyncQueue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)AtomAsyncDispatcher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)CLREnv.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)GlobalString.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSContext.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSContextFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)JSExtensions.cs" />

@@ -75,6 +75,10 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
     TO_CHECKED(v8::String::NewExternalTwoByte(  \
             _isolate, new ExternalX16String(s->Value, s->Length, s->Handle, clrFreeHandle)))
 
+#define V8_UTF16STRING_PTR(s) \
+    TO_CHECKED(v8::String::NewExternalTwoByte(  \
+            _isolate, static_cast<GlobalX16String*>(s)))
+
 typedef char* XString;
 
 typedef const uint16_t* X16String;

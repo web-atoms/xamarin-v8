@@ -200,6 +200,19 @@ public:
     }
 };
 
+V8Response V8Context::DeletePropertyHandle(V8Handle target, ClrPointer name) {
+    V8_CONTEXT_SCOPE
+    Local<Value> t = target->Get(_isolate);
+    Local<v8::Object> tobj = Local<v8::Object>::Cast(t);
+    Local<v8::String> n = V8_UTF16STRING_PTR(name);
+    bool r;
+    if(!tobj->Delete(context, n).To(&r)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_FromBoolean(r);
+}
+
+
 V8Response V8Context::DeleteProperty(V8Handle target, Utf16Value name) {
     V8_CONTEXT_SCOPE
     Local<Value> t = target->Get(_isolate);
@@ -617,6 +630,37 @@ V8Response V8Context::Release(V8Handle handle, bool post) {
     }
 }
 
+V8Response V8Context::InvokeMethodHandle(V8Handle target, ClrPointer name, int len, void** args) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return FromError("Target is empty");
+    }
+    if (!targetValue->IsObject()) {
+        return FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_UTF16STRING_PTR(name);
+
+    Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return FromError("Method does not exist");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+
+    std::vector<Local<v8::Value>> argList;
+    for (int i = 0; i < len; ++i) {
+        V8Handle h = TO_HANDLE(args[i]);
+        argList.push_back(h->Get(_isolate));
+    }
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, len, argList.data()).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
 V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, int len, void** args) {
 
     V8_CONTEXT_SCOPE
@@ -758,6 +802,43 @@ V8Response V8Context::Set(V8Handle target, V8Handle index, V8Handle value) {
     Local<v8::Name> key = Local<v8::Name>::Cast(index->Get(_isolate));
     Local<v8::Object> obj = TO_CHECKED(t->ToObject(context));
     obj->Set(context, key, v).ToChecked();
+    return V8Response_From(context, v);
+}
+
+V8Response V8Context::HasPropertyHandle(V8Handle target, ClrPointer name) {
+    V8_HANDLE_SCOPE
+    //
+    Local<Value> value = target->Get(_isolate);
+    if (!value->IsObject()) {
+        return V8Response_FromBoolean(false);
+    }
+    Local<v8::Object> obj = TO_CHECKED(value->ToObject(context));
+    Local<v8::String> key = V8_UTF16STRING_PTR(name);
+    return V8Response_FromBoolean(TO_CHECKED(obj->HasOwnProperty(context, key)));
+}
+
+V8Response V8Context::GetPropertyHandle(V8Handle target, ClrPointer name) {
+    V8_HANDLE_SCOPE
+    Local<Value> v = target->Get(_isolate);
+    //
+    if (!v->IsObject())
+        return FromError("This is not an object");
+    Local<v8::String> jsName = V8_UTF16STRING_PTR(name);
+    Local<v8::Object> jsObj = TO_CHECKED(v->ToObject(context));
+    Local<Value> item = TO_CHECKED(jsObj->Get(context, jsName));
+    return V8Response_From(context, item);
+}
+
+V8Response V8Context::SetPropertyHandle(V8Handle target, ClrPointer name, V8Handle value) {
+    V8_HANDLE_SCOPE
+    Local<Value> t = target->Get(_isolate);
+    Local<Value> v = value->Get(_isolate);
+    //
+    if (!t->IsObject())
+        return FromError("This is not an object");
+    Local<v8::String> jsName = V8_UTF16STRING_PTR(name);
+    Local<v8::Object> obj = Local<v8::Object>::Cast(t);
+    TO_CHECKED(obj->Set(context, jsName, v));
     return V8Response_From(context, v);
 }
 

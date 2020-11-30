@@ -3,6 +3,7 @@
 #include "V8Context.h"
 #include "HashMap.h"
 #include "log.h"
+#include "ExternalX16String.h"
 
 #define INIT_CONTEXT V8Context* context = static_cast<V8Context*>(ctx);
 
@@ -35,6 +36,11 @@ void LogAndroid1(const char* location, const char* message) {
 }
 
 extern "C" {
+
+    GlobalX16String* V8Context_CreateGlobalString(Utf16Value text) {
+        GlobalX16String* c = new GlobalX16String(text->Value, text->Length, text->Handle);
+        return c;
+    }
 
     V8Context* V8Context_Create(
             bool debug,
@@ -174,6 +180,16 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
                 TO_HANDLE(target),
                 TO_HANDLE(thisValue), len, args);
     }
+    V8Response V8Context_InvokeMethodHandle(
+            ClrPointer ctx,
+            ClrPointer target,
+            ClrPointer name,
+            int len,
+            ClrPointer* args) {
+        INIT_CONTEXT
+        return context->InvokeMethodHandle(
+                TO_HANDLE(target), name, len, args);
+    }
 
     V8Response V8Context_InvokeMethod(
             ClrPointer ctx,
@@ -208,15 +224,6 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
     }
 
 
-    V8Response V8Context_HasProperty(
-            ClrPointer ctx,
-            ClrPointer  target,
-            Utf16Value text
-            ) {
-        INIT_CONTEXT
-        return context->HasProperty(TO_HANDLE(target), text);
-    }
-
     V8Response V8Context_DeleteProperty(
             ClrPointer ctx,
             ClrPointer target,
@@ -225,6 +232,13 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->DeleteProperty(TO_HANDLE(target), name);
     }
 
+    V8Response V8Context_DeletePropertyHandle(
+            ClrPointer ctx,
+            ClrPointer target,
+            ClrPointer name) {
+        INIT_CONTEXT
+        return context->DeletePropertyHandle(TO_HANDLE(target), name);
+    }
     V8Response V8Context_Get(
             ClrPointer ctx,
             ClrPointer target,
@@ -250,20 +264,21 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->Set(TO_HANDLE(target), TO_HANDLE(index), TO_HANDLE(value));
     }
 
+    V8Response V8Context_HasProperty(
+            ClrPointer ctx,
+            ClrPointer  target,
+            Utf16Value text
+    ) {
+        INIT_CONTEXT
+        return context->HasProperty(TO_HANDLE(target), text);
+    }
+
     V8Response V8Context_GetProperty(
             ClrPointer ctx,
             ClrPointer target,
             Utf16Value text) {
         INIT_CONTEXT
         return context->GetProperty(TO_HANDLE(target), text);
-    }
-
-    V8Response V8Context_GetPropertyAt(
-            ClrPointer ctx,
-            ClrPointer target,
-            int index) {
-        INIT_CONTEXT
-        return context->GetPropertyAt(TO_HANDLE(target), index);
     }
 
     V8Response V8Context_SetProperty(
@@ -274,6 +289,41 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         INIT_CONTEXT
         return context->SetProperty(TO_HANDLE(target), text, TO_HANDLE(value));
     }
+
+V8Response V8Context_HasPropertyHandle(
+        ClrPointer ctx,
+        ClrPointer  target,
+        ClrPointer text
+) {
+    INIT_CONTEXT
+    return context->HasPropertyHandle(TO_HANDLE(target), text);
+}
+
+V8Response V8Context_GetPropertyHandle(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer text) {
+    INIT_CONTEXT
+    return context->GetPropertyHandle(TO_HANDLE(target), text);
+}
+
+V8Response V8Context_SetPropertyHandle(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer text,
+        ClrPointer value) {
+    INIT_CONTEXT
+    return context->SetPropertyHandle(TO_HANDLE(target), text, TO_HANDLE(value));
+}
+
+    V8Response V8Context_GetPropertyAt(
+            ClrPointer ctx,
+            ClrPointer target,
+            int index) {
+        INIT_CONTEXT
+        return context->GetPropertyAt(TO_HANDLE(target), index);
+    }
+
 
     V8Response V8Context_SetPropertyAt(
             ClrPointer ctx,
