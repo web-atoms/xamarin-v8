@@ -7,6 +7,30 @@
 
 #include "common.h"
 
+class VolatileString: public v8::String::ExternalStringResource {
+private:
+    const uint16_t * _data;
+    const size_t _len;
+public:
+    VolatileString(const uint16_t*d, const int len):
+        _data(d),
+        _len(len)
+    {
+
+    }
+
+    virtual const uint16_t* data() const override {
+        return _data;
+    };
+
+    /**
+     * The length of the string. That is, the number of two-byte characters.
+     */
+    virtual size_t length() const override {
+        return _len;
+    }
+
+};
 
 class ExternalX16String : public v8::String::ExternalStringResource {
 private:

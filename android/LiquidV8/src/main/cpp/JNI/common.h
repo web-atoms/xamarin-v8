@@ -70,6 +70,16 @@ static T Checked(const char * fileName, const int line, Maybe<T> m) {
     TO_CHECKED(v8::String::NewFromTwoByte(_isolate, s->Value, NewStringType::kNormal, s->Length))
     */
 
+
+/*#define V8_VOLATILE_UTF16STRING(s) \
+    s->Length == 0 ? _emptyString.Get(_isolate) : \
+    TO_CHECKED(v8::String::NewExternalTwoByte(  \
+            _isolate, new VolatileString(s->Value, s->Length)))*/
+
+#define V8_VOLATILE_UTF16STRING(s) \
+    s->Length == 0 ? _emptyString.Get(_isolate) : \
+    TO_CHECKED(v8::String::NewFromTwoByte(_isolate, s->Value, NewStringType::kNormal, s->Length))
+
 #define V8_UTF16STRING(s) \
     s->Length == 0 ? _emptyString.Get(_isolate) : \
     TO_CHECKED(v8::String::NewExternalTwoByte(  \

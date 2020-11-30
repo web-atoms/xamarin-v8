@@ -217,7 +217,7 @@ V8Response V8Context::DeleteProperty(V8Handle target, Utf16Value name) {
     V8_CONTEXT_SCOPE
     Local<Value> t = target->Get(_isolate);
     Local<v8::Object> tobj = Local<v8::Object>::Cast(t);
-    Local<v8::String> n = V8_UTF16STRING(name);
+    Local<v8::String> n = V8_VOLATILE_UTF16STRING(name);
     bool r;
     if(!tobj->Delete(context, n).To(&r)) {
         RETURN_EXCEPTION(tryCatch)
@@ -671,7 +671,7 @@ V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, int len, vo
     if (!targetValue->IsObject()) {
         return FromError("Target is not an Object");
     }
-    Local<v8::String> jsName = V8_UTF16STRING(name);
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
 
     Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
     Local<v8::Value> fxValue;
@@ -851,7 +851,7 @@ V8Response V8Context::HasProperty(V8Handle target, Utf16Value name) {
         return V8Response_FromBoolean(false);
     }
     Local<v8::Object> obj = TO_CHECKED(value->ToObject(context));
-    Local<v8::String> key = V8_UTF16STRING(name);
+    Local<v8::String> key = V8_VOLATILE_UTF16STRING(name);
     return V8Response_FromBoolean(TO_CHECKED(obj->HasOwnProperty(context, key)));
 }
 
@@ -861,7 +861,7 @@ V8Response V8Context::GetProperty(V8Handle target, Utf16Value name) {
     // 
     if (!v->IsObject())
         return FromError("This is not an object");
-    Local<v8::String> jsName = V8_UTF16STRING(name);
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
     Local<v8::Object> jsObj = TO_CHECKED(v->ToObject(context));
     Local<Value> item = TO_CHECKED(jsObj->Get(context, jsName));
     return V8Response_From(context, item);
@@ -874,7 +874,7 @@ V8Response V8Context::SetProperty(V8Handle target, Utf16Value name, V8Handle val
     // 
     if (!t->IsObject())
         return FromError("This is not an object");
-    Local<v8::String> jsName = V8_UTF16STRING(name);
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
     Local<v8::Object> obj = Local<v8::Object>::Cast(t);
     TO_CHECKED(obj->Set(context, jsName, v));
     return V8Response_From(context, v);

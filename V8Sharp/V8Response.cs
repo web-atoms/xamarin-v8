@@ -46,6 +46,14 @@ namespace Xamarin.Android.V8
 
         internal IntPtr Handle;
 
+        public unsafe Utf16Value(char* value, int len)
+        {
+            Value = new IntPtr(value);
+            Handle = IntPtr.Zero;
+            Length = len;
+        }
+
+
         public unsafe static implicit operator Utf16Value(string value) {
             if (string.IsNullOrEmpty(value))
             {
