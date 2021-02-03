@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,69 +17,29 @@ namespace Xamarin.Android.V8
     {
         public static AtomAsyncDispatcher Instance = new AtomAsyncDispatcher();
 
-        private Queue<Func<Task>> tasks = new Queue<Func<Task>>();
-
-        private System.Threading.CancellationTokenSource cancellation;
+        private BlockingCollection<Func<Task>> tasks = new BlockingCollection<Func<Task>>();
 
         public AtomAsyncDispatcher()
         {
-            Task.Run(() => Run());
+            Task.Run(Run);
         }
 
         private async Task Run()
         {
-            while (true)
+            foreach (var item in tasks.GetConsumingEnumerable())
             {
-                Func<Task> task = null;
-                lock (tasks)
-                {
-                    if(tasks.TryDequeue(out task))
-                    {
-                        cancellation = null;
-                    } else
-                    {
-                        cancellation = new System.Threading.CancellationTokenSource();
-                    }
-                }
-
-
-
-                if (task != null)
-                {
-                    try
-                    {
-                        await task();
-                    }catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine(ex);
-                    }
-                    continue;
-                }
-
-                // setup wait...
-                try
-                {
-                    await Task.Delay(1000, cancellation.Token);
-                } catch (TaskCanceledException)
-                {
-
-                }
-
+                await item();
             }
         }
 
         public void EnqueueTask(Func<Task> task)
         {
-            lock (tasks)
-            {
-                tasks.Enqueue(task);
-                cancellation?.Cancel();
-            }
+            tasks.Add(task);
         }
 
         public void Dispose()
         {
-
+            tasks.CompleteAdding();
         }
     }
 }
