@@ -446,6 +446,34 @@ namespace Xamarin.Android.V8
             return new JSValue(this, V8Context_CreateDate(context, value.ToJSTime()));
         }
 
+        public IJSValue CreateBoundFunction(int args, WJSBoundFunction fx, string debugDescription)
+        {
+            CLRExternalCall efx = (t, a) => {
+                try
+                {
+                    var tjs = new JSValue(this, t);
+
+                    var targs = a.ToJSValueArray(this);
+                    var r = fx(this, tjs, targs) as JSValue;
+                    return new V8Response
+                    {
+                        Type = V8HandleType.Object,
+                        address = r?.GetHandle() ?? IntPtr.Zero
+                    };
+                }
+                catch (Exception ex)
+                {
+                    return ex;
+                }
+            };
+
+            var gfx = GCHandle.Alloc(efx);
+            var ptr = GCHandle.ToIntPtr(gfx);
+            var fxPtr = Marshal.GetFunctionPointerForDelegate(efx);
+            var c = V8Context_CreateFunction(context, fxPtr, ptr, debugDescription);
+            return new JSValue(this, c);
+        }
+
         public IJSValue CreateFunction(int args, Func<IJSContext, IList<IJSValue>, IJSValue> fx, string debugDescription)
         {
             CLRExternalCall efx = (t, a) => {
