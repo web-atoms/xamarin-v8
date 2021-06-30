@@ -863,8 +863,15 @@ V8Response V8Context::GetProperty(V8Handle target, Utf16Value name) {
         return FromError("This is not an object");
     Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
     Local<v8::Object> jsObj = TO_CHECKED(v->ToObject(context));
-    Local<Value> item = TO_CHECKED(jsObj->Get(context, jsName));
-    return V8Response_From(context, item);
+    Local<v8::Value> r;
+    auto l = jsObj->Get(context, jsName);
+    if(!jsObj->Get(context, jsName).ToLocal(&r)){
+        Local<Value> r = _undefined.Get(_isolate);
+        return V8Response_From( context, r);
+    }
+
+    // Local<Value> item = TO_CHECKED(jsObj->Get(context, jsName));
+    return V8Response_From(context, r);
 }
 
 V8Response V8Context::SetProperty(V8Handle target, Utf16Value name, V8Handle value) {
