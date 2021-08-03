@@ -59,10 +59,11 @@ namespace Xamarin.Android.V8
         {
             try
             {
+                var buffer = new ArraySegment<byte>(new byte[1024]);
+                
                 var sb = new StringBuilder();
                 while (true)
                 {
-                    var buffer = new ArraySegment<byte>(new byte[4096]);
                     var r = await this.client.ReceiveAsync(buffer, CancellationToken.None);
                     if (r.MessageType != System.Net.WebSockets.WebSocketMessageType.Text)
                         break;
