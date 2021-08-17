@@ -77,6 +77,11 @@ V8Context::V8Context(
         auto self = V8Context::From(Isolate::GetCurrent());
         auto ctx = Isolate::GetCurrent()->GetCurrentContext();
         HandleScope hs(self->_isolate);
+        auto value = msg.GetValue()->ToString(self->GetContext());
+        if(value.IsEmpty()) {
+            self->_logger((uint16_t*)"Empty",5);
+            return;
+        }
         Local<v8::String> msgText = TO_CHECKED(msg.GetValue()->ToString(self->GetContext()));
         v8::String::Value v(self->_isolate, msgText);
         self->_logger(*v, v.length());
