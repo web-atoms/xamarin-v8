@@ -73,23 +73,23 @@ V8Context::V8Context(
     // _isolate->SetStackLimit(reinterpret_cast<uintptr_t>(&here - kWorkerMaxStackSize / sizeof(uint32_t*)));
     // V8_HANDLE_SCOPE
 
-    auto cb = [](PromiseRejectMessage msg){
-        auto promise = msg.GetPromise();
-        auto _isolate = promise->GetIsolate();
-        auto self = V8Context::From(_isolate);
-        HandleScope hs(_isolate);
-        auto value = msg.GetValue()->ToString(self->GetContext());
-        Local<v8::String> msgText;
-        if(value.IsEmpty()) {
-            msgText = V8_STRING("Empty Promise");
-        } else {
-            msgText = value.ToLocalChecked();
-        }
-        v8::String::Value v(self->_isolate, msgText);
-        self->_logger(*v, v.length());
-    };
+//    auto cb = [](PromiseRejectMessage msg){
+//        auto promise = msg.GetPromise();
+//        auto _isolate = promise->GetIsolate();
+//        auto self = V8Context::From(_isolate);
+//        HandleScope hs(_isolate);
+//        auto value = msg.GetValue()->ToString(self->GetContext());
+//        Local<v8::String> msgText;
+//        if(value.IsEmpty()) {
+//            msgText = V8_STRING("Empty Promise");
+//        } else {
+//            msgText = value.ToLocalChecked();
+//        }
+//        v8::String::Value v(self->_isolate, msgText);
+//        self->_logger(*v, v.length());
+//    };
 
-    _isolate->SetPromiseRejectCallback(cb);
+    // _isolate->SetPromiseRejectCallback(cb);
 
     // v8::Isolate::Scope isolate_scope(_isolate);
     /// Isolate::Scope iscope(_isolate);
