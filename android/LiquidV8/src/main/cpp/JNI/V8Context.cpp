@@ -74,15 +74,17 @@ V8Context::V8Context(
     // V8_HANDLE_SCOPE
 
     auto cb = [](PromiseRejectMessage msg){
-        auto self = V8Context::From(Isolate::GetCurrent());
-        auto ctx = Isolate::GetCurrent()->GetCurrentContext();
-        HandleScope hs(self->_isolate);
+        auto promise = msg.GetPromise();
+        auto _isolate = promise->GetIsolate();
+        auto self = V8Context::From(_isolate);
+        HandleScope hs(_isolate);
         auto value = msg.GetValue()->ToString(self->GetContext());
+        Local<v8::String> msgText;
         if(value.IsEmpty()) {
-            self->_logger((uint16_t*)"Empty",5);
-            return;
+            msgText = V8_STRING("Empty Promise");
+        } else {
+            msgText = value.ToLocalChecked();
         }
-        Local<v8::String> msgText = TO_CHECKED(msg.GetValue()->ToString(self->GetContext()));
         v8::String::Value v(self->_isolate, msgText);
         self->_logger(*v, v.length());
     };
