@@ -236,8 +236,14 @@ namespace Xamarin.Android.V8
                     case V8HandleType.Boolean:
                         return handle.result.booleanValue == jv.handle.result.booleanValue;
                     case V8HandleType.Number:
-                        return handle.result.doubleValue == jv.handle.result.doubleValue;                    
+                        return handle.result.doubleValue == jv.handle.result.doubleValue;
                 }
+                if (this.IsString)
+                {
+                    return jv.IsString && this.ToString() == jv.ToString();
+                }
+                if (this.IsWrapped)
+                    return jv.IsWrapped && this.Unwrap<object>() == jv.Unwrap<object>();
                 if (this.IsObject || this.IsArray)
                 {
                     if (handle.address == jv.handle.address)
