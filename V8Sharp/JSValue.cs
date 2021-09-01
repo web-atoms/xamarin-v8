@@ -250,13 +250,13 @@ namespace Xamarin.Android.V8
                     {
                         return true;
                     }
-                    if (handle.result.refValue != IntPtr.Zero)
-                    {
-                        if (handle.result.refValue == jv.handle.result.refValue)
-                        {
-                            return true;
-                        }
-                    }
+                    //if (handle.result.refValue != IntPtr.Zero)
+                    //{
+                    //    if (handle.result.refValue == jv.handle.result.refValue)
+                    //    {
+                    //        return true;
+                    //    }
+                    //}
                 }
                 return JSContext.V8Context_Equals(context, handle.address, jv.handle.address).GetBooleanValue();
             }
