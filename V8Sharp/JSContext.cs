@@ -523,15 +523,15 @@ namespace Xamarin.Android.V8
             } else
             {
                 w = CreateObject();
-                if (ElementWrapper.appendChild == null)
-                {
-                    ElementWrapper.appendChild = this.Evaluate("(function(e) { return bridge.appendChild(this, e); })");
-                    ElementWrapper.dispatchEvent = this.Evaluate("(function(e) { return bridge.dispatchEvent(this, e); })");
-                    ElementWrapper.addEventListener = this.Evaluate("(function(e) { return bridge.addEventHandler(this, e); })");
-                }
-                w["appendChild"] = ElementWrapper.appendChild;
-                w["dispatchEvent"] = ElementWrapper.dispatchEvent;
-                w["addEventListener"] = ElementWrapper.addEventListener;
+                //if (ElementWrapper.appendChild == null)
+                //{
+                //    ElementWrapper.appendChild = this.Evaluate("(function(e) { return bridge.appendChild(this, e); })");
+                //    ElementWrapper.dispatchEvent = this.Evaluate("(function(e) { return bridge.dispatchEvent(this, e); })");
+                //    ElementWrapper.addEventListener = this.Evaluate("(function(e) { return bridge.addEventHandler(this, e); })");
+                //}
+                //w["appendChild"] = ElementWrapper.appendChild;
+                //w["dispatchEvent"] = ElementWrapper.dispatchEvent;
+                //w["addEventListener"] = ElementWrapper.addEventListener;
             }
             w[WrappedSymbol] = wrapped;
             return w;
