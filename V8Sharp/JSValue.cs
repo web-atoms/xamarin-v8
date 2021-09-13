@@ -380,6 +380,292 @@ namespace Xamarin.Android.V8
             }
         }
 
+        unsafe IJSValue IJSValue.InvokeMethod(string name)
+        {
+            fixed (char* namePointer = name)
+            {
+                var utfName = new Utf16Value(namePointer, name.Length);
+                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 0, new V8Handle[] { });
+                return new JSValue(jsContext, r);
+            }
+        }
+
+        unsafe IJSValue IJSValue.InvokeMethod(string name, IJSValue arg1)
+        {
+            fixed (char* namePointer = name)
+            {
+                var utfName = new Utf16Value(namePointer, name.Length);
+                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 1, new V8Handle[] { arg1.ToHandle(jsContext) });
+                return new JSValue(jsContext, r);
+            }
+        }
+
+        unsafe IJSValue IJSValue.InvokeMethod(string name, IJSValue arg1, IJSValue arg2)
+        {
+            fixed (char* namePointer = name)
+            {
+                var utfName = new Utf16Value(namePointer, name.Length);
+                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 2, new V8Handle[] { 
+                    arg1.ToHandle(jsContext) ,
+                    arg2.ToHandle(jsContext)
+                });
+                return new JSValue(jsContext, r);
+            }
+        }
+
+        unsafe IJSValue IJSValue.InvokeMethod(string name, IJSValue arg1, IJSValue arg2, IJSValue arg3)
+        {
+            fixed (char* namePointer = name)
+            {
+                var utfName = new Utf16Value(namePointer, name.Length);
+                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 3, new V8Handle[] {
+                    arg1.ToHandle(jsContext),
+                    arg2.ToHandle(jsContext),
+                    arg3.ToHandle(jsContext),
+                });
+                return new JSValue(jsContext, r);
+            }
+        }
+
+        unsafe IJSValue IJSValue.InvokeMethod(string name, IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4)
+        {
+            fixed (char* namePointer = name)
+            {
+                var utfName = new Utf16Value(namePointer, name.Length);
+                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 4, new V8Handle[] {
+                    arg1.ToHandle(jsContext),
+                    arg2.ToHandle(jsContext),
+                    arg3.ToHandle(jsContext),
+                    arg4.ToHandle(jsContext),
+                });
+                return new JSValue(jsContext, r);
+            }
+        }
+
+        unsafe IJSValue IJSValue.InvokeMethod(string name, IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5)
+        {
+            fixed (char* namePointer = name)
+            {
+                var utfName = new Utf16Value(namePointer, name.Length);
+                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 5, new V8Handle[] {
+                    arg1.ToHandle(jsContext),
+                    arg2.ToHandle(jsContext),
+                    arg3.ToHandle(jsContext),
+                    arg4.ToHandle(jsContext),
+                    arg5.ToHandle(jsContext),
+                });
+                return new JSValue(jsContext, r);
+            }
+        }
+
+        unsafe IJSValue IJSValue.InvokeMethod(string name, IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5, IJSValue arg6)
+        {
+            fixed (char* namePointer = name)
+            {
+                var utfName = new Utf16Value(namePointer, name.Length);
+                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 6, new V8Handle[] {
+                    arg1.ToHandle(jsContext),
+                    arg2.ToHandle(jsContext),
+                    arg3.ToHandle(jsContext),
+                    arg4.ToHandle(jsContext),
+                    arg5.ToHandle(jsContext),
+                    arg6.ToHandle(jsContext),
+                });
+                return new JSValue(jsContext, r);
+            }
+        }
+
+        unsafe IJSValue IJSValue.InvokeMethod(string name, IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5, IJSValue arg6, IJSValue arg7)
+        {
+            fixed (char* namePointer = name)
+            {
+                var utfName = new Utf16Value(namePointer, name.Length);
+                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 7, new V8Handle[] {
+                    arg1.ToHandle(jsContext),
+                    arg2.ToHandle(jsContext),
+                    arg3.ToHandle(jsContext),
+                    arg4.ToHandle(jsContext),
+                    arg5.ToHandle(jsContext),
+                    arg6.ToHandle(jsContext),
+                    arg7.ToHandle(jsContext),
+                });
+                return new JSValue(jsContext, r);
+            }
+        }
+        unsafe IJSValue IJSValue.InvokeMethod(string name, IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5, IJSValue arg6, IJSValue arg7, IJSValue arg8)
+        {
+            fixed (char* namePointer = name)
+            {
+                var utfName = new Utf16Value(namePointer, name.Length);
+                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 8, new V8Handle[] {
+                    arg1.ToHandle(jsContext),
+                    arg2.ToHandle(jsContext),
+                    arg3.ToHandle(jsContext),
+                    arg4.ToHandle(jsContext),
+                    arg5.ToHandle(jsContext),
+                    arg6.ToHandle(jsContext),
+                    arg7.ToHandle(jsContext),
+                    arg8.ToHandle(jsContext),
+                });
+                return new JSValue(jsContext, r);
+            }
+        }
+
+        unsafe IJSValue IJSValue.InvokeFunction(IJSValue thisValue)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.address;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 0, new V8Handle[] { });
+            return new JSValue(jsContext, r);
+        }
+
+        unsafe IJSValue IJSValue.InvokeFunction(IJSValue thisValue, IJSValue arg1)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.address;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 1, new V8Handle[] { 
+                arg1.ToHandle(jsContext)
+            });
+            return new JSValue(jsContext, r);
+        }
+
+        unsafe IJSValue IJSValue.InvokeFunction(IJSValue thisValue, IJSValue arg1, IJSValue arg2)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.address;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 2, new V8Handle[] {
+                arg1.ToHandle(jsContext),
+                arg2.ToHandle(jsContext),
+            });
+            return new JSValue(jsContext, r);
+        }
+
+        unsafe IJSValue IJSValue.InvokeFunction(IJSValue thisValue, IJSValue arg1, IJSValue arg2, IJSValue arg3)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.address;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 3, new V8Handle[] {
+                arg1.ToHandle(jsContext),
+                arg2.ToHandle(jsContext),
+                arg3.ToHandle(jsContext),
+            });
+            return new JSValue(jsContext, r);
+        }
+
+        unsafe IJSValue IJSValue.InvokeFunction(IJSValue thisValue, IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.address;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 4, new V8Handle[] {
+                arg1.ToHandle(jsContext),
+                arg2.ToHandle(jsContext),
+                arg3.ToHandle(jsContext),
+                arg4.ToHandle(jsContext),
+            });
+            return new JSValue(jsContext, r);
+        }
+
+        unsafe IJSValue IJSValue.InvokeFunction(IJSValue thisValue, IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.address;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 5, new V8Handle[] {
+                arg1.ToHandle(jsContext),
+                arg2.ToHandle(jsContext),
+                arg3.ToHandle(jsContext),
+                arg4.ToHandle(jsContext),
+                arg5.ToHandle(jsContext),
+            });
+            return new JSValue(jsContext, r);
+        }
+
+        unsafe IJSValue IJSValue.InvokeFunction(IJSValue thisValue, IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5, IJSValue arg6)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.address;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 6, new V8Handle[] {
+                arg1.ToHandle(jsContext),
+                arg2.ToHandle(jsContext),
+                arg3.ToHandle(jsContext),
+                arg4.ToHandle(jsContext),
+                arg5.ToHandle(jsContext),
+                arg6.ToHandle(jsContext),
+            });
+            return new JSValue(jsContext, r);
+        }
+
+        unsafe IJSValue IJSValue.InvokeFunction(IJSValue thisValue, IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5, IJSValue arg6, IJSValue arg7)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.address;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 7, new V8Handle[] {
+                arg1.ToHandle(jsContext),
+                arg2.ToHandle(jsContext),
+                arg3.ToHandle(jsContext),
+                arg4.ToHandle(jsContext),
+                arg5.ToHandle(jsContext),
+                arg6.ToHandle(jsContext),
+                arg7.ToHandle(jsContext),
+            });
+            return new JSValue(jsContext, r);
+        }
+
+
+        unsafe IJSValue IJSValue.InvokeFunction(IJSValue thisValue, IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5, IJSValue arg6, IJSValue arg7, IJSValue arg8)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.address;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 8, new V8Handle[] {
+                arg1.ToHandle(jsContext),
+                arg2.ToHandle(jsContext),
+                arg3.ToHandle(jsContext),
+                arg4.ToHandle(jsContext),
+                arg5.ToHandle(jsContext),
+                arg6.ToHandle(jsContext),
+                arg7.ToHandle(jsContext),
+                arg8.ToHandle(jsContext),
+            });
+            return new JSValue(jsContext, r);
+        }
+
+        unsafe IJSValue IJSValue.InvokeFunction(IJSValue thisValue, IList<IJSValue> args)
+        {
+            V8Handle th = IntPtr.Zero;
+            if (thisValue != null)
+            {
+                th = ((JSValue)thisValue).handle.address;
+            }
+            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, args.Count, args.ToHandles(jsContext));
+            return new JSValue(jsContext, r);
+        }
+
         //bool IJSValue.HasProperty(in JSName name)
         //{
         //    return JSContext.V8Context_HasProperty(context, handle.address, name.Value).GetBooleanValue();
