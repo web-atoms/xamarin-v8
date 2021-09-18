@@ -225,6 +225,8 @@ namespace Xamarin.Android.V8
 
         public override bool Equals(object obj)
         {
+            if (Object.ReferenceEquals(this, obj))
+                return true;
             if (obj is JSValue jv)
             {
                 switch (handle.Type)
