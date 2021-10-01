@@ -268,6 +268,8 @@ namespace Xamarin.Android.V8
 
         public override string ToString()
         {
+            if (this.IsWrapped)
+                return this.Unwrap<object>()?.ToString();
             switch (handle.Type)
             {
                 case V8HandleType.Undefined: return "Undefined";
