@@ -20,16 +20,16 @@ namespace Xamarin.Android.V8
         }
 
 
-        internal static long EPOCH = (new DateTime(1970, 1, 1)).Ticks;
+        internal static long EPOCH = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).Ticks;
 
         internal static Int64 ToJSTime(this DateTime dt)
         {
-            return (Int64)((dt.Ticks - EPOCH) / 1000);
+            return (Int64)((dt.Ticks - EPOCH) / 10000);
         }
 
         internal static DateTime FromJSTime(this long value)
         {
-            var t = (value * 1000) + EPOCH;
+            var t = (value * 10000) + EPOCH;
             return new DateTime(t, DateTimeKind.Utc);
         }
 
