@@ -474,6 +474,11 @@ namespace Xamarin.Android.V8
             return new JSValue(this, c);
         }
 
+        public IJSValue CreateConstructor(int args, Func<IJSContext, IList<IJSValue>, IJSValue> fx, string name)
+        {
+            return CreateFunction(args, fx, name);
+        }
+
         public IJSValue CreateFunction(int args, Func<IJSContext, IList<IJSValue>, IJSValue> fx, string debugDescription)
         {
             CLRExternalCall efx = (t, a) => {
