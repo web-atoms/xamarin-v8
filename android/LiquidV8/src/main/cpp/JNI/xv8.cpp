@@ -168,6 +168,103 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         return context->NewInstance(TO_HANDLE(target), len, args);
     }
 
+V8Response V8Context_NewInstance0(
+        ClrPointer ctx,
+        ClrPointer target) {
+    INIT_CONTEXT
+    return context->NewInstance(
+            TO_HANDLE(target));
+}
+
+V8Response V8Context_NewInstance1(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer p0) {
+    INIT_CONTEXT
+    return context->NewInstance(
+            TO_HANDLE(target),
+            TO_HANDLE(p0));
+}
+
+V8Response V8Context_NewInstance2(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer p0, ClrPointer p1) {
+    INIT_CONTEXT
+    return context->NewInstance(
+            TO_HANDLE(target),
+            TO_HANDLE(p0), TO_HANDLE(p1));
+}
+
+
+V8Response V8Context_NewInstance3(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2) {
+    INIT_CONTEXT
+    return context->NewInstance(
+            TO_HANDLE(target),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2));
+}
+
+V8Response V8Context_NewInstance4(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3) {
+    INIT_CONTEXT
+    return context->NewInstance(
+            TO_HANDLE(target),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3));
+}
+
+V8Response V8Context_NewInstance5(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+        ClrPointer p4) {
+    INIT_CONTEXT
+    return context->NewInstance(
+            TO_HANDLE(target),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+            TO_HANDLE(p4));
+}
+
+V8Response V8Context_NewInstance6(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+        ClrPointer p4, ClrPointer p5) {
+    INIT_CONTEXT
+    return context->NewInstance(
+            TO_HANDLE(target),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+            TO_HANDLE(p4), TO_HANDLE(p5));
+}
+
+V8Response V8Context_NewInstance7(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+        ClrPointer p4, ClrPointer p5, ClrPointer p6) {
+    INIT_CONTEXT
+    return context->NewInstance(
+            TO_HANDLE(target),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+            TO_HANDLE(p4), TO_HANDLE(p5), TO_HANDLE(p6));
+}
+
+V8Response V8Context_NewInstance8(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+        ClrPointer p4, ClrPointer p5, ClrPointer p6, ClrPointer p7) {
+    INIT_CONTEXT
+    return context->NewInstance(
+            TO_HANDLE(target),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+            TO_HANDLE(p4), TO_HANDLE(p5), TO_HANDLE(p6), TO_HANDLE(p7));
+}
+
 
     V8Response V8Context_InvokeFunction(
             ClrPointer ctx,
@@ -180,7 +277,123 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
                 TO_HANDLE(target),
                 TO_HANDLE(thisValue), len, args);
     }
-    V8Response V8Context_InvokeMethodHandle(
+
+V8Response V8Context_InvokeFunction0(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer thisValue) {
+    INIT_CONTEXT
+    return context->InvokeFunction(
+            TO_HANDLE(target),
+            TO_HANDLE(thisValue));
+}
+
+V8Response V8Context_InvokeFunction1(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer thisValue,
+        ClrPointer p0) {
+    INIT_CONTEXT
+    return context->InvokeFunction(
+            TO_HANDLE(target),
+            TO_HANDLE(thisValue),
+            TO_HANDLE(p0));
+}
+
+V8Response V8Context_InvokeFunction2(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer thisValue,
+        ClrPointer p0, ClrPointer p1) {
+    INIT_CONTEXT
+    return context->InvokeFunction(
+            TO_HANDLE(target),
+            TO_HANDLE(thisValue),
+            TO_HANDLE(p0), TO_HANDLE(p1));
+}
+
+
+V8Response V8Context_InvokeFunction3(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer thisValue,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2) {
+    INIT_CONTEXT
+    return context->InvokeFunction(
+            TO_HANDLE(target),
+            TO_HANDLE(thisValue),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2));
+}
+
+V8Response V8Context_InvokeFunction4(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer thisValue,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3) {
+    INIT_CONTEXT
+    return context->InvokeFunction(
+            TO_HANDLE(target),
+            TO_HANDLE(thisValue),
+        TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3));
+}
+
+V8Response V8Context_InvokeFunction5(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer thisValue,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+        ClrPointer p4) {
+    INIT_CONTEXT
+    return context->InvokeFunction(
+            TO_HANDLE(target),
+            TO_HANDLE(thisValue),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+            TO_HANDLE(p4));
+}
+
+V8Response V8Context_InvokeFunction6(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer thisValue,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+        ClrPointer p4, ClrPointer p5) {
+    INIT_CONTEXT
+    return context->InvokeFunction(
+            TO_HANDLE(target),
+            TO_HANDLE(thisValue),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+            TO_HANDLE(p4), TO_HANDLE(p5));
+}
+
+V8Response V8Context_InvokeFunction7(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer thisValue,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+        ClrPointer p4, ClrPointer p5, ClrPointer p6) {
+    INIT_CONTEXT
+    return context->InvokeFunction(
+            TO_HANDLE(target),
+            TO_HANDLE(thisValue),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+            TO_HANDLE(p4), TO_HANDLE(p5), TO_HANDLE(p6));
+}
+
+V8Response V8Context_InvokeFunction8(
+        ClrPointer ctx,
+        ClrPointer target,
+        ClrPointer thisValue,
+        ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+        ClrPointer p4, ClrPointer p5, ClrPointer p6, ClrPointer p7) {
+    INIT_CONTEXT
+    return context->InvokeFunction(
+            TO_HANDLE(target),
+            TO_HANDLE(thisValue),
+            TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+            TO_HANDLE(p4), TO_HANDLE(p5), TO_HANDLE(p6), TO_HANDLE(p7));
+}
+
+V8Response V8Context_InvokeMethodHandle(
             ClrPointer ctx,
             ClrPointer target,
             ClrPointer name,
@@ -200,6 +413,104 @@ V8Response V8Context_CreateNull(ClrPointer ctx) {
         INIT_CONTEXT
         return context->InvokeMethod(
                 TO_HANDLE(target), name, len, args);
+    }
+
+    V8Response V8Context_InvokeMethod0(
+            ClrPointer ctx,
+            ClrPointer target,
+            Utf16Value name) {
+        INIT_CONTEXT
+        return context->InvokeMethod(
+                TO_HANDLE(target), name);
+    }
+
+    V8Response V8Context_InvokeMethod1(
+            ClrPointer ctx,
+            ClrPointer target,
+            Utf16Value name,
+            ClrPointer p0) {
+        INIT_CONTEXT
+        return context->InvokeMethod(
+                TO_HANDLE(target), name, TO_HANDLE(p0));
+    }
+
+    V8Response V8Context_InvokeMethod2(
+            ClrPointer ctx,
+            ClrPointer target,
+            Utf16Value name,
+            ClrPointer p0, ClrPointer p1) {
+        INIT_CONTEXT
+        return context->InvokeMethod(
+                TO_HANDLE(target), name, TO_HANDLE(p0), TO_HANDLE(p1));
+    }
+
+    V8Response V8Context_InvokeMethod3(
+            ClrPointer ctx,
+            ClrPointer target,
+            Utf16Value name,
+            ClrPointer p0, ClrPointer p1, ClrPointer p2) {
+        INIT_CONTEXT
+        return context->InvokeMethod(
+                TO_HANDLE(target), name, TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2));
+    }
+
+
+    V8Response V8Context_InvokeMethod4(
+            ClrPointer ctx,
+            ClrPointer target,
+            Utf16Value name,
+            ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3) {
+        INIT_CONTEXT
+        return context->InvokeMethod(
+                TO_HANDLE(target), name, TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3));
+    }
+
+    V8Response V8Context_InvokeMethod5(
+            ClrPointer ctx,
+            ClrPointer target,
+            Utf16Value name,
+            ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+            ClrPointer p4) {
+        INIT_CONTEXT
+        return context->InvokeMethod(
+                TO_HANDLE(target), name, TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+                TO_HANDLE(p4));
+    }
+
+    V8Response V8Context_InvokeMethod6(
+            ClrPointer ctx,
+            ClrPointer target,
+            Utf16Value name,
+            ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+            ClrPointer p4, ClrPointer p5) {
+        INIT_CONTEXT
+        return context->InvokeMethod(
+                TO_HANDLE(target), name, TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+                TO_HANDLE(p4), TO_HANDLE(p5));
+    }
+
+    V8Response V8Context_InvokeMethod7(
+            ClrPointer ctx,
+            ClrPointer target,
+            Utf16Value name,
+            ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+            ClrPointer p4, ClrPointer p5, ClrPointer p6) {
+        INIT_CONTEXT
+        return context->InvokeMethod(
+                TO_HANDLE(target), name, TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+                TO_HANDLE(p4), TO_HANDLE(p5), TO_HANDLE(p6));
+    }
+
+    V8Response V8Context_InvokeMethod8(
+            ClrPointer ctx,
+            ClrPointer target,
+            Utf16Value name,
+            ClrPointer p0, ClrPointer p1, ClrPointer p2, ClrPointer p3,
+            ClrPointer p4, ClrPointer p5, ClrPointer p6, ClrPointer p7) {
+        INIT_CONTEXT
+        return context->InvokeMethod(
+                TO_HANDLE(target), name, TO_HANDLE(p0), TO_HANDLE(p1), TO_HANDLE(p2), TO_HANDLE(p3),
+                TO_HANDLE(p4), TO_HANDLE(p5), TO_HANDLE(p6), TO_HANDLE(p7));
     }
 
     V8Response V8Context_IsInstanceOf(ClrPointer ctx, ClrPointer target, ClrPointer jsClass) {

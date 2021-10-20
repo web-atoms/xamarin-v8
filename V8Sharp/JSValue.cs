@@ -389,7 +389,7 @@ namespace Xamarin.Android.V8
             fixed (char* namePointer = name)
             {
                 var utfName = new Utf16Value(namePointer, name.Length);
-                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 0, Empty);
+                var r = JSContext.V8Context_InvokeMethod0(context, handle.address, utfName);
                 return new JSValue(jsContext, r);
             }
         }
@@ -399,7 +399,7 @@ namespace Xamarin.Android.V8
             fixed (char* namePointer = name)
             {
                 var utfName = new Utf16Value(namePointer, name.Length);
-                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 1, new V8Handle[] { arg1.ToHandle(jsContext) });
+                var r = JSContext.V8Context_InvokeMethod1(context, handle.address, utfName, arg1.ToHandle(jsContext));
                 return new JSValue(jsContext, r);
             }
         }
@@ -409,10 +409,10 @@ namespace Xamarin.Android.V8
             fixed (char* namePointer = name)
             {
                 var utfName = new Utf16Value(namePointer, name.Length);
-                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 2, new V8Handle[] { 
+                var r = JSContext.V8Context_InvokeMethod2(context, handle.address, utfName,
                     arg1.ToHandle(jsContext) ,
                     arg2.ToHandle(jsContext)
-                });
+                );
                 return new JSValue(jsContext, r);
             }
         }
@@ -422,11 +422,11 @@ namespace Xamarin.Android.V8
             fixed (char* namePointer = name)
             {
                 var utfName = new Utf16Value(namePointer, name.Length);
-                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 3, new V8Handle[] {
+                var r = JSContext.V8Context_InvokeMethod3(context, handle.address, utfName,
                     arg1.ToHandle(jsContext),
                     arg2.ToHandle(jsContext),
-                    arg3.ToHandle(jsContext),
-                });
+                    arg3.ToHandle(jsContext)
+                );
                 return new JSValue(jsContext, r);
             }
         }
@@ -436,12 +436,12 @@ namespace Xamarin.Android.V8
             fixed (char* namePointer = name)
             {
                 var utfName = new Utf16Value(namePointer, name.Length);
-                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 4, new V8Handle[] {
+                var r = JSContext.V8Context_InvokeMethod4(context, handle.address, utfName,
                     arg1.ToHandle(jsContext),
                     arg2.ToHandle(jsContext),
                     arg3.ToHandle(jsContext),
-                    arg4.ToHandle(jsContext),
-                });
+                    arg4.ToHandle(jsContext)
+                );
                 return new JSValue(jsContext, r);
             }
         }
@@ -451,13 +451,13 @@ namespace Xamarin.Android.V8
             fixed (char* namePointer = name)
             {
                 var utfName = new Utf16Value(namePointer, name.Length);
-                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 5, new V8Handle[] {
+                var r = JSContext.V8Context_InvokeMethod5(context, handle.address, utfName,
                     arg1.ToHandle(jsContext),
                     arg2.ToHandle(jsContext),
                     arg3.ToHandle(jsContext),
                     arg4.ToHandle(jsContext),
-                    arg5.ToHandle(jsContext),
-                });
+                    arg5.ToHandle(jsContext)
+                );
                 return new JSValue(jsContext, r);
             }
         }
@@ -467,14 +467,14 @@ namespace Xamarin.Android.V8
             fixed (char* namePointer = name)
             {
                 var utfName = new Utf16Value(namePointer, name.Length);
-                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 6, new V8Handle[] {
+                var r = JSContext.V8Context_InvokeMethod6(context, handle.address, utfName,
                     arg1.ToHandle(jsContext),
                     arg2.ToHandle(jsContext),
                     arg3.ToHandle(jsContext),
                     arg4.ToHandle(jsContext),
                     arg5.ToHandle(jsContext),
-                    arg6.ToHandle(jsContext),
-                });
+                    arg6.ToHandle(jsContext)
+                );
                 return new JSValue(jsContext, r);
             }
         }
@@ -484,15 +484,15 @@ namespace Xamarin.Android.V8
             fixed (char* namePointer = name)
             {
                 var utfName = new Utf16Value(namePointer, name.Length);
-                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 7, new V8Handle[] {
+                var r = JSContext.V8Context_InvokeMethod7(context, handle.address, utfName, 
                     arg1.ToHandle(jsContext),
                     arg2.ToHandle(jsContext),
                     arg3.ToHandle(jsContext),
                     arg4.ToHandle(jsContext),
                     arg5.ToHandle(jsContext),
                     arg6.ToHandle(jsContext),
-                    arg7.ToHandle(jsContext),
-                });
+                    arg7.ToHandle(jsContext)
+                );
                 return new JSValue(jsContext, r);
             }
         }
@@ -501,7 +501,7 @@ namespace Xamarin.Android.V8
             fixed (char* namePointer = name)
             {
                 var utfName = new Utf16Value(namePointer, name.Length);
-                var r = JSContext.V8Context_InvokeMethod(context, handle.address, utfName, 8, new V8Handle[] {
+                var r = JSContext.V8Context_InvokeMethod8(context, handle.address, utfName,
                     arg1.ToHandle(jsContext),
                     arg2.ToHandle(jsContext),
                     arg3.ToHandle(jsContext),
@@ -509,8 +509,8 @@ namespace Xamarin.Android.V8
                     arg5.ToHandle(jsContext),
                     arg6.ToHandle(jsContext),
                     arg7.ToHandle(jsContext),
-                    arg8.ToHandle(jsContext),
-                });
+                    arg8.ToHandle(jsContext)
+                );
                 return new JSValue(jsContext, r);
             }
         }
@@ -522,7 +522,7 @@ namespace Xamarin.Android.V8
             {
                 th = ((JSValue)thisValue).handle.address;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 0, Empty);
+            var r = JSContext.V8Context_InvokeFunction0(context, handle.address, th);
             return new JSValue(jsContext, r);
         }
 
@@ -533,9 +533,9 @@ namespace Xamarin.Android.V8
             {
                 th = ((JSValue)thisValue).handle.address;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 1, new V8Handle[] { 
+            var r = JSContext.V8Context_InvokeFunction1(context, handle.address, th,
                 arg1.ToHandle(jsContext)
-            });
+            );
             return new JSValue(jsContext, r);
         }
 
@@ -546,10 +546,10 @@ namespace Xamarin.Android.V8
             {
                 th = ((JSValue)thisValue).handle.address;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 2, new V8Handle[] {
+            var r = JSContext.V8Context_InvokeFunction2(context, handle.address, th,
                 arg1.ToHandle(jsContext),
-                arg2.ToHandle(jsContext),
-            });
+                arg2.ToHandle(jsContext)
+            );
             return new JSValue(jsContext, r);
         }
 
@@ -560,11 +560,11 @@ namespace Xamarin.Android.V8
             {
                 th = ((JSValue)thisValue).handle.address;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 3, new V8Handle[] {
+            var r = JSContext.V8Context_InvokeFunction3(context, handle.address, th, 
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
-                arg3.ToHandle(jsContext),
-            });
+                arg3.ToHandle(jsContext)
+            );
             return new JSValue(jsContext, r);
         }
 
@@ -575,12 +575,12 @@ namespace Xamarin.Android.V8
             {
                 th = ((JSValue)thisValue).handle.address;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 4, new V8Handle[] {
+            var r = JSContext.V8Context_InvokeFunction4(context, handle.address, th, 
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext),
-                arg4.ToHandle(jsContext),
-            });
+                arg4.ToHandle(jsContext)
+            );
             return new JSValue(jsContext, r);
         }
 
@@ -591,13 +591,13 @@ namespace Xamarin.Android.V8
             {
                 th = ((JSValue)thisValue).handle.address;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 5, new V8Handle[] {
+            var r = JSContext.V8Context_InvokeFunction5(context, handle.address, th, 
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext),
                 arg4.ToHandle(jsContext),
-                arg5.ToHandle(jsContext),
-            });
+                arg5.ToHandle(jsContext)
+            );
             return new JSValue(jsContext, r);
         }
 
@@ -608,14 +608,14 @@ namespace Xamarin.Android.V8
             {
                 th = ((JSValue)thisValue).handle.address;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 6, new V8Handle[] {
+            var r = JSContext.V8Context_InvokeFunction6(context, handle.address, th, 
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext),
                 arg4.ToHandle(jsContext),
                 arg5.ToHandle(jsContext),
-                arg6.ToHandle(jsContext),
-            });
+                arg6.ToHandle(jsContext)
+            );
             return new JSValue(jsContext, r);
         }
 
@@ -626,15 +626,15 @@ namespace Xamarin.Android.V8
             {
                 th = ((JSValue)thisValue).handle.address;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 7, new V8Handle[] {
+            var r = JSContext.V8Context_InvokeFunction7(context, handle.address, th,
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext),
                 arg4.ToHandle(jsContext),
                 arg5.ToHandle(jsContext),
                 arg6.ToHandle(jsContext),
-                arg7.ToHandle(jsContext),
-            });
+                arg7.ToHandle(jsContext)
+            );
             return new JSValue(jsContext, r);
         }
 
@@ -646,7 +646,7 @@ namespace Xamarin.Android.V8
             {
                 th = ((JSValue)thisValue).handle.address;
             }
-            var r = JSContext.V8Context_InvokeFunction(context, handle.address, th, 8, new V8Handle[] {
+            var r = JSContext.V8Context_InvokeFunction8(context, handle.address, th,
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext),
@@ -654,8 +654,8 @@ namespace Xamarin.Android.V8
                 arg5.ToHandle(jsContext),
                 arg6.ToHandle(jsContext),
                 arg7.ToHandle(jsContext),
-                arg8.ToHandle(jsContext),
-            });
+                arg8.ToHandle(jsContext)
+            );
             return new JSValue(jsContext, r);
         }
 
@@ -674,82 +674,76 @@ namespace Xamarin.Android.V8
 
         IJSValue IJSValue.CreateNewInstance()
         {
-            var r = JSContext.V8Context_NewInstance(context, handle.address, 0, Empty);
+            var r = JSContext.V8Context_NewInstance0(context, handle.address);
             return new JSValue(jsContext, r);
         }
 
-        unsafe IJSValue IJSValue.CreateNewInstance(IJSValue arg1)
+        IJSValue IJSValue.CreateNewInstance(IJSValue arg1)
         {
-            var args = new V8Handle[] { 
+            var r = JSContext.V8Context_NewInstance1(context, handle.address, 
                 arg1.ToHandle(jsContext)
-            };
-            var r = JSContext.V8Context_NewInstance(context, handle.address, 1, args);
+            );
             return new JSValue(jsContext, r);
         }
 
         IJSValue IJSValue.CreateNewInstance(IJSValue arg1, IJSValue arg2)
         {
-            var args = new V8Handle[] {
+            var r = JSContext.V8Context_NewInstance2(context, handle.address,
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext)
-            };
-            var r = JSContext.V8Context_NewInstance(context, handle.address, 2, args);
+            );
             return new JSValue(jsContext, r);
         }
 
         IJSValue IJSValue.CreateNewInstance(IJSValue arg1, IJSValue arg2, IJSValue arg3)
         {
-            var args = new V8Handle[] {
+            var r = JSContext.V8Context_NewInstance3(context, handle.address,
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext)
-            };
-            var r = JSContext.V8Context_NewInstance(context, handle.address, 3, args);
+            );
             return new JSValue(jsContext, r);
         }
 
         IJSValue IJSValue.CreateNewInstance(IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4)
         {
-            var args = new V8Handle[] {
+            var r = JSContext.V8Context_NewInstance4(context, handle.address,
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext),
                 arg4.ToHandle(jsContext)
-            };
-            var r = JSContext.V8Context_NewInstance(context, handle.address, 4, args);
+            );
             return new JSValue(jsContext, r);
         }
 
         IJSValue IJSValue.CreateNewInstance(IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5)
         {
-            var args = new V8Handle[] {
+            var r = JSContext.V8Context_NewInstance5(context, handle.address,
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext),
                 arg4.ToHandle(jsContext),
                 arg5.ToHandle(jsContext)
-            };
-            var r = JSContext.V8Context_NewInstance(context, handle.address, 5, args);
+            );
             return new JSValue(jsContext, r);
         }
 
         IJSValue IJSValue.CreateNewInstance(IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5, IJSValue arg6)
         {
-            var args = new V8Handle[] {
+            var r = JSContext.V8Context_NewInstance6(context, handle.address,
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext),
                 arg4.ToHandle(jsContext),
                 arg5.ToHandle(jsContext),
                 arg6.ToHandle(jsContext)
-            };
-            var r = JSContext.V8Context_NewInstance(context, handle.address, 6, args);
+            );
             return new JSValue(jsContext, r);
         }
 
         IJSValue IJSValue.CreateNewInstance(IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5, IJSValue arg6, IJSValue arg7)
         {
-            var args = new V8Handle[] {
+            var r = JSContext.V8Context_NewInstance7(context, handle.address,
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext),
@@ -757,14 +751,13 @@ namespace Xamarin.Android.V8
                 arg5.ToHandle(jsContext),
                 arg6.ToHandle(jsContext),
                 arg7.ToHandle(jsContext)
-            };
-            var r = JSContext.V8Context_NewInstance(context, handle.address, 7, args);
+            );
             return new JSValue(jsContext, r);
         }
 
         IJSValue IJSValue.CreateNewInstance(IJSValue arg1, IJSValue arg2, IJSValue arg3, IJSValue arg4, IJSValue arg5, IJSValue arg6, IJSValue arg7, IJSValue arg8)
         {
-            var args = new V8Handle[] {
+            var r = JSContext.V8Context_NewInstance8(context, handle.address,
                 arg1.ToHandle(jsContext),
                 arg2.ToHandle(jsContext),
                 arg3.ToHandle(jsContext),
@@ -773,8 +766,7 @@ namespace Xamarin.Android.V8
                 arg6.ToHandle(jsContext),
                 arg7.ToHandle(jsContext),
                 arg8.ToHandle(jsContext)
-            };
-            var r = JSContext.V8Context_NewInstance(context, handle.address, 8, args);
+            );
             return new JSValue(jsContext, r);
         }
 

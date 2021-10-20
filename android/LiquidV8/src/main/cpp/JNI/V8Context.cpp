@@ -699,12 +699,312 @@ V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, int len, vo
     return V8Response_From(context, result);
 }
 
+V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return FromError("Target is empty");
+    }
+    if (!targetValue->IsObject()) {
+        return FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
+
+    Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return FromError("Method does not exist");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, 0, NULL).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return FromError("Target is empty");
+    }
+    if (!targetValue->IsObject()) {
+        return FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
+
+    Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return FromError("Method does not exist");
+    }
+
+    Local<v8::Value> local[] {
+            p0->Get(_isolate)
+    };
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, 1, local).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+        V8Handle p1) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return FromError("Target is empty");
+    }
+    if (!targetValue->IsObject()) {
+        return FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
+
+    Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return FromError("Method does not exist");
+    }
+
+    Local<v8::Value> local[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+    };
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, 2, local).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+                                   V8Handle p1, V8Handle p2) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return FromError("Target is empty");
+    }
+    if (!targetValue->IsObject()) {
+        return FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
+
+    Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return FromError("Method does not exist");
+    }
+
+    Local<v8::Value> local[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate)
+    };
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, 3, local).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+                                   V8Handle p1, V8Handle p2, V8Handle p3) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return FromError("Target is empty");
+    }
+    if (!targetValue->IsObject()) {
+        return FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
+
+    Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return FromError("Method does not exist");
+    }
+
+    Local<v8::Value> local[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate)
+    };
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, 4, local).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+                                   V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return FromError("Target is empty");
+    }
+    if (!targetValue->IsObject()) {
+        return FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
+
+    Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return FromError("Method does not exist");
+    }
+
+    Local<v8::Value> local[] {
+        p0->Get(_isolate),
+        p1->Get(_isolate),
+        p2->Get(_isolate),
+        p3->Get(_isolate),
+        p4->Get(_isolate)
+    };
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, 5, local).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+                                   V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                                   V8Handle p5) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return FromError("Target is empty");
+    }
+    if (!targetValue->IsObject()) {
+        return FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
+
+    Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return FromError("Method does not exist");
+    }
+
+    Local<v8::Value> local[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate),
+            p5->Get(_isolate)
+    };
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, 6, local).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+                                   V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                                   V8Handle p5, V8Handle p6) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return FromError("Target is empty");
+    }
+    if (!targetValue->IsObject()) {
+        return FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
+
+    Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return FromError("Method does not exist");
+    }
+
+    Local<v8::Value> local[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate),
+            p5->Get(_isolate),
+            p6->Get(_isolate)
+    };
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, 7, local).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+                                   V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                                   V8Handle p5, V8Handle p6, V8Handle p7) {
+
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (targetValue.IsEmpty()) {
+        return FromError("Target is empty");
+    }
+    if (!targetValue->IsObject()) {
+        return FromError("Target is not an Object");
+    }
+    Local<v8::String> jsName = V8_VOLATILE_UTF16STRING(name);
+
+    Local<v8::Object> fxObj = Local<v8::Object>::Cast(targetValue);
+    Local<v8::Value> fxValue;
+    if(!fxObj->Get(context, jsName).ToLocal(&fxValue)) {
+        return FromError("Method does not exist");
+    }
+
+    Local<v8::Value> local[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate),
+            p5->Get(_isolate),
+            p6->Get(_isolate),
+            p7->Get(_isolate)
+    };
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(fxValue);
+    Local<Value> result;
+    if(!fx->Call(context, fxObj, 8, local).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
 V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, int len, void** args) {
     V8_CONTEXT_SCOPE
     Local<Value> targetValue = target->Get(_isolate);
     if (!targetValue->IsFunction()) {
         return FromError("Target is not a function");
     }
+
     Local<v8::Object> thisValueValue =
         (thisValue == nullptr || thisValue->IsEmpty())
         ? _global.Get(_isolate)
@@ -727,6 +1027,292 @@ V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, int le
     }
     return V8Response_From(context, result);
 }
+
+V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Object> thisValueValue =
+            (thisValue == nullptr || thisValue->IsEmpty())
+            ? _global.Get(_isolate)
+            : TO_CHECKED(thisValue->Get(_isolate)->ToObject(context));
+
+    if (thisValueValue->IsUndefined()) {
+        thisValueValue = _global.Get(_isolate);
+    }
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> result;
+    if(!fx->Call(context, thisValueValue, 0, NULL).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Object> thisValueValue =
+            (thisValue == nullptr || thisValue->IsEmpty())
+            ? _global.Get(_isolate)
+            : TO_CHECKED(thisValue->Get(_isolate)->ToObject(context));
+
+    if (thisValueValue->IsUndefined()) {
+        thisValueValue = _global.Get(_isolate);
+    }
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[] {
+        p0->Get(_isolate)
+    };
+
+    Local<Value> result;
+    if(!fx->Call(context, thisValueValue, 1, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0, V8Handle p1) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Object> thisValueValue =
+            (thisValue == nullptr || thisValue->IsEmpty())
+            ? _global.Get(_isolate)
+            : TO_CHECKED(thisValue->Get(_isolate)->ToObject(context));
+
+    if (thisValueValue->IsUndefined()) {
+        thisValueValue = _global.Get(_isolate);
+    }
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate)
+    };
+
+    Local<Value> result;
+    if(!fx->Call(context, thisValueValue, 2, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0, 
+        V8Handle p1, V8Handle p2) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Object> thisValueValue =
+            (thisValue == nullptr || thisValue->IsEmpty())
+            ? _global.Get(_isolate)
+            : TO_CHECKED(thisValue->Get(_isolate)->ToObject(context));
+
+    if (thisValueValue->IsUndefined()) {
+        thisValueValue = _global.Get(_isolate);
+    }
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate)
+    };
+
+    Local<Value> result;
+    if(!fx->Call(context, thisValueValue, 3, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                                     V8Handle p1, V8Handle p2, V8Handle p3) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Object> thisValueValue =
+            (thisValue == nullptr || thisValue->IsEmpty())
+            ? _global.Get(_isolate)
+            : TO_CHECKED(thisValue->Get(_isolate)->ToObject(context));
+
+    if (thisValueValue->IsUndefined()) {
+        thisValueValue = _global.Get(_isolate);
+    }
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate)
+    };
+
+    Local<Value> result;
+    if(!fx->Call(context, thisValueValue, 4, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                                     V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Object> thisValueValue =
+            (thisValue == nullptr || thisValue->IsEmpty())
+            ? _global.Get(_isolate)
+            : TO_CHECKED(thisValue->Get(_isolate)->ToObject(context));
+
+    if (thisValueValue->IsUndefined()) {
+        thisValueValue = _global.Get(_isolate);
+    }
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate)
+    };
+
+    Local<Value> result;
+    if(!fx->Call(context, thisValueValue, 5, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                                     V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                                     V8Handle p5) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Object> thisValueValue =
+            (thisValue == nullptr || thisValue->IsEmpty())
+            ? _global.Get(_isolate)
+            : TO_CHECKED(thisValue->Get(_isolate)->ToObject(context));
+
+    if (thisValueValue->IsUndefined()) {
+        thisValueValue = _global.Get(_isolate);
+    }
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate),
+            p5->Get(_isolate)
+    };
+
+    Local<Value> result;
+    if(!fx->Call(context, thisValueValue, 6, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                                     V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                                     V8Handle p5, V8Handle p6) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Object> thisValueValue =
+            (thisValue == nullptr || thisValue->IsEmpty())
+            ? _global.Get(_isolate)
+            : TO_CHECKED(thisValue->Get(_isolate)->ToObject(context));
+
+    if (thisValueValue->IsUndefined()) {
+        thisValueValue = _global.Get(_isolate);
+    }
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate),
+            p5->Get(_isolate),
+            p6->Get(_isolate)
+    };
+
+    Local<Value> result;
+    if(!fx->Call(context, thisValueValue, 7, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                                     V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                                     V8Handle p5, V8Handle p6, V8Handle p7) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Object> thisValueValue =
+            (thisValue == nullptr || thisValue->IsEmpty())
+            ? _global.Get(_isolate)
+            : TO_CHECKED(thisValue->Get(_isolate)->ToObject(context));
+
+    if (thisValueValue->IsUndefined()) {
+        thisValueValue = _global.Get(_isolate);
+    }
+
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[] {
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate),
+            p5->Get(_isolate),
+            p6->Get(_isolate),
+            p7->Get(_isolate)
+    };
+
+    Local<Value> result;
+    if(!fx->Call(context, thisValueValue, 8, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
 
 V8Response V8Context::IsInstanceOf(V8Handle target, V8Handle jsClass) {
     V8_CONTEXT_SCOPE
@@ -774,6 +1360,199 @@ V8Response V8Context::NewInstance(V8Handle target, int len, void** args) {
     }
     return V8Response_From(context, result);
 }
+
+V8Response V8Context::NewInstance(V8Handle target) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> result;
+    if(!fx->CallAsConstructor(context, 0, NULL).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::NewInstance(V8Handle target, V8Handle p0) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[]{
+        p0->Get(_isolate)
+    };
+    Local<Value> result;
+    if(!fx->CallAsConstructor(context, 1, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::NewInstance(V8Handle target, V8Handle p0, V8Handle p1) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[]{
+            p0->Get(_isolate),
+            p1->Get(_isolate)
+    };
+    Local<Value> result;
+    if(!fx->CallAsConstructor(context, 2, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::NewInstance(V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[]{
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate)
+    };
+    Local<Value> result;
+    if(!fx->CallAsConstructor(context, 3, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::NewInstance(V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2,
+        V8Handle p3) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[]{
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate)
+    };
+    Local<Value> result;
+    if(!fx->CallAsConstructor(context, 4, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::NewInstance(V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2,
+                                  V8Handle p3, V8Handle p4) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[]{
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate)
+    };
+    Local<Value> result;
+    if(!fx->CallAsConstructor(context, 5, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::NewInstance(V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2,
+                                  V8Handle p3, V8Handle p4, V8Handle p5) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[]{
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate),
+            p5->Get(_isolate)
+    };
+    Local<Value> result;
+    if(!fx->CallAsConstructor(context, 6, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::NewInstance(V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2,
+                                  V8Handle p3, V8Handle p4, V8Handle p5, V8Handle p6) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[]{
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate),
+            p5->Get(_isolate),
+            p6->Get(_isolate)
+    };
+    Local<Value> result;
+    if(!fx->CallAsConstructor(context, 7, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
+V8Response V8Context::NewInstance(V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2,
+                                  V8Handle p3, V8Handle p4, V8Handle p5, V8Handle p6, V8Handle p7) {
+    V8_CONTEXT_SCOPE
+    Local<Value> targetValue = target->Get(_isolate);
+    if (!targetValue->IsFunction()) {
+        return FromError("Target is not a function");
+    }
+    Local<v8::Function> fx = Local<v8::Function>::Cast(targetValue);
+
+    Local<Value> args[]{
+            p0->Get(_isolate),
+            p1->Get(_isolate),
+            p2->Get(_isolate),
+            p3->Get(_isolate),
+            p4->Get(_isolate),
+            p5->Get(_isolate),
+            p6->Get(_isolate),
+            p7->Get(_isolate)
+    };
+    Local<Value> result;
+    if(!fx->CallAsConstructor(context, 8, args).ToLocal(&result)) {
+        RETURN_EXCEPTION(tryCatch)
+    }
+    return V8Response_From(context, result);
+}
+
 
 V8Response V8Context::Has(V8Handle target, V8Handle index) {
     V8_HANDLE_SCOPE

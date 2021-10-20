@@ -636,6 +636,46 @@ namespace Xamarin.Android.V8
             V8Handle[] args);
 
         [DllImport(LibName)]
+        internal extern static V8Response V8Context_NewInstance0(V8Handle context,
+            V8Handle target);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_NewInstance1(V8Handle context,
+            V8Handle target, V8Handle p0);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_NewInstance2(V8Handle context,
+            V8Handle target, V8Handle p0, V8Handle p1);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_NewInstance3(V8Handle context,
+            V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_NewInstance4(V8Handle context,
+            V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_NewInstance5(V8Handle context,
+            V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_NewInstance6(V8Handle context,
+            V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4, V8Handle p5);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_NewInstance7(V8Handle context,
+            V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4, V8Handle p5, V8Handle p6);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_NewInstance8(V8Handle context,
+            V8Handle target, V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4, V8Handle p5, V8Handle p6, V8Handle p7);
+
+        [DllImport(LibName)]
         internal extern static V8Response V8Context_InvokeMethod(V8Handle context,
             V8Handle target,
             [MarshalAs(UnmanagedType.LPStruct)]
@@ -643,6 +683,75 @@ namespace Xamarin.Android.V8
             int len,
             [MarshalAs(UnmanagedType.LPArray)]
             V8Handle[] args);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethod0(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethod1(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name,
+            V8Handle p0);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethod2(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name,
+            V8Handle p0, V8Handle p1);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethod3(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPStruct)]
+                    Utf16Value name,
+            V8Handle p0, V8Handle p1, V8Handle p2);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethod4(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name,
+            V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethod5(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name,
+            V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethod6(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name,
+            V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4, V8Handle p5);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethod7(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name,
+            V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4, V8Handle p5, V8Handle p6);
+
+
+
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeMethod8(V8Handle context,
+            V8Handle target,
+            [MarshalAs(UnmanagedType.LPStruct)]
+            Utf16Value name,
+            V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4, V8Handle p5, V8Handle p6, V8Handle p7);
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_InvokeMethodHandle(V8Handle context,
@@ -660,6 +769,68 @@ namespace Xamarin.Android.V8
             int len,
             [MarshalAs(UnmanagedType.LPArray)]
             V8Handle[] args);
+
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeFunction0(V8Handle context,
+            V8Handle target,
+            V8Handle thisValue);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeFunction1(V8Handle context,
+            V8Handle target,
+            V8Handle thisValue,
+            V8Handle p0);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeFunction2(V8Handle context,
+            V8Handle target,
+            V8Handle thisValue,
+            V8Handle p0, V8Handle p1);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeFunction3(V8Handle context,
+            V8Handle target,
+            V8Handle thisValue,
+            V8Handle p0, V8Handle p1, V8Handle p2);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeFunction4(V8Handle context,
+            V8Handle target,
+            V8Handle thisValue,
+            V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeFunction5(V8Handle context,
+            V8Handle target,
+            V8Handle thisValue,
+            V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4);
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeFunction6(V8Handle context,
+            V8Handle target,
+            V8Handle thisValue,
+            V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4, V8Handle p5);
+
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeFunction7(V8Handle context,
+            V8Handle target,
+            V8Handle thisValue,
+            V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4, V8Handle p5, V8Handle p6);
+
+
+
+        [DllImport(LibName)]
+        internal extern static V8Response V8Context_InvokeFunction8(V8Handle context,
+            V8Handle target,
+            V8Handle thisValue,
+            V8Handle p0, V8Handle p1, V8Handle p2, V8Handle p3,
+            V8Handle p4, V8Handle p5, V8Handle p6, V8Handle p7);
+
 
         [DllImport(LibName)]
         internal extern static V8Response V8Context_IsInstanceOf(V8Handle context, V8Handle target, V8Handle jsClass);

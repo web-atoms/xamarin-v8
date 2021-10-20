@@ -143,6 +143,47 @@ public:
     V8Response DeletePropertyHandle(V8Handle target, ClrPointer name);
     V8Response Evaluate(Utf16Value script,Utf16Value location);
     V8Response InvokeFunction(V8Handle target, V8Handle thisValue, int len, void** args);
+
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue);
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0);
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                            V8Handle p1);
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                            V8Handle p1, V8Handle p2);
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                            V8Handle p1, V8Handle p2, V8Handle p3);
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                            V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4);
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                            V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                            V8Handle p5);
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                            V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                            V8Handle p5, V8Handle p6);
+    V8Response InvokeFunction(V8Handle target, V8Handle thisValue, V8Handle p0,
+                            V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                            V8Handle p5, V8Handle p6, V8Handle p7);
+
+
+    V8Response InvokeMethod(V8Handle target, Utf16Value name);
+    V8Response InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0);
+    V8Response InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+            V8Handle p1);
+    V8Response InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+            V8Handle p1, V8Handle p2);
+    V8Response InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+            V8Handle p1, V8Handle p2, V8Handle p3);
+    V8Response InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+            V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4);
+    V8Response InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+                            V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                            V8Handle p5);
+    V8Response InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+                            V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                            V8Handle p5, V8Handle p6);
+    V8Response InvokeMethod(V8Handle target, Utf16Value name, V8Handle p0,
+                            V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                            V8Handle p5, V8Handle p6, V8Handle p7);
     V8Response InvokeMethod(V8Handle target, Utf16Value name, int len, void** args);
     V8Response InvokeMethodHandle(V8Handle target, ClrPointer name, int len, void** args);
     V8Response IsInstanceOf(V8Handle target, V8Handle jsClass);
@@ -150,6 +191,27 @@ public:
     V8Response GetGlobal();
     V8Response GetArrayLength(V8Handle target);
     V8Response NewInstance(V8Handle target, int len, void** args);
+
+    V8Response NewInstance(V8Handle target);
+    V8Response NewInstance(V8Handle target, V8Handle p0);
+    V8Response NewInstance(V8Handle target, V8Handle p0,
+                              V8Handle p1);
+    V8Response NewInstance(V8Handle target, V8Handle p0,
+                              V8Handle p1, V8Handle p2);
+    V8Response NewInstance(V8Handle target, V8Handle p0,
+                              V8Handle p1, V8Handle p2, V8Handle p3);
+    V8Response NewInstance(V8Handle target, V8Handle p0,
+                              V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4);
+    V8Response NewInstance(V8Handle target, V8Handle p0,
+                              V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                              V8Handle p5);
+    V8Response NewInstance(V8Handle target, V8Handle p0,
+                              V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                              V8Handle p5, V8Handle p6);
+    V8Response NewInstance(V8Handle target, V8Handle p0,
+                              V8Handle p1, V8Handle p2, V8Handle p3, V8Handle p4,
+                              V8Handle p5, V8Handle p6, V8Handle p7);
+
     V8Response Has(V8Handle target, V8Handle index);
     V8Response Get(V8Handle target, V8Handle index);
     V8Response Set(V8Handle target, V8Handle index, V8Handle value);
