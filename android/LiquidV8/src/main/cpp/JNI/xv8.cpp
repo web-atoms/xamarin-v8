@@ -527,6 +527,27 @@ V8Response V8Context_InvokeMethodHandle(
         return context->Has(TO_HANDLE(target), TO_HANDLE(index));
     }
 
+    void V8Context_BeginUnlock(ClrPointer ctx) {
+        INIT_CONTEXT
+        context->BeginUnlock();
+    }
+
+    void V8Context_EndUnlock(ClrPointer ctx) {
+        INIT_CONTEXT
+        context->EndUnlock();
+    }
+
+    void V8Context_BeginLock(ClrPointer ctx) {
+        INIT_CONTEXT
+        context->BeginLock();
+    }
+
+    void V8Context_EndLock(ClrPointer ctx) {
+        INIT_CONTEXT
+        context->EndLock();
+    }
+
+
     V8Response V8Context_SendDebugMessage(
             ClrPointer ctx,
             Utf16Value message) {

@@ -44,6 +44,9 @@ class V8Context {
 protected:
     Platform* _platform;
     Isolate* _isolate;
+    v8::Locker* _locker;
+    v8::Locker* _scopedLocker;
+    v8::Unlocker* _unLocker;
     Global<Context> _context;
     Global<Symbol> _wrapSymbol;
     Global<v8::Object> _global;
@@ -62,6 +65,27 @@ protected:
     std::vector<V8Handle> handles;
 
 public:
+
+    void EndUnlock() {
+        delete _unLocker;
+        _isolate->Enter();
+    }
+
+    void BeginUnlock() {
+        _isolate->Exit();
+        _unLocker = new v8::Unlocker(_isolate);
+    }
+
+    void EndLock() {
+        delete _scopedLocker;
+        _isolate->Exit();
+    }
+
+    void BeginLock() {
+        _scopedLocker = new v8::Locker(_isolate);
+        _isolate->Enter();
+    }
+
 
     V8Response CreateStringFrom(Local<v8::String> &value);
 
