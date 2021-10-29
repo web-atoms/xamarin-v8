@@ -516,6 +516,30 @@ namespace Xamarin.Android.V8
             return new JSValue(this, c);
         }
 
+        public async Task EvaluateAsync(string script, string location = null)
+        {
+            V8Context_BeginUnlock(context);
+            try
+            {
+                await Task.Run(() =>
+                {
+                    V8Context_BeginLock(context);
+                    try
+                    {
+                        Evaluate(script, location ?? "vm");
+                    }
+                    finally
+                    {
+                        V8Context_BeginUnlock(context);
+                    }
+                });
+            }
+            finally
+            {
+                V8Context_EndUnlock(context);
+            }
+        }
+
         public IJSValue Wrap(object value)
         {
             var wgc = GCHandle.Alloc(value);
@@ -971,6 +995,16 @@ namespace Xamarin.Android.V8
 
         [DllImport(LibName)]
         internal extern static void V8Context_Release(V8Response r);
+
+        [DllImport(LibName)]
+        internal extern static void V8Context_BeginLock(V8Handle context);
+        [DllImport(LibName)]
+        internal extern static void V8Context_EndLock(V8Handle context);
+
+        [DllImport(LibName)]
+        internal extern static void V8Context_BeginUnlock(V8Handle context);
+        [DllImport(LibName)]
+        internal extern static void V8Context_EndUnlock(V8Handle context);
 
 
         [DllImport(LibName)]
