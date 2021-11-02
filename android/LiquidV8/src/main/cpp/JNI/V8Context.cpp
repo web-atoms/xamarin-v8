@@ -93,6 +93,7 @@ V8Context::V8Context(
 
     // v8::Isolate::Scope isolate_scope(_isolate);
     /// Isolate::Scope iscope(_isolate);
+    _locker = new v8::Locker(_isolate);
     _isolate->Enter();
 
     HandleScope scope(_isolate);
@@ -294,6 +295,7 @@ void V8Context::Dispose() {
     }
     // _isolate->Exit();
     _isolate->Dispose();
+    delete _locker;
     // delete _isolate;
     delete _arrayBufferAllocator;
     // free(ReturnValue);

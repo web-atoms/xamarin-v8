@@ -530,7 +530,7 @@ namespace Xamarin.Android.V8
                     }
                     finally
                     {
-                        V8Context_BeginUnlock(context);
+                        V8Context_EndLock(context);
                     }
                 });
             }

@@ -68,6 +68,7 @@ public:
 
     void EndUnlock() {
         delete _unLocker;
+        _unLocker = nullptr;
         _isolate->Enter();
     }
 
@@ -78,6 +79,7 @@ public:
 
     void EndLock() {
         delete _scopedLocker;
+        _scopedLocker = nullptr;
         _isolate->Exit();
     }
 
