@@ -17,29 +17,32 @@ namespace Xamarin.Android.V8
     {
         public static AtomAsyncDispatcher Instance = new AtomAsyncDispatcher();
 
-        private BlockingCollection<Func<Task>> tasks = new BlockingCollection<Func<Task>>();
+        private Task previous = null;
 
         public AtomAsyncDispatcher()
         {
-            Task.Run(Run);
         }
 
-        private async Task Run()
-        {
-            foreach (var item in tasks.GetConsumingEnumerable())
-            {
-                await item();
-            }
-        }
 
         public void EnqueueTask(Func<Task> task)
         {
-            tasks.Add(task);
+            lock (this)
+            {
+                if(previous == null)
+                {
+                    previous = Task.Run(task);
+                    return;
+                }
+                previous = Task.Run(async () => {
+                    await previous;
+                    await task();
+                });
+            }
         }
 
         public void Dispose()
         {
-            tasks.CompleteAdding();
+            
         }
     }
 }
