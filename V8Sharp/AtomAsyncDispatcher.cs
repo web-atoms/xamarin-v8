@@ -33,8 +33,9 @@ namespace Xamarin.Android.V8
                     previous = Task.Run(task);
                     return;
                 }
-                previous = Task.Run(async () => {
-                    await previous;
+                var last = previous;
+                this.previous = Task.Run(async () => {
+                    await last;
                     await task();
                 });
             }
