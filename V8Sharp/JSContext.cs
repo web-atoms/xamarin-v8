@@ -131,6 +131,8 @@ namespace Xamarin.Android.V8
 
         public Action<string> Logger { get; set; }
 
+        public ClrClassFactory ClassFactory { get; set; } = ClrClassFactory.Default;
+
         internal V8ContextHandle context;
 
         public event EventHandler<ErrorEventArgs> ErrorEvent;
