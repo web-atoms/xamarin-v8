@@ -3,11 +3,7 @@
 # Xamarin V8 Bindings
 V8 Bindings for Xamarin for Android
 
-> Please note, you can use Web Atoms to create your entire Xamarin.Forms app with JavaScript and JSX.
-
-> For more details please visit<a href="https://www.webatoms.in" target="_blank">Web Atoms</a>.
-
-> You can use code push and host your entire app on web server.
+Though V8 is very heavy, you can try `YantraJS`, very light weight JavaScript engine written in C#.
 
 # NuGet
 ```xml
@@ -140,3 +136,7 @@ This is default serialization method for any object. Object will simply be wrapp
 9. https://hyperandroid.com/2020/02/12/compile-v8-arm-arm64-ia32/
 10. https://hyperandroid.com/2020/02/12/android-v8-embedding-guide/
 11. https://hyperandroid.com/2020/02/12/v8-inspector-from-an-embedder-standpoint/
+
+## Other Interesting Projects by NeuroSpeech
+1. [YantraJS - JavaScript engine for .NET with latest features](https://github.com/yantrajs/yantra)
+2. [Entity Access Control](https://github.com/neurospeech/entity-access-control)
