@@ -140,3 +140,4 @@ This is default serialization method for any object. Object will simply be wrapp
 ## Other Interesting Projects by NeuroSpeech
 1. [YantraJS - JavaScript engine for .NET with latest features](https://github.com/yantrajs/yantra)
 2. [Entity Access Control](https://github.com/neurospeech/entity-access-control)
+3. [Eternity - Long running workflows with ability to suspend and replay the workflow in future.](https://github.com/neurospeech/eternity)
